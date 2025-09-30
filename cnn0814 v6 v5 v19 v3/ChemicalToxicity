@@ -1,0 +1,1272 @@
+from model_train_v6 import train, save_model
+from feature_perturbation_v5 import CausalFeaturePerturbation
+from causal_graph_build_v22 import build_causal_graph, Feature
+from redundantRecover_v3 import PathShapleyModule
+
+
+/root/miniconda3/bin/python3 /root/tmp/causalFeatureX_0813/main.py
+2025-08-14 20:17:26.477075: I tensorflow/core/util/port.cc:110] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2025-08-14 20:17:26.535704: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 AVX_VNNI AMX_TILE AMX_INT8 AMX_BF16 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2025-08-14 20:17:27.364069: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+===== 开始模型训练 =====
+数据基本信息：
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 8992 entries, 0 to 8991
+Columns: 1025 entries, Feature1 to target
+dtypes: int64(1024), object(1)
+memory usage: 70.3+ MB
+目标变量为非数值型，进行编码
+数据集形状：(8992, 1024)
+采样前训练集类别分布：
+target
+0    0.91881
+1    0.08119
+Name: proportion, dtype: float64
+
+应用SMOTE+ENN混合采样...
+SMOTE+ENN采样后类别分布:
+target
+0    6609
+1    6578
+Name: count, dtype: int64
+根据特征维度 1024 和样本量 8992 调整模型参数...
+2025-08-14 20:17:34.676057: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1639] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 22182 MB memory:  -> device: 0, name: NVIDIA GeForce RTX 4090, pci bus id: 0000:a8:00.0, compute capability: 8.9
+根据样本量 8992 使用batch_size: 64
+2025-08-14 20:17:36.419236: I tensorflow/compiler/xla/stream_executor/cuda/cuda_dnn.cc:432] Loaded cuDNN version 8600
+2025-08-14 20:17:36.541113: I tensorflow/tsl/platform/default/subprocess.cc:304] Start cannot spawn child process: No such file or directory
+2025-08-14 20:17:36.620946: I tensorflow/compiler/xla/stream_executor/cuda/cuda_blas.cc:606] TensorFloat-32 will be used for the matrix multiplication. This will only be logged once.
+2025-08-14 20:17:36.654578: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x7f6823da6a30 initialized for platform CUDA (this does not guarantee that XLA will be used). Devices:
+2025-08-14 20:17:36.654613: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): NVIDIA GeForce RTX 4090, Compute Capability 8.9
+2025-08-14 20:17:36.661186: I tensorflow/compiler/mlir/tensorflow/utils/dump_mlir_util.cc:255] disabling MLIR crash reproducer, set env var `MLIR_CRASH_REPRODUCER_DIRECTORY` to enable.
+2025-08-14 20:17:36.741287: I tensorflow/tsl/platform/default/subprocess.cc:304] Start cannot spawn child process: No such file or directory
+2025-08-14 20:17:36.808186: I ./tensorflow/compiler/jit/device_compiler.h:186] Compiled cluster using XLA!  This line is logged at most once for the lifetime of the process.
+
+Epoch 7: ReduceLROnPlateau reducing learning rate to 0.0002500000118743628.
+
+Epoch 10: ReduceLROnPlateau reducing learning rate to 0.0001250000059371814.
+
+Epoch 13: ReduceLROnPlateau reducing learning rate to 6.25000029685907e-05.
+Restoring model weights from the end of the best epoch: 4.
+Epoch 14: early stopping
+模型训练耗时: 16.86秒
+测试集损失: 1.9264, 测试集准确率: 0.2190
+57/57 [==============================] - 0s 1ms/step
+
+分类报告:
+              precision    recall  f1-score   support
+
+           0    0.98765   0.14616   0.25464      1642
+           1    0.09897   0.98089   0.17980       157
+
+    accuracy                        0.21901      1799
+   macro avg    0.54331   0.56353   0.21722      1799
+weighted avg    0.91010   0.21901   0.24811      1799
+
+
+保存模型...
+
+模型已成功保存至: /root/tmp/causalFeatureX_0813/saved_models/ChemicalToxicity_CNN.keras
+模型预期输入形状: (None, 1024, 1)
+===== 运行特征扰动模块 =====
+生成特征扰动值: 100%|███████████████████| 1024/1024 [00:00<00:00, 355897.19it/s]
+使用 8 个线程并行计算特征贡献值...
+计算特征贡献值:  55%|█████████████▏          | 560/1024 [00:24<00:17, 27.09it/s]2025-08-14 20:18:19.425498: W tensorflow/core/data/root_dataset.cc:286] Optimization loop failed: CANCELLED: Operation was cancelled
+计算特征贡献值: 100%|███████████████████████| 1024/1024 [00:43<00:00, 23.42it/s]
+特征扰动实验总耗时：43.83秒
+特征数据形状: (8992, 1024)
+已将原始样本预测值存入全局变量，形状: (8992, 2)
+基线分布形状: (2,), 平均JS散度: 0.0362
+各特征最大JS散度（按影响程度排序）：
+  特征 Feature110: 0.0
+  特征 Feature840: 0.0
+  特征 Feature111: 0.0
+  特征 Feature841: 0.0
+  特征 Feature747: 0.0
+  特征 Feature518: 0.0
+  特征 Feature949: 0.0
+  特征 Feature839: 0.0
+  特征 Feature519: 0.0
+  特征 Feature785: 0.0
+  特征 Feature520: 0.0
+  特征 Feature586: 0.0
+  特征 Feature12: 0.0
+  特征 Feature748: 0.0
+  特征 Feature109: 0.0
+  特征 Feature746: 0.0
+  特征 Feature842: 0.0
+  特征 Feature584: 0.0
+  特征 Feature322: 0.0
+  特征 Feature11: 0.0
+  特征 Feature112: 0.0
+  特征 Feature950: 0.0
+  特征 Feature512: 0.0
+  特征 Feature324: 0.0
+  特征 Feature517: 0.0
+  特征 Feature582: 0.0
+  特征 Feature587: 0.0
+  特征 Feature42: 0.0
+  特征 Feature745: 0.0
+  特征 Feature723: 0.0
+  特征 Feature510: 0.0
+  特征 Feature671: 0.0
+  特征 Feature787: 0.0
+  特征 Feature672: 0.0
+  特征 Feature323: 0.0
+  特征 Feature13: 0.0
+  特征 Feature113: 0.0
+  特征 Feature321: 0.0
+  特征 Feature581: 0.0
+  特征 Feature108: 0.0
+  特征 Feature521: 0.0
+  特征 Feature788: 0.0
+  特征 Feature612: 0.0
+  特征 Feature43: 0.0
+  特征 Feature564: 0.0
+  特征 Feature952: 0.0
+  特征 Feature838: 0.0
+  特征 Feature283: 0.0
+  特征 Feature830: 0.0
+  特征 Feature523: 0.0
+  特征 Feature588: 0.0
+  特征 Feature216: 0.0
+  特征 Feature724: 0.0
+  特征 Feature613: 0.0
+  特征 Feature583: 0.0
+  特征 Feature778: 0.0
+  特征 Feature215: 0.0
+  特征 Feature552: 0.0
+  特征 Feature722: 0.0
+  特征 Feature786: 0.0
+  特征 Feature829: 0.0
+  特征 Feature749: 0.0
+  特征 Feature585: 0.0
+  特征 Feature711: 0.0
+  特征 Feature41: 0.0
+  特征 Feature611: 0.0
+  特征 Feature580: 0.0
+  特征 Feature828: 0.0
+  特征 Feature128: 0.0
+  特征 Feature614: 0.0
+  特征 Feature32: 0.0
+  特征 Feature136: 0.0
+  特征 Feature850: 0.0
+  特征 Feature669: 0.0
+  特征 Feature790: 0.0
+  特征 Feature596: 0.0
+  特征 Feature50: 0.0
+  特征 Feature505: 0.0
+  特征 Feature674: 0.0
+  特征 Feature608: 0.0
+  特征 Feature736: 0.0
+  特征 Feature163: 0.0
+  特征 Feature164: 0.0
+  特征 Feature712: 0.0
+  特征 Feature553: 0.0
+  特征 Feature738: 0.0
+  特征 Feature734: 0.0
+  特征 Feature673: 0.0
+  特征 Feature803: 0.0
+  特征 Feature609: 0.0
+  特征 Feature217: 0.0
+  特征 Feature509: 0.0
+  特征 Feature61: 0.0
+  特征 Feature511: 0.0
+  特征 Feature522: 0.0
+  特征 Feature957: 0.0
+  特征 Feature503: 0.0
+  特征 Feature214: 0.0
+  特征 Feature271: 0.0
+  特征 Feature810: 0.0
+  特征 Feature801: 0.0
+  特征 Feature947: 0.0
+  特征 Feature69: 0.0
+  特征 Feature10: 0.0
+  特征 Feature744: 0.0
+  特征 Feature800: 0.0
+  特征 Feature555: 0.0
+  特征 Feature1021: 0.0
+  特征 Feature508: 0.0
+  特征 Feature563: 0.0
+  特征 Feature507: 0.0
+  特征 Feature883: 0.0
+  特征 Feature273: 0.0
+  特征 Feature14: 0.0
+  特征 Feature780: 0.0
+  特征 Feature267: 0.0
+  特征 Feature710: 0.0
+  特征 Feature562: 0.0
+  特征 Feature670: 0.0
+  特征 Feature70: 0.0
+  特征 Feature610: 0.0
+  特征 Feature782: 0.0
+  特征 Feature777: 0.0
+  特征 Feature827: 0.0
+  特征 Feature779: 0.0
+  特征 Feature129: 0.0
+  特征 Feature951: 0.0
+  特征 Feature713: 0.0
+  特征 Feature789: 0.0
+  特征 Feature454: 0.0
+  特征 Feature162: 0.0
+  特征 Feature165: 0.0
+  特征 Feature1008: 0.0
+  特征 Feature48: 0.0
+  特征 Feature256: 0.0
+  特征 Feature551: 0.0
+  特征 Feature606: 0.0
+  特征 Feature1020: 0.0
+  特征 Feature135: 0.0
+  特征 Feature378: 0.0
+  特征 Feature578: 0.0
+  特征 Feature802: 0.0
+  特征 Feature31: 0.0
+  特征 Feature554: 0.0
+  特征 Feature884: 0.0
+  特征 Feature784: 0.0
+  特征 Feature599: 0.0
+  特征 Feature133: 0.0
+  特征 Feature725: 0.0
+  特征 Feature577: 0.0
+  特征 Feature607: 0.0
+  特征 Feature890: 0.0
+  特征 Feature260: 0.0
+  特征 Feature826: 0.0
+  特征 Feature697: 0.0
+  特征 Feature808: 0.0
+  特征 Feature1003: 0.0
+  特征 Feature1007: 0.0
+  特征 Feature161: 0.0
+  特征 Feature832: 0.0
+  特征 Feature85: 0.0
+  特征 Feature44: 0.0
+  特征 Feature851: 0.0
+  特征 Feature837: 0.0
+  特征 Feature272: 0.0
+  特征 Feature1004: 0.0
+  特征 Feature489: 0.0
+  特征 Feature579: 0.0
+  特征 Feature809: 0.0
+  特征 Feature799: 0.0
+  特征 Feature696: 0.0
+  特征 Feature285: 0.0
+  特征 Feature602: 0.0
+  特征 Feature733: 0.0
+  特征 Feature811: 0.0
+  特征 Feature67: 0.0
+  特征 Feature675: 0.0
+  特征 Feature379: 0.0
+  特征 Feature68: 0.0
+  特征 Feature122: 0.0
+  特征 Feature127: 0.0
+  特征 Feature516: 0.0
+  特征 Feature278: 0.0
+  特征 Feature615: 0.0
+  特征 Feature180: 0.0
+  特征 Feature325: 0.0
+  特征 Feature319: 0.0
+  特征 Feature268: 0.0
+  特征 Feature542: 0.0
+  特征 Feature958: 0.0
+  特征 Feature480: 0.0
+  特征 Feature524: 0.0
+  特征 Feature783: 0.0
+  特征 Feature269: 0.0
+  特征 Feature776: 0.0
+  特征 Feature9: 0.0
+  特征 Feature121: 0.0
+  特征 Feature213: 0.0
+  特征 Feature506: 0.0
+  特征 Feature134: 0.0
+  特征 Feature770: 0.0
+  特征 Feature33: 0.0
+  特征 Feature975: 0.0
+  特征 Feature337: 0.0
+  特征 Feature750: 0.0
+  特征 Feature860: 0.0
+  特征 Feature885: 0.0
+  特征 Feature254: 0.0
+  特征 Feature668: 0.0
+  特征 Feature624: 0.0
+  特征 Feature735: 0.0
+  特征 Feature526: 0.0
+  特征 Feature63: 0.0
+  特征 Feature1002: 0.0
+  特征 Feature798: 0.0
+  特征 Feature1006: 0.0
+  特征 Feature550: 0.0
+  特征 Feature525: 0.0
+  特征 Feature751: 0.0
+  特征 Feature266: 0.0
+  特征 Feature282: 0.0
+  特征 Feature335: 0.0
+  特征 Feature490: 0.0
+  特征 Feature25: 0.0
+  特征 Feature107: 0.0
+  特征 Feature131: 0.0
+  特征 Feature948: 0.0
+  特征 Feature561: 0.0
+  特征 Feature504: 0.0
+  特征 Feature326: 0.0
+  特征 Feature1005: 0.0
+  特征 Feature320: 0.0
+  特征 Feature976: 0.0
+  特征 Feature29: 0.0
+  特征 Feature62: 0.0
+  特征 Feature625: 0.0
+  特征 Feature59: 0.0
+  特征 Feature575: 0.0
+  特征 Feature338: 0.0
+  特征 Feature556: 0.0
+  特征 Feature996: 0.0
+  特征 Feature565: 0.0
+  特征 Feature805: 0.0
+  特征 Feature315: 0.0
+  特征 Feature598: 0.0
+  特征 Feature181: 0.0
+  特征 Feature71: 0.0
+  特征 Feature831: 0.0
+  特征 Feature120: 0.0
+  特征 Feature601: 0.0
+  特征 Feature807: 0.0
+  特征 Feature698: 0.0
+  特征 Feature103: 0.0
+  特征 Feature589: 0.0
+  特征 Feature859: 0.0
+  特征 Feature898: 0.0
+  特征 Feature804: 0.0
+  特征 Feature58: 0.0
+  特征 Feature146: 0.0
+  特征 Feature791: 0.0
+  特征 Feature34: 0.0
+  特征 Feature666: 0.0
+  特征 Feature737: 0.0
+  特征 Feature576: 0.0
+  特征 Feature1019: 0.0
+  特征 Feature60: 0.0
+  特征 Feature27: 0.0
+  特征 Feature40: 0.0
+  特征 Feature453: 0.0
+  特征 Feature888: 0.0
+  特征 Feature709: 0.0
+  特征 Feature549: 0.0
+  特征 Feature305: 0.0
+  特征 Feature137: 0.0
+  特征 Feature600: 0.0
+  特征 Feature87: 0.0
+  特征 Feature593: 0.0
+  特征 Feature88: 0.0
+  特征 Feature316: 0.0
+  特征 Feature51: 0.0
+  特征 Feature843: 0.0
+  特征 Feature597: 0.0
+  特征 Feature812: 0.0
+  特征 Feature488: 0.0
+  特征 Feature258: 0.0
+  特征 Feature380: 0.0
+  特征 Feature515: 0.0
+  特征 Feature250: 0.0
+  特征 Feature995: 0.0
+  特征 Feature752: 0.0
+  特征 Feature676: 0.0
+  特征 Feature766: 0.0
+  特征 Feature543: 0.0
+  特征 Feature130: 0.0
+  特征 Feature257: 0.0
+  特征 Feature49: 0.0
+  特征 Feature721: 0.0
+  特征 Feature864: 0.0
+  特征 Feature274: 0.0
+  特征 Feature452: 0.0
+  特征 Feature101: 0.0
+  特征 Feature318: 0.0
+  特征 Feature544: 0.0
+  特征 Feature502: 0.0
+  特征 Feature732: 0.0
+  特征 Feature927: 0.0
+  特征 Feature104: 0.0
+  特征 Feature64: 0.0
+  特征 Feature446: 0.0
+  特征 Feature908: 0.0
+  特征 Feature284: 0.0
+  特征 Feature123: 0.0
+  特征 Feature501: 0.0
+  特征 Feature152: 0.0
+  特征 Feature592: 0.0
+  特征 Feature26: 0.0
+  特征 Feature432: 0.0
+  特征 Feature336: 0.0
+  特征 Feature255: 0.0
+  特征 Feature154: 0.0
+  特征 Feature959: 0.0
+  特征 Feature825: 0.0
+  特征 Feature968: 0.0
+  特征 Feature30: 0.0
+  特征 Feature541: 0.0
+  特征 Feature639: 0.0
+  特征 Feature730: 0.0
+  特征 Feature158: 0.0
+  特征 Feature238: 0.0
+  特征 Feature327: 0.0
+  特征 Feature978: 0.0
+  特征 Feature448: 0.0
+  特征 Feature977: 0.0
+  特征 Feature889: 0.0
+  特征 Feature435: 0.0
+  特征 Feature623: 0.0
+  特征 Feature138: 0.0
+  特征 Feature450: 0.0
+  特征 Feature353: 0.0
+  特征 Feature456: 0.0
+  特征 Feature114: 0.0
+  特征 Feature411: 0.0
+  特征 Feature928: 0.0
+  特征 Feature795: 0.0
+  特征 Feature355: 0.0
+  特征 Feature486: 0.0
+  特征 Feature99: 0.0
+  特征 Feature434: 0.0
+  特征 Feature491: 0.0
+  特征 Feature86: 0.0
+  特征 Feature743: 0.0
+  特征 Feature792: 0.0
+  特征 Feature281: 0.0
+  特征 Feature159: 0.0
+  特征 Feature84: 0.0
+  特征 Feature500: 0.0
+  特征 Feature886: 0.0
+  特征 Feature229: 0.0
+  特征 Feature765: 0.0
+  特征 Feature905: 0.0
+  特征 Feature470: 0.0
+  特征 Feature574: 0.0
+  特征 Feature377: 0.0
+  特征 Feature80: 0.0
+  特征 Feature852: 0.0
+  特征 Feature83: 0.0
+  特征 Feature887: 0.0
+  特征 Feature45: 0.0
+  特征 Feature1023: 0.0
+  特征 Feature626: 0.0
+  特征 Feature439: 0.0
+  特征 Feature277: 0.0
+  特征 Feature726: 0.0
+  特征 Feature205: 0.0
+  特征 Feature270: 0.0
+  特征 Feature718: 0.0
+  特征 Feature155: 0.0
+  特征 Feature153: 0.0
+  特征 Feature317: 0.0
+  特征 Feature52: 0.0
+  特征 Feature314: 0.0
+  特征 Feature930: 0.0
+  特征 Feature929: 0.0
+  特征 Feature160: 0.0
+  特征 Feature907: 0.0
+  特征 Feature849: 0.0
+  特征 Feature275: 0.0
+  特征 Feature259: 0.0
+  特征 Feature147: 0.0
+  特征 Feature24: 0.0
+  特征 Feature157: 0.0
+  特征 Feature695: 0.0
+  特征 Feature858: 0.0
+  特征 Feature998: 0.0
+  特征 Feature605: 0.0
+  特征 Feature896: 0.0
+  特征 Feature451: 0.0
+  特征 Feature370: 0.0
+  特征 Feature1024: 0.0
+  特征 Feature412: 0.0
+  特征 Feature955: 0.0
+  特征 Feature455: 0.0
+  特征 Feature328: 0.0
+  特征 Feature413: 0.0
+  特征 Feature1013: 0.0
+  特征 Feature877: 0.0
+  特征 Feature942: 0.0
+  特征 Feature677: 0.0
+  特征 Feature892: 0.0
+  特征 Feature218: 0.0
+  特征 Feature297: 0.0
+  特征 Feature65: 0.0
+  特征 Feature678: 0.0
+  特征 Feature891: 0.0
+  特征 Feature532: 0.0
+  特征 Feature437: 0.0
+  特征 Feature970: 0.0
+  特征 Feature794: 0.0
+  特征 Feature739: 0.0
+  特征 Feature566: 0.0
+  特征 Feature90: 0.0
+  特征 Feature1022: 0.0
+  特征 Feature956: 0.0
+  特征 Feature910: 0.0
+  特征 Feature1009: 0.0
+  特征 Feature775: 0.0
+  特征 Feature487: 0.0
+  特征 Feature449: 0.0
+  特征 Feature772: 0.0
+  特征 Feature545: 0.0
+  特征 Feature119: 0.0
+  特征 Feature925: 0.0
+  特征 Feature478: 0.0
+  特征 Feature873: 0.0
+  特征 Feature346: 0.0
+  特征 Feature603: 0.0
+  特征 Feature46: 0.0
+  特征 Feature296: 0.0
+  特征 Feature371: 0.0
+  特征 Feature156: 0.0
+  特征 Feature974: 0.0
+  特征 Feature616: 0.0
+  特征 Feature731: 0.0
+  特征 Feature994: 0.0
+  特征 Feature714: 0.0
+  特征 Feature667: 0.0
+  特征 Feature228: 0.0
+  特征 Feature969: 0.0
+  特征 Feature57: 0.0
+  特征 Feature680: 0.0
+  特征 Feature781: 0.0
+  特征 Feature740: 0.0
+  特征 Feature513: 0.0
+  特征 Feature237: 0.0
+  特征 Feature47: 0.0
+  特征 Feature834: 0.0
+  特征 Feature604: 0.0
+  特征 Feature352: 0.0
+  特征 Feature166: 0.0
+  特征 Feature82: 0.0
+  特征 Feature945: 0.0
+  特征 Feature997: 0.0
+  特征 Feature557: 0.0
+  特征 Feature567: 0.0
+  特征 Feature909: 0.0
+  特征 Feature878: 0.0
+  特征 Feature967: 0.0
+  特征 Feature591: 0.0
+  特征 Feature303: 0.0
+  特征 Feature620: 0.0
+  特征 Feature821: 0.0
+  特征 Feature386: 0.0
+  特征 Feature848: 0.0
+  特征 Feature618: 0.0
+  特征 Feature699: 0.0
+  特征 Feature433: 0.0
+  特征 Feature38: 0.0
+  特征 Feature307: 0.0
+  特征 Feature77: 0.0
+  特征 Feature479: 0.0
+  特征 Feature461: 0.0
+  特征 Feature89: 0.0
+  特征 Feature559: 0.0
+  特征 Feature822: 0.0
+  特征 Feature916: 0.0
+  特征 Feature764: 0.0
+  特征 Feature226: 0.0
+  特征 Feature619: 0.0
+  特征 Feature497: 0.0
+  特征 Feature771: 0.0
+  特征 Feature125: 0.0
+  特征 Feature640: 0.0
+  特征 Feature870: 0.0
+  特征 Feature369: 0.0
+  特征 Feature836: 0.0
+  特征 Feature276: 0.0
+  特征 Feature388: 0.0
+  特征 Feature294: 0.0
+  特征 Feature387: 0.0
+  特征 Feature846: 0.0
+  特征 Feature482: 0.0
+  特征 Feature865: 0.0
+  特征 Feature921: 0.0
+  特征 Feature431: 0.0
+  特征 Feature246: 0.0
+  特征 Feature417: 0.0
+  特征 Feature17: 0.0
+  特征 Feature922: 0.0
+  特征 Feature481: 0.0
+  特征 Feature306: 0.0
+  特征 Feature354: 0.0
+  特征 Feature286: 0.0
+  特征 Feature823: 0.0
+  特征 Feature720: 0.0
+  特征 Feature882: 0.0
+  特征 Feature182: 0.0
+  特征 Feature857: 0.0
+  特征 Feature912: 0.0
+  特征 Feature203: 0.0
+  特征 Feature247: 0.0
+  特征 Feature690: 0.0
+  特征 Feature76: 0.0
+  特征 Feature8: 0.0
+  特征 Feature148: 0.0
+  特征 Feature345: 0.0
+  特征 Feature93: 0.0
+  特征 Feature151: 0.0
+  特征 Feature638: 0.0
+  特征 Feature641: 0.0
+  特征 Feature758: 0.0
+  特征 Feature933: 0.0
+  特征 Feature763: 0.0
+  特征 Feature931: 0.0
+  特征 Feature926: 0.0
+  特征 Feature39: 0.0
+  特征 Feature689: 0.0
+  特征 Feature688: 0.0
+  特征 Feature595: 0.0
+  特征 Feature693: 0.0
+  特征 Feature881: 0.0
+  特征 Feature295: 0.0
+  特征 Feature979: 0.0
+  特征 Feature462: 0.0
+  特征 Feature4: 0.0
+  特征 Feature211: 0.0
+  特征 Feature897: 0.0
+  特征 Feature627: 0.0
+  特征 Feature741: 0.0
+  特征 Feature440: 0.0
+  特征 Feature292: 0.0
+  特征 Feature932: 0.0
+  特征 Feature177: 0.0
+  特征 Feature444: 0.0
+  特征 Feature385: 0.0
+  特征 Feature982: 0.0
+  特征 Feature546: 0.0
+  特征 Feature234: 0.0
+  特征 Feature344: 0.0
+  特征 Feature56: 0.0
+  特征 Feature224: 0.0
+  特征 Feature632: 0.0
+  特征 Feature824: 0.0
+  特征 Feature167: 0.0
+  特征 Feature492: 0.0
+  特征 Feature813: 0.0
+  特征 Feature447: 0.0
+  特征 Feature225: 0.0
+  特征 Feature495: 0.0
+  特征 Feature415: 0.0
+  特征 Feature835: 0.0
+  特征 Feature483: 0.0
+  特征 Feature847: 0.0
+  特征 Feature622: 0.0
+  特征 Feature227: 0.0
+  特征 Feature880: 0.0
+  特征 Feature351: 0.0
+  特征 Feature309: 0.0
+  特征 Feature222: 0.0
+  特征 Feature183: 0.0
+  特征 Feature232: 0.0
+  特征 Feature457: 0.0
+  特征 Feature139: 0.0
+  特征 Feature548: 0.0
+  特征 Feature241: 0.0
+  特征 Feature37: 0.0
+  特征 Feature145: 0.0
+  特征 Feature117: 0.0
+  特征 Feature631: 0.0
+  特征 Feature687: 0.0
+  特征 Feature442: 0.0
+  特征 Feature643: 0.0
+  特征 Feature334: 0.0
+  特征 Feature15: 0.0
+  特征 Feature853: 0.0
+  特征 Feature590: 0.0
+  特征 Feature806: 0.0
+  特征 Feature418: 0.0
+  特征 Feature368: 0.0
+  特征 Feature236: 0.0
+  特征 Feature381: 0.0
+  特征 Feature144: 0.0
+  特征 Feature463: 0.0
+  特征 Feature194: 0.0
+  特征 Feature172: 0.0
+  特征 Feature953: 0.0
+  特征 Feature867: 0.0
+  特征 Feature472: 0.0
+  特征 Feature894: 0.0
+  特征 Feature333: 0.0
+  特征 Feature116: 0.0
+  特征 Feature339: 0.0
+  特征 Feature81: 0.0
+  特征 Feature206: 0.0
+  特征 Feature685: 0.0
+  特征 Feature401: 0.0
+  特征 Feature308: 0.0
+  特征 Feature682: 0.0
+  特征 Feature363: 0.0
+  特征 Feature845: 0.0
+  特征 Feature436: 0.0
+  特征 Feature530: 0.0
+  特征 Feature856: 0.0
+  特征 Feature74: 0.0
+  特征 Feature142: 0.0
+  特征 Feature879: 0.0
+  特征 Feature78: 0.0
+  特征 Feature235: 0.0
+  特征 Feature665: 0.0
+  特征 Feature424: 0.0
+  特征 Feature558: 0.0
+  特征 Feature97: 0.0
+  特征 Feature679: 0.0
+  特征 Feature1011: 0.0
+  特征 Feature469: 0.0
+  特征 Feature691: 0.0
+  特征 Feature66: 0.0
+  特征 Feature102: 0.0
+  特征 Feature962: 0.0
+  特征 Feature7: 0.0
+  特征 Feature262: 0.0
+  特征 Feature717: 0.0
+  特征 Feature757: 0.0
+  特征 Feature633: 0.0
+  特征 Feature398: 0.0
+  特征 Feature313: 0.0
+  特征 Feature443: 0.0
+  特征 Feature943: 0.0
+  特征 Feature547: 0.0
+  特征 Feature187: 0.0
+  特征 Feature471: 0.0
+  特征 Feature572: 0.0
+  特征 Feature365: 0.0
+  特征 Feature343: 0.0
+  特征 Feature514: 0.0
+  特征 Feature406: 0.0
+  特征 Feature245: 0.0
+  特征 Feature989: 0.0
+  特征 Feature769: 0.0
+  特征 Feature984: 0.0
+  特征 Feature212: 0.0
+  特征 Feature981: 0.0
+  特征 Feature874: 0.0
+  特征 Feature485: 0.0
+  特征 Feature118: 0.0
+  特征 Feature966: 0.0
+  特征 Feature28: 0.0
+  特征 Feature728: 0.0
+  特征 Feature528: 0.0
+  特征 Feature767: 0.0
+  特征 Feature202: 0.0
+  特征 Feature681: 0.0
+  特征 Feature201: 0.0
+  特征 Feature464: 0.0
+  特征 Feature919: 0.0
+  特征 Feature1012: 0.0
+  特征 Feature402: 0.0
+  特征 Feature700: 0.0
+  特征 Feature248: 0.0
+  特征 Feature694: 0.0
+  特征 Feature833: 0.0
+  特征 Feature686: 0.0
+  特征 Feature16: 0.0
+  特征 Feature132: 0.0
+  特征 Feature441: 0.0
+  特征 Feature855: 0.0
+  特征 Feature946: 0.0
+  特征 Feature143: 0.0
+  特征 Feature987: 0.0
+  特征 Feature445: 0.0
+  特征 Feature264: 0.0
+  特征 Feature356: 0.0
+  特征 Feature389: 0.0
+  特征 Feature990: 0.0
+  特征 Feature988: 0.0
+  特征 Feature188: 0.0
+  特征 Feature917: 0.0
+  特征 Feature861: 0.0
+  特征 Feature364: 0.0
+  特征 Feature991: 0.0
+  特征 Feature414: 0.0
+  特征 Feature965: 0.0
+  特征 Feature621: 0.0
+  特征 Feature304: 0.0
+  特征 Feature458: 0.0
+  特征 Feature189: 0.0
+  特征 Feature291: 0.0
+  特征 Feature55: 0.0
+  特征 Feature416: 0.0
+  特征 Feature715: 0.0
+  特征 Feature390: 0.0
+  特征 Feature207: 0.0
+  特征 Feature727: 0.0
+  特征 Feature818: 0.0
+  特征 Feature392: 0.0
+  特征 Feature900: 0.0
+  特征 Feature754: 0.0
+  特征 Feature986: 0.0
+  特征 Feature124: 0.0
+  特征 Feature384: 0.0
+  特征 Feature410: 0.0
+  特征 Feature96: 0.0
+  特征 Feature960: 0.0
+  特征 Feature298: 0.0
+  特征 Feature716: 0.0
+  特征 Feature105: 0.0
+  特征 Feature702: 0.0
+  特征 Feature230: 0.0
+  特征 Feature287: 0.0
+  特征 Feature773: 0.0
+  特征 Feature173: 0.0
+  特征 Feature796: 0.0
+  特征 Feature54: 0.0
+  特征 Feature383: 0.0
+  特征 Feature844: 0.0
+  特征 Feature198: 0.0
+  特征 Feature876: 0.0
+  特征 Feature560: 0.0
+  特征 Feature106: 0.0
+  特征 Feature191: 0.0
+  特征 Feature536: 0.0
+  特征 Feature100: 0.0
+  特征 Feature240: 0.0
+  特征 Feature374: 0.0
+  特征 Feature647: 0.0
+  特征 Feature403: 0.0
+  特征 Feature349: 0.0
+  特征 Feature263: 0.0
+  特征 Feature407: 0.0
+  特征 Feature460: 0.0
+  特征 Feature438: 0.0
+  特征 Feature361: 0.0
+  特征 Feature1010: 0.0
+  特征 Feature793: 0.0
+  特征 Feature973: 0.0
+  特征 Feature646: 0.0
+  特征 Feature814: 0.0
+  特征 Feature1001: 0.0
+  特征 Feature430: 0.0
+  特征 Feature659: 0.0
+  特征 Feature476: 0.0
+  特征 Feature405: 0.0
+  特征 Feature935: 0.0
+  特征 Feature19: 0.0
+  特征 Feature664: 0.0
+  特征 Feature168: 0.0
+  特征 Feature289: 0.0
+  特征 Feature115: 0.0
+  特征 Feature169: 0.0
+  特征 Feature914: 0.0
+  特征 Feature755: 0.0
+  特征 Feature233: 0.0
+  特征 Feature816: 0.0
+  特征 Feature629: 0.0
+  特征 Feature863: 0.0
+  特征 Feature527: 0.0
+  特征 Feature944: 0.0
+  特征 Feature404: 0.0
+  特征 Feature568: 0.0
+  特征 Feature94: 0.0
+  特征 Feature617: 0.0
+  特征 Feature854: 0.0
+  特征 Feature18: 0.0
+  特征 Feature862: 0.0
+  特征 Feature396: 0.0
+  特征 Feature239: 0.0
+  特征 Feature983: 0.0
+  特征 Feature1018: 0.0
+  特征 Feature20: 0.0
+  特征 Feature397: 0.0
+  特征 Feature901: 0.0
+  特征 Feature243: 0.0
+  特征 Feature391: 0.0
+  特征 Feature961: 0.0
+  特征 Feature742: 0.0
+  特征 Feature466: 0.0
+  特征 Feature178: 0.0
+  特征 Feature465: 0.0
+  特征 Feature242: 0.0
+  特征 Feature704: 0.0
+  特征 Feature540: 0.0
+  特征 Feature252: 0.0
+  特征 Feature753: 0.0
+  特征 Feature251: 0.0
+  特征 Feature376: 0.0
+  特征 Feature141: 0.0
+  特征 Feature915: 0.0
+  特征 Feature971: 0.0
+  特征 Feature634: 0.0
+  特征 Feature820: 0.0
+  特征 Feature657: 0.0
+  特征 Feature477: 0.0
+  特征 Feature496: 0.0
+  特征 Feature400: 0.0
+  特征 Feature904: 0.0
+  特征 Feature92: 0.0
+  特征 Feature279: 0.0
+  特征 Feature707: 0.0
+  特征 Feature756: 0.0
+  特征 Feature193: 0.0
+  特征 Feature819: 0.0
+  特征 Feature340: 0.0
+  特征 Feature903: 0.0
+  特征 Feature221: 0.0
+  特征 Feature660: 0.0
+  特征 Feature3: 0.0
+  特征 Feature911: 0.0
+  特征 Feature993: 0.0
+  特征 Feature219: 0.0
+  特征 Feature208: 0.0
+  特征 Feature393: 0.0
+  特征 Feature980: 0.0
+  特征 Feature474: 0.0
+  特征 Feature940: 0.0
+  特征 Feature330: 0.0
+  特征 Feature906: 0.0
+  特征 Feature299: 0.0
+  特征 Feature21: 0.0
+  特征 Feature729: 0.0
+  特征 Feature1015: 0.0
+  特征 Feature311: 0.0
+  特征 Feature531: 0.0
+  特征 Feature35: 0.0
+  特征 Feature91: 0.0
+  特征 Feature537: 0.0
+  特征 Feature36: 0.0
+  特征 Feature244: 0.0
+  特征 Feature656: 0.0
+  特征 Feature701: 0.0
+  特征 Feature23: 0.0
+  特征 Feature342: 0.0
+  特征 Feature195: 0.0
+  特征 Feature651: 0.0
+  特征 Feature425: 0.0
+  特征 Feature408: 0.0
+  特征 Feature331: 0.0
+  特征 Feature357: 0.0
+  特征 Feature972: 0.0
+  特征 Feature426: 0.0
+  特征 Feature459: 0.0
+  特征 Feature705: 0.0
+  特征 Feature375: 0.0
+  特征 Feature332: 0.0
+  特征 Feature484: 0.0
+  特征 Feature760: 0.0
+  特征 Feature192: 0.0
+  特征 Feature382: 0.0
+  特征 Feature422: 0.0
+  特征 Feature941: 0.0
+  特征 Feature658: 0.0
+  特征 Feature494: 0.0
+  特征 Feature419: 0.0
+  特征 Feature265: 0.0
+  特征 Feature196: 0.0
+  特征 Feature310: 0.0
+  特征 Feature534: 0.0
+  特征 Feature53: 0.0
+  特征 Feature261: 0.0
+  特征 Feature498: 0.0
+  特征 Feature964: 0.0
+  特征 Feature312: 0.0
+  特征 Feature899: 0.0
+  特征 Feature539: 0.0
+  特征 Feature999: 0.0
+  特征 Feature913: 0.0
+  特征 Feature179: 0.0
+  特征 Feature774: 0.0
+  特征 Feature918: 0.0
+  特征 Feature1016: 0.0
+  特征 Feature350: 0.0
+  特征 Feature359: 0.0
+  特征 Feature399: 0.0
+  特征 Feature362: 0.0
+  特征 Feature347: 0.0
+  特征 Feature992: 0.0
+  特征 Feature231: 0.0
+  特征 Feature938: 0.0
+  特征 Feature423: 0.0
+  特征 Feature635: 0.0
+  特征 Feature683: 0.0
+  特征 Feature963: 0.0
+  特征 Feature868: 0.0
+  特征 Feature648: 0.0
+  特征 Feature628: 0.0
+  特征 Feature98: 0.0
+  特征 Feature642: 0.0
+  特征 Feature468: 0.0
+  特征 Feature220: 0.0
+  特征 Feature209: 0.0
+  特征 Feature571: 0.0
+  特征 Feature872: 0.0
+  特征 Feature6: 0.0
+  特征 Feature421: 0.0
+  特征 Feature650: 0.0
+  特征 Feature920: 0.0
+  特征 Feature184: 0.0
+  特征 Feature645: 0.0
+  特征 Feature1017: 0.0
+  特征 Feature797: 0.0
+  特征 Feature893: 0.0
+  特征 Feature719: 0.0
+  特征 Feature663: 0.0
+  特征 Feature538: 0.0
+  特征 Feature210: 0.0
+  特征 Feature692: 0.0
+  特征 Feature594: 0.0
+  特征 Feature171: 0.0
+  特征 Feature348: 0.0
+  特征 Feature174: 0.0
+  特征 Feature223: 0.0
+  特征 Feature395: 0.0
+  特征 Feature73: 0.0
+  特征 Feature1000: 0.0
+  特征 Feature762: 0.0
+  特征 Feature300: 0.0
+  特征 Feature329: 0.0
+  特征 Feature429: 0.0
+  特征 Feature937: 0.0
+  特征 Feature630: 0.0
+  特征 Feature288: 0.0
+  特征 Feature684: 0.0
+  特征 Feature302: 0.0
+  特征 Feature652: 0.0
+  特征 Feature703: 0.0
+  特征 Feature934: 0.0
+  特征 Feature186: 0.0
+  特征 Feature653: 0.0
+  特征 Feature708: 0.0
+  特征 Feature939: 0.0
+  特征 Feature529: 0.0
+  特征 Feature72: 0.0
+  特征 Feature197: 0.0
+  特征 Feature301: 0.0
+  特征 Feature175: 0.0
+  特征 Feature280: 0.0
+  特征 Feature185: 0.0
+  特征 Feature341: 0.0
+  特征 Feature924: 0.0
+  特征 Feature170: 0.0
+  特征 Feature636: 0.0
+  特征 Feature761: 0.0
+  特征 Feature1: 0.0
+  特征 Feature817: 0.0
+  特征 Feature871: 0.0
+  特征 Feature176: 0.0
+  特征 Feature22: 0.0
+  特征 Feature293: 0.0
+  特征 Feature95: 0.0
+  特征 Feature649: 0.0
+  特征 Feature149: 0.0
+  特征 Feature150: 0.0
+  特征 Feature409: 0.0
+  特征 Feature249: 0.0
+  特征 Feature126: 0.0
+  特征 Feature199: 0.0
+  特征 Feature420: 0.0
+  特征 Feature75: 0.0
+  特征 Feature499: 0.0
+  特征 Feature902: 0.0
+  特征 Feature954: 0.0
+  特征 Feature869: 0.0
+  特征 Feature875: 0.0
+  特征 Feature759: 0.0
+  特征 Feature467: 0.0
+  特征 Feature644: 0.0
+  特征 Feature200: 0.0
+  特征 Feature573: 0.0
+  特征 Feature79: 0.0
+  特征 Feature570: 0.0
+  特征 Feature360: 0.0
+  特征 Feature936: 0.0
+  特征 Feature140: 0.0
+  特征 Feature569: 0.0
+  特征 Feature535: 0.0
+  特征 Feature985: 0.0
+  特征 Feature493: 0.0
+  特征 Feature290: 0.0
+  特征 Feature475: 0.0
+  特征 Feature815: 0.0
+  特征 Feature866: 0.0
+  特征 Feature367: 0.0
+  特征 Feature372: 0.0
+  特征 Feature5: 0.0
+  特征 Feature428: 0.0
+  特征 Feature923: 0.0
+  特征 Feature637: 0.0
+  特征 Feature662: 0.0
+  特征 Feature473: 0.0
+  特征 Feature768: 0.0
+  特征 Feature706: 0.0
+  特征 Feature1014: 0.0
+  特征 Feature358: 0.0
+  特征 Feature394: 0.0
+  特征 Feature654: 0.0
+  特征 Feature204: 0.0
+  特征 Feature895: 0.0
+  特征 Feature661: 0.0
+  特征 Feature427: 0.0
+  特征 Feature366: 0.0
+  特征 Feature253: 0.0
+  特征 Feature190: 0.0
+  特征 Feature2: 0.0
+  特征 Feature655: 0.0
+  特征 Feature373: 0.0
+  特征 Feature533: 0.0
+==================================================
+真实样本的预测值: [[0.07165681 0.92834324]
+ [0.02850362 0.9714964 ]
+ [0.02359855 0.9764015 ]
+ ...
+ [0.00748644 0.9925135 ]
+ [0.05478068 0.94521934]
+ [0.01104165 0.98895836]]
+
+===== 运行因果图构建模块 =====
+============================================================
+           因果图构建关键参数 summary
+============================================================
+目标变量: ['target']
+特征总数: 1025
+使用的alpha阈值列表: [0.001, 0.003, 0.005, 0.01, 0.015, 0.02, 0.025, 0.03, 0.035, 0.04, 0.045, 0.05]
+最大路径长度限制: 4
+Bootstrap抽样次数: 30
+最小有效路径数阈值: 1
+------------------------------------------------------------
+阈值搜索进度: 100%|█████████████████████████████| 12/12 [04:15<00:00, 21.32s/it]
+alpha=0.001 有效路径数: 0
+alpha=0.003 有效路径数: 0
+alpha=0.005 有效路径数: 0
+alpha=0.010 有效路径数: 0
+alpha=0.015 有效路径数: 0
+alpha=0.020 有效路径数: 0
+alpha=0.025 有效路径数: 0
+alpha=0.030 有效路径数: 0
+alpha=0.035 有效路径数: 0
+alpha=0.040 有效路径数: 0
+alpha=0.045 有效路径数: 0
+alpha=0.050 有效路径数: 0
+未找到足够路径，使用最大alpha重试
+仍然无有效路径，创建最大贡献特征兜底路径
+兜底路径: Feature110 -> target (贡献值: 0.0000)
+
+【有效路径涉及的特征】共1个:
+1. Feature110
+
+【直接路径（特征→target）】
+1. Feature110 → target
+
+【间接路径（特征→...→target）】
+
+============================================================
+           因果图构建最终结果
+============================================================
+1. 最优alpha阈值: 0.0500
+2. 有效路径总数: 1
+   - 直接路径数: 1
+   - 间接路径数: 0
+3. 高贡献特征判定阈值 (平均): 0.0000
+4. 高贡献特征数量: 9
+5. 路径稳定性FDR控制水平: 0.3
+6. 最小稳定性阈值: 0.1
+============================================================
+
+
+【高贡献特征列表】共9个:
+1. Feature110 (贡献值: 0.0000)
+2. Feature111 (贡献值: 0.0000)
+3. Feature518 (贡献值: 0.0000)
+4. Feature519 (贡献值: 0.0000)
+5. Feature747 (贡献值: 0.0000)
+6. Feature839 (贡献值: 0.0000)
+7. Feature840 (贡献值: 0.0000)
+8. Feature841 (贡献值: 0.0000)
+9. Feature949 (贡献值: 0.0000)
+
+有向图矩阵（行：起点，列：终点，1表示存在有向边）：
+节点顺序：['Feature1', 'Feature2', 'Feature3', 'Feature4', 'Feature5', 'Feature6', 'Feature7', 'Feature8', 'Feature9', 'Feature10', 'Feature11', 'Feature12', 'Feature13', 'Feature14', 'Feature15', 'Feature16', 'Feature17', 'Feature18', 'Feature19', 'Feature20', 'Feature21', 'Feature22', 'Feature23', 'Feature24', 'Feature25', 'Feature26', 'Feature27', 'Feature28', 'Feature29', 'Feature30', 'Feature31', 'Feature32', 'Feature33', 'Feature34', 'Feature35', 'Feature36', 'Feature37', 'Feature38', 'Feature39', 'Feature40', 'Feature41', 'Feature42', 'Feature43', 'Feature44', 'Feature45', 'Feature46', 'Feature47', 'Feature48', 'Feature49', 'Feature50', 'Feature51', 'Feature52', 'Feature53', 'Feature54', 'Feature55', 'Feature56', 'Feature57', 'Feature58', 'Feature59', 'Feature60', 'Feature61', 'Feature62', 'Feature63', 'Feature64', 'Feature65', 'Feature66', 'Feature67', 'Feature68', 'Feature69', 'Feature70', 'Feature71', 'Feature72', 'Feature73', 'Feature74', 'Feature75', 'Feature76', 'Feature77', 'Feature78', 'Feature79', 'Feature80', 'Feature81', 'Feature82', 'Feature83', 'Feature84', 'Feature85', 'Feature86', 'Feature87', 'Feature88', 'Feature89', 'Feature90', 'Feature91', 'Feature92', 'Feature93', 'Feature94', 'Feature95', 'Feature96', 'Feature97', 'Feature98', 'Feature99', 'Feature100', 'Feature101', 'Feature102', 'Feature103', 'Feature104', 'Feature105', 'Feature106', 'Feature107', 'Feature108', 'Feature109', 'Feature110', 'Feature111', 'Feature112', 'Feature113', 'Feature114', 'Feature115', 'Feature116', 'Feature117', 'Feature118', 'Feature119', 'Feature120', 'Feature121', 'Feature122', 'Feature123', 'Feature124', 'Feature125', 'Feature126', 'Feature127', 'Feature128', 'Feature129', 'Feature130', 'Feature131', 'Feature132', 'Feature133', 'Feature134', 'Feature135', 'Feature136', 'Feature137', 'Feature138', 'Feature139', 'Feature140', 'Feature141', 'Feature142', 'Feature143', 'Feature144', 'Feature145', 'Feature146', 'Feature147', 'Feature148', 'Feature149', 'Feature150', 'Feature151', 'Feature152', 'Feature153', 'Feature154', 'Feature155', 'Feature156', 'Feature157', 'Feature158', 'Feature159', 'Feature160', 'Feature161', 'Feature162', 'Feature163', 'Feature164', 'Feature165', 'Feature166', 'Feature167', 'Feature168', 'Feature169', 'Feature170', 'Feature171', 'Feature172', 'Feature173', 'Feature174', 'Feature175', 'Feature176', 'Feature177', 'Feature178', 'Feature179', 'Feature180', 'Feature181', 'Feature182', 'Feature183', 'Feature184', 'Feature185', 'Feature186', 'Feature187', 'Feature188', 'Feature189', 'Feature190', 'Feature191', 'Feature192', 'Feature193', 'Feature194', 'Feature195', 'Feature196', 'Feature197', 'Feature198', 'Feature199', 'Feature200', 'Feature201', 'Feature202', 'Feature203', 'Feature204', 'Feature205', 'Feature206', 'Feature207', 'Feature208', 'Feature209', 'Feature210', 'Feature211', 'Feature212', 'Feature213', 'Feature214', 'Feature215', 'Feature216', 'Feature217', 'Feature218', 'Feature219', 'Feature220', 'Feature221', 'Feature222', 'Feature223', 'Feature224', 'Feature225', 'Feature226', 'Feature227', 'Feature228', 'Feature229', 'Feature230', 'Feature231', 'Feature232', 'Feature233', 'Feature234', 'Feature235', 'Feature236', 'Feature237', 'Feature238', 'Feature239', 'Feature240', 'Feature241', 'Feature242', 'Feature243', 'Feature244', 'Feature245', 'Feature246', 'Feature247', 'Feature248', 'Feature249', 'Feature250', 'Feature251', 'Feature252', 'Feature253', 'Feature254', 'Feature255', 'Feature256', 'Feature257', 'Feature258', 'Feature259', 'Feature260', 'Feature261', 'Feature262', 'Feature263', 'Feature264', 'Feature265', 'Feature266', 'Feature267', 'Feature268', 'Feature269', 'Feature270', 'Feature271', 'Feature272', 'Feature273', 'Feature274', 'Feature275', 'Feature276', 'Feature277', 'Feature278', 'Feature279', 'Feature280', 'Feature281', 'Feature282', 'Feature283', 'Feature284', 'Feature285', 'Feature286', 'Feature287', 'Feature288', 'Feature289', 'Feature290', 'Feature291', 'Feature292', 'Feature293', 'Feature294', 'Feature295', 'Feature296', 'Feature297', 'Feature298', 'Feature299', 'Feature300', 'Feature301', 'Feature302', 'Feature303', 'Feature304', 'Feature305', 'Feature306', 'Feature307', 'Feature308', 'Feature309', 'Feature310', 'Feature311', 'Feature312', 'Feature313', 'Feature314', 'Feature315', 'Feature316', 'Feature317', 'Feature318', 'Feature319', 'Feature320', 'Feature321', 'Feature322', 'Feature323', 'Feature324', 'Feature325', 'Feature326', 'Feature327', 'Feature328', 'Feature329', 'Feature330', 'Feature331', 'Feature332', 'Feature333', 'Feature334', 'Feature335', 'Feature336', 'Feature337', 'Feature338', 'Feature339', 'Feature340', 'Feature341', 'Feature342', 'Feature343', 'Feature344', 'Feature345', 'Feature346', 'Feature347', 'Feature348', 'Feature349', 'Feature350', 'Feature351', 'Feature352', 'Feature353', 'Feature354', 'Feature355', 'Feature356', 'Feature357', 'Feature358', 'Feature359', 'Feature360', 'Feature361', 'Feature362', 'Feature363', 'Feature364', 'Feature365', 'Feature366', 'Feature367', 'Feature368', 'Feature369', 'Feature370', 'Feature371', 'Feature372', 'Feature373', 'Feature374', 'Feature375', 'Feature376', 'Feature377', 'Feature378', 'Feature379', 'Feature380', 'Feature381', 'Feature382', 'Feature383', 'Feature384', 'Feature385', 'Feature386', 'Feature387', 'Feature388', 'Feature389', 'Feature390', 'Feature391', 'Feature392', 'Feature393', 'Feature394', 'Feature395', 'Feature396', 'Feature397', 'Feature398', 'Feature399', 'Feature400', 'Feature401', 'Feature402', 'Feature403', 'Feature404', 'Feature405', 'Feature406', 'Feature407', 'Feature408', 'Feature409', 'Feature410', 'Feature411', 'Feature412', 'Feature413', 'Feature414', 'Feature415', 'Feature416', 'Feature417', 'Feature418', 'Feature419', 'Feature420', 'Feature421', 'Feature422', 'Feature423', 'Feature424', 'Feature425', 'Feature426', 'Feature427', 'Feature428', 'Feature429', 'Feature430', 'Feature431', 'Feature432', 'Feature433', 'Feature434', 'Feature435', 'Feature436', 'Feature437', 'Feature438', 'Feature439', 'Feature440', 'Feature441', 'Feature442', 'Feature443', 'Feature444', 'Feature445', 'Feature446', 'Feature447', 'Feature448', 'Feature449', 'Feature450', 'Feature451', 'Feature452', 'Feature453', 'Feature454', 'Feature455', 'Feature456', 'Feature457', 'Feature458', 'Feature459', 'Feature460', 'Feature461', 'Feature462', 'Feature463', 'Feature464', 'Feature465', 'Feature466', 'Feature467', 'Feature468', 'Feature469', 'Feature470', 'Feature471', 'Feature472', 'Feature473', 'Feature474', 'Feature475', 'Feature476', 'Feature477', 'Feature478', 'Feature479', 'Feature480', 'Feature481', 'Feature482', 'Feature483', 'Feature484', 'Feature485', 'Feature486', 'Feature487', 'Feature488', 'Feature489', 'Feature490', 'Feature491', 'Feature492', 'Feature493', 'Feature494', 'Feature495', 'Feature496', 'Feature497', 'Feature498', 'Feature499', 'Feature500', 'Feature501', 'Feature502', 'Feature503', 'Feature504', 'Feature505', 'Feature506', 'Feature507', 'Feature508', 'Feature509', 'Feature510', 'Feature511', 'Feature512', 'Feature513', 'Feature514', 'Feature515', 'Feature516', 'Feature517', 'Feature518', 'Feature519', 'Feature520', 'Feature521', 'Feature522', 'Feature523', 'Feature524', 'Feature525', 'Feature526', 'Feature527', 'Feature528', 'Feature529', 'Feature530', 'Feature531', 'Feature532', 'Feature533', 'Feature534', 'Feature535', 'Feature536', 'Feature537', 'Feature538', 'Feature539', 'Feature540', 'Feature541', 'Feature542', 'Feature543', 'Feature544', 'Feature545', 'Feature546', 'Feature547', 'Feature548', 'Feature549', 'Feature550', 'Feature551', 'Feature552', 'Feature553', 'Feature554', 'Feature555', 'Feature556', 'Feature557', 'Feature558', 'Feature559', 'Feature560', 'Feature561', 'Feature562', 'Feature563', 'Feature564', 'Feature565', 'Feature566', 'Feature567', 'Feature568', 'Feature569', 'Feature570', 'Feature571', 'Feature572', 'Feature573', 'Feature574', 'Feature575', 'Feature576', 'Feature577', 'Feature578', 'Feature579', 'Feature580', 'Feature581', 'Feature582', 'Feature583', 'Feature584', 'Feature585', 'Feature586', 'Feature587', 'Feature588', 'Feature589', 'Feature590', 'Feature591', 'Feature592', 'Feature593', 'Feature594', 'Feature595', 'Feature596', 'Feature597', 'Feature598', 'Feature599', 'Feature600', 'Feature601', 'Feature602', 'Feature603', 'Feature604', 'Feature605', 'Feature606', 'Feature607', 'Feature608', 'Feature609', 'Feature610', 'Feature611', 'Feature612', 'Feature613', 'Feature614', 'Feature615', 'Feature616', 'Feature617', 'Feature618', 'Feature619', 'Feature620', 'Feature621', 'Feature622', 'Feature623', 'Feature624', 'Feature625', 'Feature626', 'Feature627', 'Feature628', 'Feature629', 'Feature630', 'Feature631', 'Feature632', 'Feature633', 'Feature634', 'Feature635', 'Feature636', 'Feature637', 'Feature638', 'Feature639', 'Feature640', 'Feature641', 'Feature642', 'Feature643', 'Feature644', 'Feature645', 'Feature646', 'Feature647', 'Feature648', 'Feature649', 'Feature650', 'Feature651', 'Feature652', 'Feature653', 'Feature654', 'Feature655', 'Feature656', 'Feature657', 'Feature658', 'Feature659', 'Feature660', 'Feature661', 'Feature662', 'Feature663', 'Feature664', 'Feature665', 'Feature666', 'Feature667', 'Feature668', 'Feature669', 'Feature670', 'Feature671', 'Feature672', 'Feature673', 'Feature674', 'Feature675', 'Feature676', 'Feature677', 'Feature678', 'Feature679', 'Feature680', 'Feature681', 'Feature682', 'Feature683', 'Feature684', 'Feature685', 'Feature686', 'Feature687', 'Feature688', 'Feature689', 'Feature690', 'Feature691', 'Feature692', 'Feature693', 'Feature694', 'Feature695', 'Feature696', 'Feature697', 'Feature698', 'Feature699', 'Feature700', 'Feature701', 'Feature702', 'Feature703', 'Feature704', 'Feature705', 'Feature706', 'Feature707', 'Feature708', 'Feature709', 'Feature710', 'Feature711', 'Feature712', 'Feature713', 'Feature714', 'Feature715', 'Feature716', 'Feature717', 'Feature718', 'Feature719', 'Feature720', 'Feature721', 'Feature722', 'Feature723', 'Feature724', 'Feature725', 'Feature726', 'Feature727', 'Feature728', 'Feature729', 'Feature730', 'Feature731', 'Feature732', 'Feature733', 'Feature734', 'Feature735', 'Feature736', 'Feature737', 'Feature738', 'Feature739', 'Feature740', 'Feature741', 'Feature742', 'Feature743', 'Feature744', 'Feature745', 'Feature746', 'Feature747', 'Feature748', 'Feature749', 'Feature750', 'Feature751', 'Feature752', 'Feature753', 'Feature754', 'Feature755', 'Feature756', 'Feature757', 'Feature758', 'Feature759', 'Feature760', 'Feature761', 'Feature762', 'Feature763', 'Feature764', 'Feature765', 'Feature766', 'Feature767', 'Feature768', 'Feature769', 'Feature770', 'Feature771', 'Feature772', 'Feature773', 'Feature774', 'Feature775', 'Feature776', 'Feature777', 'Feature778', 'Feature779', 'Feature780', 'Feature781', 'Feature782', 'Feature783', 'Feature784', 'Feature785', 'Feature786', 'Feature787', 'Feature788', 'Feature789', 'Feature790', 'Feature791', 'Feature792', 'Feature793', 'Feature794', 'Feature795', 'Feature796', 'Feature797', 'Feature798', 'Feature799', 'Feature800', 'Feature801', 'Feature802', 'Feature803', 'Feature804', 'Feature805', 'Feature806', 'Feature807', 'Feature808', 'Feature809', 'Feature810', 'Feature811', 'Feature812', 'Feature813', 'Feature814', 'Feature815', 'Feature816', 'Feature817', 'Feature818', 'Feature819', 'Feature820', 'Feature821', 'Feature822', 'Feature823', 'Feature824', 'Feature825', 'Feature826', 'Feature827', 'Feature828', 'Feature829', 'Feature830', 'Feature831', 'Feature832', 'Feature833', 'Feature834', 'Feature835', 'Feature836', 'Feature837', 'Feature838', 'Feature839', 'Feature840', 'Feature841', 'Feature842', 'Feature843', 'Feature844', 'Feature845', 'Feature846', 'Feature847', 'Feature848', 'Feature849', 'Feature850', 'Feature851', 'Feature852', 'Feature853', 'Feature854', 'Feature855', 'Feature856', 'Feature857', 'Feature858', 'Feature859', 'Feature860', 'Feature861', 'Feature862', 'Feature863', 'Feature864', 'Feature865', 'Feature866', 'Feature867', 'Feature868', 'Feature869', 'Feature870', 'Feature871', 'Feature872', 'Feature873', 'Feature874', 'Feature875', 'Feature876', 'Feature877', 'Feature878', 'Feature879', 'Feature880', 'Feature881', 'Feature882', 'Feature883', 'Feature884', 'Feature885', 'Feature886', 'Feature887', 'Feature888', 'Feature889', 'Feature890', 'Feature891', 'Feature892', 'Feature893', 'Feature894', 'Feature895', 'Feature896', 'Feature897', 'Feature898', 'Feature899', 'Feature900', 'Feature901', 'Feature902', 'Feature903', 'Feature904', 'Feature905', 'Feature906', 'Feature907', 'Feature908', 'Feature909', 'Feature910', 'Feature911', 'Feature912', 'Feature913', 'Feature914', 'Feature915', 'Feature916', 'Feature917', 'Feature918', 'Feature919', 'Feature920', 'Feature921', 'Feature922', 'Feature923', 'Feature924', 'Feature925', 'Feature926', 'Feature927', 'Feature928', 'Feature929', 'Feature930', 'Feature931', 'Feature932', 'Feature933', 'Feature934', 'Feature935', 'Feature936', 'Feature937', 'Feature938', 'Feature939', 'Feature940', 'Feature941', 'Feature942', 'Feature943', 'Feature944', 'Feature945', 'Feature946', 'Feature947', 'Feature948', 'Feature949', 'Feature950', 'Feature951', 'Feature952', 'Feature953', 'Feature954', 'Feature955', 'Feature956', 'Feature957', 'Feature958', 'Feature959', 'Feature960', 'Feature961', 'Feature962', 'Feature963', 'Feature964', 'Feature965', 'Feature966', 'Feature967', 'Feature968', 'Feature969', 'Feature970', 'Feature971', 'Feature972', 'Feature973', 'Feature974', 'Feature975', 'Feature976', 'Feature977', 'Feature978', 'Feature979', 'Feature980', 'Feature981', 'Feature982', 'Feature983', 'Feature984', 'Feature985', 'Feature986', 'Feature987', 'Feature988', 'Feature989', 'Feature990', 'Feature991', 'Feature992', 'Feature993', 'Feature994', 'Feature995', 'Feature996', 'Feature997', 'Feature998', 'Feature999', 'Feature1000', 'Feature1001', 'Feature1002', 'Feature1003', 'Feature1004', 'Feature1005', 'Feature1006', 'Feature1007', 'Feature1008', 'Feature1009', 'Feature1010', 'Feature1011', 'Feature1012', 'Feature1013', 'Feature1014', 'Feature1015', 'Feature1016', 'Feature1017', 'Feature1018', 'Feature1019', 'Feature1020', 'Feature1021', 'Feature1022', 'Feature1023', 'Feature1024', 'target']
+[[0. 0. 0. ... 0. 0. 0.]
+ [0. 0. 0. ... 0. 0. 0.]
+ [0. 0. 0. ... 0. 0. 0.]
+ ...
+ [0. 0. 0. ... 0. 0. 0.]
+ [0. 0. 0. ... 0. 0. 0.]
+ [0. 0. 0. ... 0. 0. 0.]]
+
+===== 检查冗余特征中的关键交互 =====
+识别到 1023 个非因果特征：['Feature782', 'Feature560', 'Feature353', 'Feature299', 'Feature472', 'Feature375', 'Feature65', 'Feature984', 'Feature579', 'Feature575', 'Feature335', 'Feature218', 'Feature932', 'Feature305', 'Feature474', 'Feature388', 'Feature1006', 'Feature949', 'Feature455', 'Feature536', 'Feature82', 'Feature155', 'Feature459', 'Feature569', 'Feature448', 'Feature698', 'Feature217', 'Feature345', 'Feature918', 'Feature337', 'Feature991', 'Feature297', 'Feature444', 'Feature810', 'Feature62', 'Feature914', 'Feature4', 'Feature119', 'Feature161', 'Feature587', 'Feature753', 'Feature680', 'Feature656', 'Feature959', 'Feature1023', 'Feature507', 'Feature246', 'Feature99', 'Feature549', 'Feature764', 'Feature602', 'Feature768', 'Feature165', 'Feature675', 'Feature953', 'Feature762', 'Feature484', 'Feature950', 'Feature778', 'Feature987', 'Feature362', 'Feature702', 'Feature737', 'Feature453', 'Feature510', 'Feature279', 'Feature254', 'Feature374', 'Feature504', 'Feature705', 'Feature363', 'Feature685', 'Feature561', 'Feature287', 'Feature788', 'Feature115', 'Feature933', 'Feature433', 'Feature28', 'Feature358', 'Feature7', 'Feature228', 'Feature1009', 'Feature926', 'Feature672', 'Feature334', 'Feature621', 'Feature951', 'Feature286', 'Feature622', 'Feature491', 'Feature256', 'Feature193', 'Feature992', 'Feature539', 'Feature478', 'Feature208', 'Feature367', 'Feature3', 'Feature377', 'Feature54', 'Feature397', 'Feature492', 'Feature592', 'Feature27', 'Feature438', 'Feature802', 'Feature1000', 'Feature320', 'Feature537', 'Feature404', 'Feature506', 'Feature733', 'Feature938', 'Feature476', 'Feature709', 'Feature128', 'Feature302', 'Feature12', 'Feature997', 'Feature376', 'Feature339', 'Feature869', 'Feature329', 'Feature728', 'Feature544', 'Feature148', 'Feature891', 'Feature330', 'Feature781', 'Feature789', 'Feature603', 'Feature895', 'Feature169', 'Feature53', 'Feature108', 'Feature264', 'Feature37', 'Feature116', 'Feature670', 'Feature679', 'Feature645', 'Feature820', 'Feature135', 'Feature322', 'Feature188', 'Feature515', 'Feature823', 'Feature799', 'Feature881', 'Feature669', 'Feature2', 'Feature316', 'Feature210', 'Feature163', 'Feature864', 'Feature32', 'Feature137', 'Feature69', 'Feature751', 'Feature819', 'Feature866', 'Feature96', 'Feature175', 'Feature646', 'Feature234', 'Feature168', 'Feature916', 'Feature649', 'Feature162', 'Feature1018', 'Feature832', 'Feature533', 'Feature184', 'Feature725', 'Feature647', 'Feature266', 'Feature540', 'Feature971', 'Feature564', 'Feature488', 'Feature461', 'Feature399', 'Feature1008', 'Feature252', 'Feature657', 'Feature309', 'Feature470', 'Feature49', 'Feature576', 'Feature623', 'Feature129', 'Feature111', 'Feature562', 'Feature85', 'Feature635', 'Feature865', 'Feature60', 'Feature77', 'Feature790', 'Feature16', 'Feature817', 'Feature744', 'Feature104', 'Feature263', 'Feature314', 'Feature1011', 'Feature530', 'Feature509', 'Feature112', 'Feature387', 'Feature357', 'Feature964', 'Feature300', 'Feature957', 'Feature732', 'Feature401', 'Feature985', 'Feature671', 'Feature652', 'Feature1016', 'Feature793', 'Feature333', 'Feature405', 'Feature836', 'Feature97', 'Feature121', 'Feature690', 'Feature667', 'Feature205', 'Feature230', 'Feature272', 'Feature826', 'Feature674', 'Feature616', 'Feature726', 'Feature597', 'Feature349', 'Feature830', 'Feature142', 'Feature443', 'Feature813', 'Feature59', 'Feature282', 'Feature962', 'Feature1020', 'Feature874', 'Feature202', 'Feature513', 'Feature359', 'Feature586', 'Feature48', 'Feature31', 'Feature346', 'Feature903', 'Feature858', 'Feature661', 'Feature196', 'Feature486', 'Feature996', 'Feature814', 'Feature937', 'Feature1014', 'Feature130', 'Feature525', 'Feature939', 'Feature870', 'Feature694', 'Feature500', 'Feature232', 'Feature706', 'Feature315', 'Feature707', 'Feature229', 'Feature427', 'Feature527', 'Feature885', 'Feature794', 'Feature206', 'Feature827', 'Feature948', 'Feature653', 'Feature1021', 'Feature424', 'Feature83', 'Feature715', 'Feature51', 'Feature402', 'Feature6', 'Feature64', 'Feature186', 'Feature477', 'Feature925', 'Feature696', 'Feature990', 'Feature688', 'Feature56', 'Feature601', 'Feature243', 'Feature370', 'Feature296', 'Feature876', 'Feature435', 'Feature343', 'Feature479', 'Feature697', 'Feature557', 'Feature912', 'Feature482', 'Feature271', 'Feature850', 'Feature759', 'Feature391', 'Feature642', 'Feature982', 'Feature413', 'Feature534', 'Feature414', 'Feature930', 'Feature493', 'Feature840', 'Feature608', 'Feature783', 'Feature323', 'Feature960', 'Feature503', 'Feature615', 'Feature748', 'Feature668', 'Feature854', 'Feature640', 'Feature152', 'Feature106', 'Feature786', 'Feature118', 'Feature550', 'Feature373', 'Feature598', 'Feature929', 'Feature548', 'Feature43', 'Feature74', 'Feature974', 'Feature975', 'Feature30', 'Feature871', 'Feature518', 'Feature216', 'Feature632', 'Feature473', 'Feature35', 'Feature763', 'Feature578', 'Feature554', 'Feature170', 'Feature94', 'Feature745', 'Feature192', 'Feature994', 'Feature360', 'Feature905', 'Feature947', 'Feature787', 'Feature301', 'Feature226', 'Feature195', 'Feature968', 'Feature531', 'Feature441', 'Feature75', 'Feature628', 'Feature338', 'Feature986', 'Feature724', 'Feature179', 'Feature224', 'Feature348', 'Feature295', 'Feature240', 'Feature861', 'Feature708', 'Feature739', 'Feature105', 'Feature294', 'Feature331', 'Feature225', 'Feature752', 'Feature76', 'Feature174', 'Feature631', 'Feature469', 'Feature747', 'Feature909', 'Feature924', 'Feature595', 'Feature943', 'Feature795', 'Feature767', 'Feature241', 'Feature67', 'Feature153', 'Feature535', 'Feature10', 'Feature475', 'Feature659', 'Feature880', 'Feature955', 'Feature268', 'Feature571', 'Feature902', 'Feature450', 'Feature862', 'Feature422', 'Feature755', 'Feature371', 'Feature921', 'Feature8', 'Feature637', 'Feature312', 'Feature140', 'Feature248', 'Feature466', 'Feature760', 'Feature701', 'Feature157', 'Feature440', 'Feature1005', 'Feature78', 'Feature835', 'Feature139', 'Feature572', 'Feature683', 'Feature194', 'Feature213', 'Feature821', 'Feature214', 'Feature1001', 'Feature131', 'Feature55', 'Feature79', 'Feature777', 'Feature426', 'Feature456', 'Feature923', 'Feature223', 'Feature468', 'Feature327', 'Feature460', 'Feature775', 'Feature785', 'Feature124', 'Feature451', 'Feature465', 'Feature995', 'Feature660', 'Feature20', 'Feature289', 'Feature336', 'Feature811', 'Feature908', 'Feature1015', 'Feature927', 'Feature33', 'Feature614', 'Feature328', 'Feature502', 'Feature839', 'Feature519', 'Feature231', 'Feature222', 'Feature258', 'Feature66', 'Feature528', 'Feature627', 'Feature262', 'Feature325', 'Feature722', 'Feature200', 'Feature904', 'Feature81', 'Feature351', 'Feature808', 'Feature934', 'Feature593', 'Feature88', 'Feature369', 'Feature523', 'Feature1022', 'Feature352', 'Feature743', 'Feature860', 'Feature395', 'Feature611', 'Feature91', 'Feature101', 'Feature681', 'Feature961', 'Feature498', 'Feature849', 'Feature852', 'Feature712', 'Feature770', 'Feature844', 'Feature574', 'Feature565', 'Feature1007', 'Feature290', 'Feature244', 'Feature567', 'Feature841', 'Feature485', 'Feature520', 'Feature730', 'Feature980', 'Feature626', 'Feature167', 'Feature418', 'Feature624', 'Feature439', 'Feature308', 'Feature979', 'Feature742', 'Feature710', 'Feature636', 'Feature582', 'Feature931', 'Feature332', 'Feature261', 'Feature394', 'Feature245', 'Feature285', 'Feature910', 'Feature34', 'Feature1004', 'Feature423', 'Feature542', 'Feature227', 'Feature883', 'Feature516', 'Feature873', 'Feature976', 'Feature191', 'Feature291', 'Feature490', 'Feature648', 'Feature251', 'Feature276', 'Feature553', 'Feature791', 'Feature150', 'Feature15', 'Feature11', 'Feature417', 'Feature21', 'Feature269', 'Feature663', 'Feature220', 'Feature577', 'Feature429', 'Feature972', 'Feature347', 'Feature568', 'Feature889', 'Feature772', 'Feature915', 'Feature779', 'Feature896', 'Feature292', 'Feature467', 'Feature514', 'Feature46', 'Feature383', 'Feature993', 'Feature521', 'Feature242', 'Feature863', 'Feature907', 'Feature321', 'Feature151', 'Feature317', 'Feature754', 'Feature72', 'Feature547', 'Feature147', 'Feature173', 'Feature390', 'Feature171', 'Feature38', 'Feature273', 'Feature489', 'Feature588', 'Feature40', 'Feature73', 'Feature164', 'Feature393', 'Feature284', 'Feature901', 'Feature487', 'Feature720', 'Feature625', 'Feature998', 'Feature14', 'Feature816', 'Feature384', 'Feature419', 'Feature180', 'Feature892', 'Feature677', 'Feature922', 'Feature481', 'Feature989', 'Feature160', 'Feature664', 'Feature505', 'Feature581', 'Feature766', 'Feature689', 'Feature800', 'Feature829', 'Feature846', 'Feature496', 'Feature92', 'Feature809', 'Feature682', 'Feature355', 'Feature822', 'Feature721', 'Feature605', 'Feature589', 'Feature834', 'Feature723', 'Feature644', 'Feature166', 'Feature606', 'Feature103', 'Feature965', 'Feature847', 'Feature942', 'Feature956', 'Feature618', 'Feature566', 'Feature39', 'Feature969', 'Feature495', 'Feature879', 'Feature877', 'Feature136', 'Feature713', 'Feature928', 'Feature619', 'Feature1024', 'Feature52', 'Feature803', 'Feature508', 'Feature684', 'Feature396', 'Feature610', 'Feature524', 'Feature260', 'Feature828', 'Feature107', 'Feature436', 'Feature666', 'Feature741', 'Feature526', 'Feature123', 'Feature22', 'Feature350', 'Feature692', 'Feature354', 'Feature792', 'Feature212', 'Feature398', 'Feature257', 'Feature100', 'Feature253', 'Feature1', 'Feature573', 'Feature432', 'Feature633', 'Feature750', 'Feature804', 'Feature761', 'Feature454', 'Feature665', 'Feature5', 'Feature203', 'Feature512', 'Feature797', 'Feature318', 'Feature699', 'Feature458', 'Feature700', 'Feature717', 'Feature259', 'Feature551', 'Feature310', 'Feature607', 'Feature361', 'Feature149', 'Feature776', 'Feature765', 'Feature673', 'Feature867', 'Feature940', 'Feature255', 'Feature71', 'Feature563', 'Feature270', 'Feature875', 'Feature727', 'Feature848', 'Feature201', 'Feature178', 'Feature280', 'Feature247', 'Feature638', 'Feature392', 'Feature1003', 'Feature428', 'Feature47', 'Feature420', 'Feature853', 'Feature109', 'Feature80', 'Feature1012', 'Feature555', 'Feature857', 'Feature84', 'Feature729', 'Feature368', 'Feature583', 'Feature449', 'Feature736', 'Feature886', 'Feature756', 'Feature146', 'Feature122', 'Feature415', 'Feature249', 'Feature463', 'Feature457', 'Feature29', 'Feature114', 'Feature898', 'Feature798', 'Feature584', 'Feature425', 'Feature801', 'Feature288', 'Feature837', 'Feature887', 'Feature204', 'Feature209', 'Feature662', 'Feature9', 'Feature344', 'Feature894', 'Feature967', 'Feature480', 'Feature884', 'Feature378', 'Feature973', 'Feature445', 'Feature774', 'Feature831', 'Feature138', 'Feature379', 'Feature851', 'Feature591', 'Feature545', 'Feature796', 'Feature237', 'Feature86', 'Feature651', 'Feature412', 'Feature1017', 'Feature442', 'Feature988', 'Feature676', 'Feature833', 'Feature141', 'Feature235', 'Feature215', 'Feature389', 'Feature365', 'Feature941', 'Feature50', 'Feature17', 'Feature403', 'Feature25', 'Feature497', 'Feature911', 'Feature410', 'Feature400', 'Feature198', 'Feature313', 'Feature501', 'Feature758', 'Feature434', 'Feature890', 'Feature978', 'Feature613', 'Feature127', 'Feature102', 'Feature483', 'Feature590', 'Feature382', 'Feature267', 'Feature238', 'Feature749', 'Feature596', 'Feature431', 'Feature187', 'Feature471', 'Feature529', 'Feature981', 'Feature868', 'Feature274', 'Feature585', 'Feature856', 'Feature771', 'Feature63', 'Feature125', 'Feature341', 'Feature620', 'Feature780', 'Feature806', 'Feature900', 'Feature464', 'Feature298', 'Feature678', 'Feature691', 'Feature769', 'Feature24', 'Feature687', 'Feature154', 'Feature599', 'Feature704', 'Feature966', 'Feature499', 'Feature381', 'Feature824', 'Feature447', 'Feature617', 'Feature44', 'Feature41', 'Feature570', 'Feature172', 'Feature58', 'Feature437', 'Feature842', 'Feature319', 'Feature406', 'Feature421', 'Feature211', 'Feature307', 'Feature945', 'Feature176', 'Feature183', 'Feature277', 'Feature970', 'Feature452', 'Feature181', 'Feature845', 'Feature126', 'Feature757', 'Feature952', 'Feature522', 'Feature818', 'Feature719', 'Feature773', 'Feature207', 'Feature686', 'Feature275', 'Feature805', 'Feature812', 'Feature917', 'Feature385', 'Feature784', 'Feature946', 'Feature538', 'Feature511', 'Feature899', 'Feature546', 'Feature552', 'Feature120', 'Feature612', 'Feature93', 'Feature746', 'Feature825', 'Feature113', 'Feature342', 'Feature462', 'Feature954', 'Feature731', 'Feature281', 'Feature250', 'Feature609', 'Feature650', 'Feature143', 'Feature265', 'Feature639', 'Feature734', 'Feature695', 'Feature233', 'Feature872', 'Feature983', 'Feature999', 'Feature26', 'Feature1013', 'Feature190', 'Feature236', 'Feature815', 'Feature326', 'Feature494', 'Feature18', 'Feature643', 'Feature629', 'Feature906', 'Feature278', 'Feature68', 'Feature45', 'Feature944', 'Feature145', 'Feature239', 'Feature580', 'Feature283', 'Feature958', 'Feature594', 'Feature859', 'Feature711', 'Feature888', 'Feature600', 'Feature221', 'Feature634', 'Feature185', 'Feature1019', 'Feature177', 'Feature182', 'Feature89', 'Feature517', 'Feature735', 'Feature380', 'Feature87', 'Feature1010', 'Feature935', 'Feature133', 'Feature693', 'Feature558', 'Feature416', 'Feature641', 'Feature189', 'Feature340', 'Feature977', 'Feature740', 'Feature366', 'Feature386', 'Feature98', 'Feature658', 'Feature411', 'Feature132', 'Feature718', 'Feature42', 'Feature372', 'Feature95', 'Feature855', 'Feature303', 'Feature159', 'Feature23', 'Feature559', 'Feature807', 'Feature311', 'Feature897', 'Feature293', 'Feature364', 'Feature604', 'Feature158', 'Feature197', 'Feature893', 'Feature913', 'Feature919', 'Feature446', 'Feature543', 'Feature878', 'Feature532', 'Feature430', 'Feature738', 'Feature703', 'Feature556', 'Feature36', 'Feature409', 'Feature144', 'Feature219', 'Feature843', 'Feature630', 'Feature838', 'Feature714', 'Feature654', 'Feature920', 'Feature936', 'Feature882', 'Feature324', 'Feature13', 'Feature655', 'Feature716', 'Feature963', 'Feature57', 'Feature356', 'Feature19', 'Feature306', 'Feature70', 'Feature61', 'Feature134', 'Feature407', 'Feature408', 'Feature304', 'Feature117', 'Feature1002', 'Feature541', 'Feature156', 'Feature90', 'Feature199']
+识别到 9 个高贡献特征：['Feature110', 'Feature111', 'Feature518', 'Feature519', 'Feature747', 'Feature839', 'Feature840', 'Feature841', 'Feature949']
+非因果特征子集∩高贡献特征子集为：['Feature111', 'Feature518', 'Feature840', 'Feature949', 'Feature747', 'Feature839', 'Feature519', 'Feature841']
+开始双特征扰动：因果特征1个，非因果特征∩高贡献特征8个
+生成双特征组合共8对
+
+----- 开始计算组合 (Feature110, Feature840) 的联合效应 -----
+
+----- 开始计算组合 (Feature110, Feature111) 的联合效应 -----
+
+----- 开始计算组合 (Feature110, Feature841) 的联合效应 -----
+
+----- 开始计算组合 (Feature110, Feature747) 的联合效应 -----
+
+----- 开始计算组合 (Feature110, Feature518) 的联合效应 -----
+
+----- 开始计算组合 (Feature110, Feature949) 的联合效应 -----
+
+----- 开始计算组合 (Feature110, Feature839) 的联合效应 -----
+
+双特征扰动评估（并行）:   0%|                             | 0/8 [00:00<?, ?it/s]
+组合(Feature110, Feature840)：联合效应0.0001 > 单特征和0.0000×0.7493517409354185，标记为显著
+双特征扰动评估（并行）:  12%|██▋                  | 1/8 [00:00<00:02,  3.08it/s]组合(Feature110, Feature111)：联合效应0.0000 > 单特征和0.0000×0.7706354148920449，标记为显著
+组合(Feature110, Feature839)：联合效应0.0001 > 单特征和0.0000×0.8382044203576565，标记为显著
+组合(Feature110, Feature949)：联合效应0.0001 > 单特征和0.0000×0.8338259846529976，标记为显著
+组合(Feature110, Feature747)：联合效应0.0001 > 单特征和0.0000×0.8246333152266179，标记为显著
+组合(Feature110, Feature841)：联合效应0.0001 > 单特征和0.0000×0.8039247034170552，标记为显著
+组合(Feature110, Feature519)：联合效应0.0001 > 单特征和0.0000×0.845534090128629，标记为显著
+组合(Feature110, Feature518)：联合效应0.0001 > 单特征和0.0000×0.828044870165336，标记为显著
+双特征扰动评估（并行）: 100%|█████████████████████| 8/8 [00:00<00:00, 22.37it/s]
+双特征扰动完成，新增8个特征到特征选择子集：['Feature111', 'Feature518', 'Feature519', 'Feature747', 'Feature839', 'Feature840', 'Feature841', 'Feature949']，更新后特征选择子集共9个特征
+
+===== 特征选择前后训练结果 =====
+===== 开始模型训练 =====
+原始数据形状：(8992, 1025)
+警告：筛选特征顺序已调整为与原始数据一致
+目标变量为非数值型，进行编码
+筛选后数据集形状：(8992, 9)
+使用筛选后的特征：['Feature110', 'Feature111', 'Feature518', 'Feature519', 'Feature747', 'Feature839', 'Feature840', 'Feature841', 'Feature949']
+采样前训练集类别分布：
+target
+0    0.91881
+1    0.08119
+Name: proportion, dtype: float64
+
+应用SMOTE+ENN混合采样...
+SMOTE+ENN采样后类别分布:
+target
+0    6609
+1      10
+Name: count, dtype: int64
+类别平衡比例为0.00，进行二次微调...
+二次调整后类别分布:
+target
+0    6609
+1    6609
+Name: count, dtype: int64
+根据特征维度 9 和样本量 8992 调整模型参数...
+根据样本量 8992 使用batch_size: 64
+
+Epoch 4: ReduceLROnPlateau reducing learning rate to 0.0002500000118743628.
+
+Epoch 7: ReduceLROnPlateau reducing learning rate to 0.0001250000059371814.
+
+Epoch 10: ReduceLROnPlateau reducing learning rate to 6.25000029685907e-05.
+Restoring model weights from the end of the best epoch: 1.
+Epoch 11: early stopping
+模型训练耗时: 12.47秒
+测试集损失: 0.6376, 测试集准确率: 0.9122
+57/57 [==============================] - 0s 1ms/step
+
+分类报告:
+              precision    recall  f1-score   support
+
+           0    0.91268   0.99939   0.95407      1642
+           1    0.00000   0.00000   1.00000       157
+
+    accuracy                        0.91217      1799
+   macro avg    0.45634   0.49970   0.97703      1799
+weighted avg    0.83303   0.91217   0.95808      1799
+
+特征选择前:1024
+特征选择后:9
+模型运行时间减少了4.39s
+模型准确率提升了69.32%
+
+进程已结束，退出代码为 0

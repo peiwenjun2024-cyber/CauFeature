@@ -1,0 +1,365 @@
+/root/miniconda3/bin/python3 /root/tmp/causalFeatureX_0812/main.py
+2025-08-13 10:11:06.661393: I tensorflow/core/util/port.cc:110] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2025-08-13 10:11:06.728629: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 AVX_VNNI AMX_TILE AMX_INT8 AMX_BF16 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2025-08-13 10:11:07.771809: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+===== 开始模型训练 =====
+数据基本信息：
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 79403 entries, 0 to 79402
+Data columns (total 23 columns):
+ #   Column       Non-Null Count  Dtype
+---  ------       --------------  -----
+ 0   NAME         79403 non-null  object
+ 1   ALD          79403 non-null  int64
+ 2   ATFD         79403 non-null  int64
+ 3   CALIN        79403 non-null  int64
+ 4   CC           79403 non-null  int64
+ 5   CCL          79403 non-null  int64
+ 6   CDISP        79403 non-null  float64
+ 7   CEXT         79403 non-null  int64
+ 8   CINT         79403 non-null  int64
+ 9   CM           79403 non-null  int64
+ 10  CYCLO        79403 non-null  int64
+ 11  FANIN        79403 non-null  int64
+ 12  FANOUT       79403 non-null  int64
+ 13  FANOUTCLASS  79403 non-null  int64
+ 14  FDP          79403 non-null  float64
+ 15  LAA          79403 non-null  float64
+ 16  LOC          79403 non-null  int64
+ 17  MAXNESTING   79403 non-null  int64
+ 18  NOAV         79403 non-null  int64
+ 19  NOEU         79403 non-null  int64
+ 20  NOLV         79403 non-null  int64
+ 21  NOP          79403 non-null  int64
+ 22  is_brain     79403 non-null  bool
+dtypes: bool(1), float64(3), int64(18), object(1)
+memory usage: 13.4+ MB
+发现非数值型特征，将进行编码：['NAME']
+数据集形状：(79403, 22)
+2025-08-13 10:11:56.066930: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1639] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 22182 MB memory:  -> device: 0, name: NVIDIA GeForce RTX 4090, pci bus id: 0000:16:00.0, compute capability: 8.9
+2025-08-13 10:11:57.881045: I tensorflow/compiler/xla/stream_executor/cuda/cuda_dnn.cc:432] Loaded cuDNN version 8600
+2025-08-13 10:11:57.962940: I tensorflow/tsl/platform/default/subprocess.cc:304] Start cannot spawn child process: No such file or directory
+2025-08-13 10:11:58.028366: I tensorflow/compiler/xla/stream_executor/cuda/cuda_blas.cc:606] TensorFloat-32 will be used for the matrix multiplication. This will only be logged once.
+2025-08-13 10:11:58.090782: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x7fd1f8044000 initialized for platform CUDA (this does not guarantee that XLA will be used). Devices:
+2025-08-13 10:11:58.090824: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): NVIDIA GeForce RTX 4090, Compute Capability 8.9
+2025-08-13 10:11:58.097238: I tensorflow/compiler/mlir/tensorflow/utils/dump_mlir_util.cc:255] disabling MLIR crash reproducer, set env var `MLIR_CRASH_REPRODUCER_DIRECTORY` to enable.
+2025-08-13 10:11:58.171170: I tensorflow/tsl/platform/default/subprocess.cc:304] Start cannot spawn child process: No such file or directory
+2025-08-13 10:11:58.242500: I ./tensorflow/compiler/jit/device_compiler.h:186] Compiled cluster using XLA!  This line is logged at most once for the lifetime of the process.
+Restoring model weights from the end of the best epoch: 2.
+Epoch 7: early stopping
+模型训练耗时: 11.30秒
+测试集损失: 1.7476, 测试集准确率: 0.8925
+精确率: 0.8925
+召回率: 0.8925
+497/497 [==============================] - 1s 888us/step
+
+分类报告:
+              precision    recall  f1-score   support
+
+           0    0.91949   0.95418   0.93652     13203
+           1    0.72248   0.58813   0.64841      2678
+
+    accuracy                        0.89245     15881
+   macro avg    0.82099   0.77115   0.79247     15881
+weighted avg    0.88627   0.89245   0.88793     15881
+
+
+保存模型...
+
+模型已成功保存至: /root/tmp/causalFeatureX_0812/saved_models/BrainMethod_CNN.keras
+模型预期输入形状: (None, 22, 1)
+===== 运行特征扰动模块 =====
+生成特征扰动值: 100%|████████████████████████| 22/22 [00:00<00:00, 29775.63it/s]
+使用 8 个线程并行计算特征贡献值...
+计算特征贡献值: 100%|███████████████████████████| 22/22 [00:05<00:00,  3.72it/s]
+特征扰动实验总耗时：5.95秒
+特征数据形状: (79403, 22)
+已将原始样本预测值存入全局变量，形状: (79403, 2)
+基线分布形状: (2,), 平均JS散度: 0.1026
+真实样本的预测值: [[1.0000000e+00 8.4993246e-10]
+ [1.0000000e+00 7.3168450e-11]
+ [7.8393412e-22 1.0000000e+00]
+ ...
+ [1.0000000e+00 4.1451042e-16]
+ [1.0000000e+00 2.1281100e-14]
+ [9.9056107e-01 9.4389468e-03]]
+各特征最大绝对差异（按影响程度排序）：
+  特征 ATFD: 0.6931
+  特征 CEXT: 0.6931
+  特征 CM: 0.6931
+  特征 CYCLO: 0.6931
+  特征 FANIN: 0.6931
+  特征 FANOUTCLASS: 0.6931
+  特征 FDP: 0.6931
+  特征 LAA: 0.6931
+  特征 LOC: 0.6931
+  特征 NOLV: 0.6931
+  特征 FANOUT: 0.6931
+  特征 CINT: 0.6875
+  特征 NAME: 0.4982
+  特征 NOP: 0.0065
+  特征 MAXNESTING: 0.0
+  特征 ALD: 0.0
+  特征 CALIN: 0.0
+  特征 CC: 0.0
+  特征 CCL: 0.0
+  特征 NOAV: 0.0
+  特征 NOEU: 0.0
+  特征 CDISP: 0.0
+==================================================
+
+===== 运行因果图构建模块 =====
+============================================================
+           因果图构建关键参数 summary
+============================================================
+目标变量: ['is_brain']
+特征总数: 23
+使用的alpha阈值列表: [0.001, 0.003, 0.005, 0.01, 0.015, 0.02, 0.025, 0.03, 0.035, 0.04, 0.045, 0.05]
+最大路径长度限制: 3
+Bootstrap抽样次数: 30
+最小有效路径数阈值: 1
+------------------------------------------------------------
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:04<00:00,  6.33it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:04<00:00,  6.37it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:04<00:00,  6.51it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:04<00:00,  6.45it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:04<00:00,  6.52it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:04<00:00,  6.75it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:04<00:00,  6.53it/s]
+阈值搜索进度: 100%|█████████████████████████████| 12/12 [00:05<00:00,  2.33it/s]
+alpha=0.001 有效路径数: 0
+alpha=0.003 有效路径数: 0
+alpha=0.005 有效路径数: 0
+alpha=0.010 有效路径数: 0
+alpha=0.015 有效路径数: 0
+alpha=0.020 有效路径数: 1
+alpha=0.025 有效路径数: 1
+alpha=0.030 有效路径数: 1
+alpha=0.035 有效路径数: 3
+alpha=0.040 有效路径数: 3
+alpha=0.045 有效路径数: 1
+alpha=0.050 有效路径数: 1
+
+【有效路径涉及的特征】共2个:
+1. ALD
+2. LOC
+
+【直接路径（特征→target）】
+1. ALD → is_brain
+2. LOC → is_brain
+
+【间接路径（特征→...→target）】
+1. ALD → LOC → is_brain
+
+============================================================
+           因果图构建最终结果
+============================================================
+1. 最优alpha阈值: 0.0500
+2. 有效路径总数: 3
+   - 直接路径数: 2
+   - 间接路径数: 1
+3. 高贡献特征判定阈值 (平均): 0.6238
+4. 高贡献特征数量: 12
+5. 路径稳定性FDR控制水平: 0.2723455672035186
+6. 最小稳定性阈值: 0.1
+============================================================
+
+
+【高贡献特征列表】共12个:
+1. ATFD (贡献值: 0.6931)
+2. CEXT (贡献值: 0.6931)
+3. CINT (贡献值: 0.6875)
+4. CM (贡献值: 0.6931)
+5. CYCLO (贡献值: 0.6931)
+6. FANIN (贡献值: 0.6931)
+7. FANOUT (贡献值: 0.6931)
+8. FANOUTCLASS (贡献值: 0.6931)
+9. FDP (贡献值: 0.6931)
+10. LAA (贡献值: 0.6931)
+11. LOC (贡献值: 0.6931)
+12. NOLV (贡献值: 0.6931)
+
+有向图矩阵（行：起点，列：终点，1表示存在有向边）：
+节点顺序：['NAME', 'ALD', 'ATFD', 'CALIN', 'CC', 'CCL', 'CDISP', 'CEXT', 'CINT', 'CM', 'CYCLO', 'FANIN', 'FANOUT', 'FANOUTCLASS', 'FDP', 'LAA', 'LOC', 'MAXNESTING', 'NOAV', 'NOEU', 'NOLV', 'NOP', 'is_brain']
+[[0. 0. 0. 0. 0. 1. 1. 1. 0. 0. 0. 0. 1. 1. 0. 0. 0. 1. 1. 0. 1. 1. 0.]
+ [0. 0. 0. 0. 0. 1. 1. 1. 0. 0. 1. 0. 1. 1. 1. 0. 1. 1. 1. 0. 0. 0. 1.]
+ [0. 0. 0. 0. 0. 0. 0. 1. 1. 0. 1. 0. 1. 1. 1. 0. 0. 0. 0. 0. 0. 0. 0.]
+ [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0. 1. 0. 0.]
+ [0. 0. 0. 0. 0. 0. 0. 0. 0. 1. 0. 1. 0. 0. 0. 0. 0. 0. 0. 1. 0. 0. 0.]
+ [0. 0. 0. 0. 0. 0. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 1. 0. 0. 0. 0.]
+ [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+ [0. 0. 0. 0. 0. 1. 1. 0. 0. 0. 0. 0. 1. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+ [0. 0. 0. 0. 0. 1. 1. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+ [0. 0. 0. 0. 1. 0. 0. 0. 0. 0. 0. 1. 0. 0. 0. 0. 0. 0. 0. 1. 0. 0. 0.]
+ [0. 0. 0. 0. 0. 1. 1. 1. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+ [0. 0. 0. 0. 1. 0. 0. 0. 0. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0. 1. 0. 0. 0.]
+ [0. 0. 0. 1. 0. 1. 1. 1. 1. 0. 1. 0. 0. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+ [0. 0. 0. 1. 0. 1. 1. 1. 1. 0. 1. 0. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+ [0. 0. 0. 0. 0. 1. 1. 1. 1. 0. 1. 0. 1. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+ [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 1. 0. 0. 0. 0. 0.]
+ [0. 0. 0. 0. 0. 1. 0. 1. 1. 0. 1. 0. 1. 1. 1. 0. 0. 0. 0. 0. 0. 0. 1.]
+ [0. 0. 0. 1. 0. 1. 1. 1. 1. 0. 1. 0. 1. 1. 1. 0. 1. 0. 0. 0. 0. 0. 0.]
+ [0. 0. 0. 1. 0. 1. 1. 1. 1. 0. 1. 0. 1. 1. 1. 0. 1. 1. 0. 0. 0. 0. 0.]
+ [0. 0. 0. 0. 1. 0. 0. 0. 0. 1. 0. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+ [0. 0. 0. 0. 0. 1. 0. 1. 1. 0. 1. 0. 1. 1. 1. 0. 1. 1. 1. 0. 0. 0. 0.]
+ [0. 0. 0. 0. 0. 1. 1. 1. 0. 0. 1. 0. 1. 1. 1. 0. 0. 1. 1. 0. 1. 0. 0.]
+ [0. 1. 0. 0. 0. 1. 1. 1. 0. 0. 1. 0. 1. 1. 1. 0. 1. 1. 1. 0. 1. 1. 0.]]
+
+===== 检查冗余特征中的关键交互 =====
+识别到 20 个非因果特征：['NAME', 'CDISP', 'CYCLO', 'ATFD', 'NOAV', 'LAA', 'MAXNESTING', 'FANOUT', 'CEXT', 'CM', 'FANOUTCLASS', 'NOEU', 'CALIN', 'CINT', 'FANIN', 'FDP', 'NOP', 'NOLV', 'CC', 'CCL']
+识别到 12 个高贡献特征：['ATFD', 'CEXT', 'CINT', 'CM', 'CYCLO', 'FANIN', 'FANOUT', 'FANOUTCLASS', 'FDP', 'LAA', 'LOC', 'NOLV']
+非因果特征子集∩高贡献特征子集为：['FANOUTCLASS', 'ATFD', 'CINT', 'CYCLO', 'FANIN', 'FDP', 'LAA', 'FANOUT', 'NOLV', 'CEXT', 'CM']
+开始双特征扰动：因果特征2个，非因果特征∩高贡献特征11个
+生成双特征组合共22对
+
+----- 开始计算组合 (LOC, ATFD) 的联合效应 -----
+
+----- 开始计算组合 (LOC, CEXT) 的联合效应 -----组合数过多（292002），采样10000个组合
+
+组合数过多（87838），采样10000个组合
+
+----- 开始计算组合 (LOC, CM) 的联合效应 -----
+
+----- 开始计算组合 (LOC, CYCLO) 的联合效应 -----组合数过多（923486），采样10000个组合
+
+组合数过多（978088），采样10000个组合
+
+----- 开始计算组合 (LOC, FANIN) 的联合效应 -----
+组合数过多（923486），采样10000个组合
+
+----- 开始计算组合 (LOC, FANOUTCLASS) 的联合效应 -----
+组合数过多（154310），采样10000个组合
+
+----- 开始计算组合 (LOC, FDP) 的联合效应 -----
+组合数过多（49854），采样10000个组合
+----- 开始计算组合 (LOC, LAA) 的联合效应 -----
+组合数过多（1384042），采样10000个组合
+
+
+----- 开始计算组合 (LOC, NOLV) 的联合效应 -----
+组合数过多（1360302），采样10000个组合
+
+----- 开始计算组合 (LOC, FANOUT) 的联合效应 -----
+组合数过多（427320），采样10000个组合
+双特征扰动评估（并行）:   0%|                            | 0/22 [00:00<?, ?it/s]2025-08-13 10:12:58.459254: W tensorflow/core/framework/op_kernel.cc:1828] OP_REQUIRES failed at strided_slice_op.cc:117 : INVALID_ARGUMENT: Expected begin, end, and strides to be 1D equal size tensors, but got shapes [2], [1], and [1] instead.
+
+===== 组合 (LOC, FANIN) 计算失败 =====
+错误原因: {{function_node __wrapped__StridedSlice_device_/job:localhost/replica:0/task:0/device:GPU:0}} Expected begin, end, and strides to be 1D equal size tensors, but got shapes [2], [1], and [1] instead. [Op:StridedSlice] name: strided_slice/
+特征 LOC 的扰动值长度: 2374
+特征 LOC 的前3个扰动值: [0, 1, 2]
+特征 FANIN 的扰动值长度: 389
+特征 FANIN 的前3个扰动值: [0, 1, 2]
+计算组合(LOC, FANIN)联合效应失败：{{function_node __wrapped__StridedSlice_device_/job:localhost/replica:0/task:0/device:GPU:0}} Expected begin, end, and strides to be 1D equal size tensors, but got shapes [2], [1], and [1] instead. [Op:StridedSlice] name: strided_slice/
+
+----- 开始计算组合 (LOC, CINT) 的联合效应 -----
+组合数过多（289628），采样10000个组合
+双特征扰动评估（并行）:   5%|▉                   | 1/22 [00:24<08:31, 24.36s/it]
+===== 组合 (LOC, FDP) 计算失败 =====
+错误原因: {{function_node __wrapped__Pack_N_313_device_/job:localhost/replica:0/task:0/device:GPU:0}} Shapes of all inputs must match: values[0].shape = [1] != values[78].shape = [0] [Op:Pack] name: stack
+特征 LOC 的扰动值长度: 2374
+特征 LOC 的前3个扰动值: [0, 1, 2]
+特征 FDP 的扰动值长度: 21
+特征 FDP 的前3个扰动值: [0, 1, 2]
+计算组合(LOC, FDP)联合效应失败：{{function_node __wrapped__Pack_N_313_device_/job:localhost/replica:0/task:0/device:GPU:0}} Shapes of all inputs must match: values[0].shape = [1] != values[78].shape = [0] [Op:Pack] name: stack
+2025-08-13 10:13:00.874916: W tensorflow/core/framework/op_kernel.cc:1828] OP_REQUIRES failed at strided_slice_op.cc:117 : INVALID_ARGUMENT: Expected begin, end, and strides to be 1D equal size tensors, but got shapes [2], [1], and [1] instead.
+
+===== 组合 (LOC, NOLV) 计算失败 =====
+错误原因: {{function_node __wrapped__Pack_N_313_device_/job:localhost/replica:0/task:0/device:GPU:0}} Shapes of all inputs must match: values[0].shape = [1] != values[276].shape = [0] [Op:Pack] name: stack
+特征 LOC 的扰动值长度: 2374
+特征 LOC 的前3个扰动值: [0, 1, 2]
+特征 NOLV 的扰动值长度: 573
+特征 NOLV 的前3个扰动值: [0, 1, 2]
+计算组合(LOC, NOLV)联合效应失败：{{function_node __wrapped__Pack_N_313_device_/job:localhost/replica:0/task:0/device:GPU:0}} Shapes of all inputs must match: values[0].shape = [1] != values[276].shape = [0] [Op:Pack] name: stack
+
+===== 组合 (LOC, CYCLO) 计算失败 =====
+错误原因: {{function_node __wrapped__StridedSlice_device_/job:localhost/replica:0/task:0/device:GPU:0}} Expected begin, end, and strides to be 1D equal size tensors, but got shapes [2], [1], and [1] instead. [Op:StridedSlice] name: strided_slice/
+特征 LOC 的扰动值长度: 2374
+特征 LOC 的前3个扰动值: [0, 1, 2]
+特征 CYCLO 的扰动值长度: 412
+特征 CYCLO 的前3个扰动值: [0, 1, 2]
+计算组合(LOC, CYCLO)联合效应失败：{{function_node __wrapped__StridedSlice_device_/job:localhost/replica:0/task:0/device:GPU:0}} Expected begin, end, and strides to be 1D equal size tensors, but got shapes [2], [1], and [1] instead. [Op:StridedSlice] name: strided_slice/
+
+----- 开始计算组合 (ALD, ATFD) 的联合效应 -----
+组合数过多（55473），采样10000个组合
+双特征扰动评估（并行）:   9%|█▊                  | 2/22 [00:26<03:44, 11.24s/it]
+----- 开始计算组合 (ALD, CEXT) 的联合效应 -----
+组合数过多（16687），采样10000个组合
+双特征扰动评估（并行）:  14%|██▋                 | 3/22 [00:27<02:03,  6.48s/it]
+双特征扰动评估（并行）:  18%|███▋                | 4/22 [00:29<01:25,  4.76s/it]
+组合数过多（175439），采样10000个组合
+
+----- 开始计算组合 (ALD, CYCLO) 的联合效应 -----
+组合数过多（185812），采样10000个组合
+双特征扰动评估（并行）:  23%|████▌               | 5/22 [00:29<00:54,  3.18s/it]
+----- 开始计算组合 (ALD, FANIN) 的联合效应 -----
+组合数过多（175439），采样10000个组合
+双特征扰动评估（并行）:  27%|█████▍              | 6/22 [00:30<00:37,  2.35s/it]
+----- 开始计算组合 (ALD, FANOUTCLASS) 的联合效应 -----
+
+双特征扰动评估（并行）:  32%|██████▎             | 7/22 [00:32<00:33,  2.26s/it]组合数过多（29315），采样10000个组合
+
+
+----- 开始计算组合 (ALD, LAA) 的联合效应 -----
+双特征扰动评估（并行）:  41%|████████▏           | 9/22 [00:32<00:16,  1.25s/it]组合数过多（262933），采样10000个组合
+
+双特征扰动评估（并行）:  45%|████████▋          | 10/22 [00:33<00:12,  1.03s/it]
+组合数过多（258423），采样10000个组合
+双特征扰动评估（并行）:  50%|█████████▌         | 11/22 [00:34<00:13,  1.22s/it]
+----- 开始计算组合 (ALD, FANOUT) 的联合效应 -----
+组合数过多（81180），采样10000个组合
+组合(ALD, ATFD)：联合效应0.6931 > 单特征和0.6931×0.959999979281419，标记为显著
+
+双特征扰动评估（并行）:  55%|██████████▎        | 12/22 [00:35<00:11,  1.15s/it]
+组合数过多（55022），采样10000个组合
+组合(ALD, CEXT)：联合效应0.6931 > 单特征和0.6931×0.959999979281419，标记为显著
+双特征扰动评估（并行）:  59%|███████████▏       | 13/22 [00:36<00:09,  1.03s/it]组合(ALD, FDP)：联合效应0.6931 > 单特征和0.6931×0.959999979281419，标记为显著
+双特征扰动评估（并行）:  64%|████████████       | 14/22 [00:37<00:07,  1.07it/s]组合(ALD, CM)：联合效应0.6931 > 单特征和0.6931×0.959999979281419，标记为显著
+双特征扰动评估（并行）:  68%|████████████▉      | 15/22 [00:43<00:17,  2.51s/it]2025-08-13 10:13:23.631343: W tensorflow/core/framework/op_kernel.cc:1828] OP_REQUIRES failed at strided_slice_op.cc:117 : INVALID_ARGUMENT: Expected begin, end, and strides to be 1D equal size tensors, but got shapes [1], [313,1], and [1] instead.
+
+===== 组合 (ALD, NOLV) 计算失败 =====
+错误原因: {{function_node __wrapped__StridedSlice_device_/job:localhost/replica:0/task:0/device:GPU:0}} Expected begin, end, and strides to be 1D equal size tensors, but got shapes [1], [313,1], and [1] instead. [Op:StridedSlice] name: strided_slice/
+特征 ALD 的扰动值长度: 451
+特征 ALD 的前3个扰动值: [0, 1, 2]
+特征 NOLV 的扰动值长度: 573
+特征 NOLV 的前3个扰动值: [0, 1, 2]
+计算组合(ALD, NOLV)联合效应失败：{{function_node __wrapped__StridedSlice_device_/job:localhost/replica:0/task:0/device:GPU:0}} Expected begin, end, and strides to be 1D equal size tensors, but got shapes [1], [313,1], and [1] instead. [Op:StridedSlice] name: strided_slice/
+双特征扰动评估（并行）:  73%|█████████████▊     | 16/22 [00:49<00:21,  3.60s/it]组合(ALD, CYCLO)：联合效应0.6931 > 单特征和0.6931×0.959999979281419，标记为显著
+双特征扰动评估（并行）:  77%|██████████████▋    | 17/22 [00:50<00:14,  2.83s/it]组合(ALD, FANOUTCLASS)：联合效应0.6931 > 单特征和0.6931×0.959999979281419，标记为显著
+组合(ALD, LAA)：联合效应0.6931 > 单特征和0.6931×0.959999979281419，标记为显著
+双特征扰动评估（并行）:  86%|████████████████▍  | 19/22 [00:51<00:05,  1.75s/it]组合(ALD, CINT)：联合效应0.6862 > 单特征和0.6875×0.9619482833071586，标记为显著
+双特征扰动评估（并行）:  91%|█████████████████▎ | 20/22 [00:53<00:03,  1.71s/it]组合(ALD, FANOUT)：联合效应0.6931 > 单特征和0.6931×0.9600003920402059，标记为显著
+组合(ALD, FANIN)：联合效应0.6931 > 单特征和0.6931×0.959999979281419，标记为显著
+双特征扰动评估（并行）: 100%|███████████████████| 22/22 [01:07<00:00,  3.07s/it]
+双特征扰动完成，新增10个特征到特征选择子集：['ATFD', 'CEXT', 'CINT', 'CM', 'CYCLO', 'FANIN', 'FANOUT', 'FANOUTCLASS', 'FDP', 'LAA']，更新后特征选择子集共12个特征
+
+===== 特征选择前后训练结果 =====
+===== 开始模型训练 =====
+原始数据形状：(79403, 23)
+警告：筛选特征顺序已调整为与原始数据一致
+筛选后数据集形状：(79403, 12)
+使用筛选后的特征：['ALD', 'ATFD', 'CEXT', 'CINT', 'CM', 'CYCLO', 'FANIN', 'FANOUT', 'FANOUTCLASS', 'FDP', 'LAA', 'LOC']
+Restoring model weights from the end of the best epoch: 5.
+Epoch 10: early stopping
+模型训练耗时: 13.43秒
+测试集损失: 0.2637, 测试集准确率: 0.8891
+精确率: 0.8891
+召回率: 0.8891
+497/497 [==============================] - 1s 914us/step
+
+分类报告:
+              precision    recall  f1-score   support
+
+           0    0.98881   0.87654   0.92930     13203
+           1    0.60977   0.95108   0.74311      2678
+
+    accuracy                        0.88911     15881
+   macro avg    0.79929   0.91381   0.83620     15881
+weighted avg    0.92489   0.88911   0.89790     15881
+
+特征选择前:22
+特征选择后:12
+模型运行时间减少了-2.14s
+模型准确率提升了-0.33%
+
+进程已结束，退出代码为 0

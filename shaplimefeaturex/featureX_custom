@@ -1,0 +1,163 @@
+/root/miniconda3/bin/python3 /root/tmp/causalFeatureX_LSTM_0915/featureX_fast_code.py
+2025-09-26 16:09:43.392604: I tensorflow/core/util/port.cc:110] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2025-09-26 16:09:43.443609: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 AVX_VNNI AMX_TILE AMX_INT8 AMX_BF16 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2025-09-26 16:09:44.313083: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+2025-09-26 16:09:45.385855: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1639] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 21793 MB memory:  -> device: 0, name: NVIDIA GeForce RTX 4090, pci bus id: 0000:38:00.0, compute capability: 8.9
+主进程：GPU初始化成功，逻辑GPU数量：1
+原始数据前5行：
+         Contract Dependents     DeviceProtection  ...  gender  tenure Label
+0        One year         No  No internet service  ...    Male      60    No
+1  Month-to-month         No                   No  ...  Female      12   Yes
+2  Month-to-month        Yes  No internet service  ...  Female      40    No
+3        Two year        Yes  No internet service  ...  Female      45    No
+4  Month-to-month        Yes  No internet service  ...    Male      25    No
+
+[5 rows x 15 columns]
+
+=== 开始处理分类特征 ===
+发现10个分类特征：['Contract', 'Dependents', 'DeviceProtection', 'InternetService', 'MultipleLines', 'Partner', 'PaymentMethod', 'PhoneService', 'TVProgram', 'gender']
+Contract的编码映射（部分）：{'Month-to-month': 0, 'One year': 1, 'Two year': 2}
+Dependents的编码映射（部分）：{'No': 0, 'Yes': 1}
+DeviceProtection的编码映射（部分）：{'No': 0, 'No internet service': 1, 'Yes': 2}
+InternetService的编码映射（部分）：{'DSL': 0, 'Fiber optic': 1, 'No': 2}
+MultipleLines的编码映射（部分）：{'No': 0, 'No phone service': 1, 'Yes': 2}
+Partner的编码映射（部分）：{'No': 0, 'Yes': 1}
+PaymentMethod的编码映射（部分）：{'Bank transfer (automatic)': 0, 'Credit card (automatic)': 1, 'Electronic check': 2, 'Mailed check': 3}
+PhoneService的编码映射（部分）：{'No': 0, 'Yes': 1}
+TVProgram的编码映射（部分）：{'No': 0, 'No internet service': 1, 'Yes': 2}
+gender的编码映射（部分）：{'Female': 0, 'Male': 1}
+
+=== 发现已存在模型文件：featureX_model/CustomerChurn.keras ===
+=== 跳过模型训练，直接加载模型并进入相关性分析 ===
+
+=== 开始相关性分析 ===
+原始目标变量类型: object, 前5个值: ['No', 'Yes', 'No', 'No', 'No']
+目标变量字符串映射关系: {'No': 0, 'Yes': 1}
+转换后目标变量类型: int64, 前5个值: [0, 1, 0, 0, 0]
+相关性分析耗时: 0.2559 Seconds
+
+=== 开始特征扰动 ===
+特征扰动耗时: 0.0056 Seconds
+
+=== 开始重要性评估 ===
+2025-09-26 16:09:47.282668: I tensorflow/compiler/xla/stream_executor/cuda/cuda_dnn.cc:432] Loaded cuDNN version 8600
+2025-09-26 16:09:47.364626: I tensorflow/tsl/platform/default/subprocess.cc:304] Start cannot spawn child process: No such file or directory
+2025-09-26 16:09:47.499901: I tensorflow/compiler/xla/stream_executor/cuda/cuda_blas.cc:606] TensorFloat-32 will be used for the matrix multiplication. This will only be logged once.
+使用 2 个进程进行特征重要性评估（降低GPU负载）
+2025-09-26 16:09:49.621438: I tensorflow/core/util/port.cc:110] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2025-09-26 16:09:49.671222: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 AVX_VNNI AMX_TILE AMX_INT8 AMX_BF16 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2025-09-26 16:09:50.573411: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+2025-09-26 16:09:51.672576: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1639] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 21310 MB memory:  -> device: 0, name: NVIDIA GeForce RTX 4090, pci bus id: 0000:38:00.0, compute capability: 8.9
+2025-09-26 16:09:52.643117: I tensorflow/compiler/xla/stream_executor/cuda/cuda_dnn.cc:432] Loaded cuDNN version 8600
+2025-09-26 16:09:52.740695: I tensorflow/tsl/platform/default/subprocess.cc:304] Start cannot spawn child process: No such file or directory
+2025-09-26 16:09:52.879806: I tensorflow/compiler/xla/stream_executor/cuda/cuda_blas.cc:606] TensorFloat-32 will be used for the matrix multiplication. This will only be logged once.
+子进程：模型初始化完成
+2025-09-26 16:09:53.296039: I tensorflow/core/util/port.cc:110] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2025-09-26 16:09:53.347351: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 AVX_VNNI AMX_TILE AMX_INT8 AMX_BF16 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2025-09-26 16:09:54.242464: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+2025-09-26 16:09:55.282519: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1639] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 895 MB memory:  -> device: 0, name: NVIDIA GeForce RTX 4090, pci bus id: 0000:38:00.0, compute capability: 8.9
+2025-09-26 16:09:55.759276: I tensorflow/compiler/xla/stream_executor/cuda/cuda_dnn.cc:432] Loaded cuDNN version 8600
+Fresh_breeze多进程耗时: 8.5184 Seconds
+已保存第1/1页特征变化图：feature_changes_page_1.png
+重要性评估耗时: 11.4826 Seconds
+
+=== 开始特征选择 ===
+特征选择完成：移除 6 个特征，保留 8 个特征
+特征选择耗时: 0.0003 Seconds
+
+=== 用选择后的特征重新训练模型 ===
+Epoch 1/30
+2025-09-26 16:10:00.524625: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x7f54de16ae60 initialized for platform CUDA (this does not guarantee that XLA will be used). Devices:
+2025-09-26 16:10:00.524666: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): NVIDIA GeForce RTX 4090, Compute Capability 8.9
+2025-09-26 16:10:00.531851: I tensorflow/compiler/mlir/tensorflow/utils/dump_mlir_util.cc:255] disabling MLIR crash reproducer, set env var `MLIR_CRASH_REPRODUCER_DIRECTORY` to enable.
+2025-09-26 16:10:00.633051: I tensorflow/tsl/platform/default/subprocess.cc:304] Start cannot spawn child process: No such file or directory
+2025-09-26 16:10:00.700079: I ./tensorflow/compiler/jit/device_compiler.h:186] Compiled cluster using XLA!  This line is logged at most once for the lifetime of the process.
+21/21 [==============================] - 5s 34ms/step - loss: 0.7770 - accuracy: 0.6481 - val_loss: 0.7670 - val_accuracy: 0.7470 - lr: 0.0010
+Epoch 2/30
+21/21 [==============================] - 0s 8ms/step - loss: 0.6871 - accuracy: 0.7241 - val_loss: 0.7530 - val_accuracy: 0.6052 - lr: 0.0010
+Epoch 3/30
+21/21 [==============================] - 0s 8ms/step - loss: 0.6580 - accuracy: 0.7382 - val_loss: 0.7185 - val_accuracy: 0.6555 - lr: 0.0010
+Epoch 4/30
+21/21 [==============================] - 0s 8ms/step - loss: 0.6496 - accuracy: 0.7351 - val_loss: 0.7359 - val_accuracy: 0.5419 - lr: 0.0010
+Epoch 5/30
+21/21 [==============================] - 0s 8ms/step - loss: 0.6312 - accuracy: 0.7489 - val_loss: 0.6904 - val_accuracy: 0.6136 - lr: 0.0010
+Epoch 6/30
+21/21 [==============================] - 0s 8ms/step - loss: 0.6209 - accuracy: 0.7511 - val_loss: 0.6816 - val_accuracy: 0.6448 - lr: 0.0010
+Epoch 7/30
+21/21 [==============================] - 0s 8ms/step - loss: 0.6115 - accuracy: 0.7542 - val_loss: 0.6331 - val_accuracy: 0.7081 - lr: 0.0010
+Epoch 8/30
+21/21 [==============================] - 0s 8ms/step - loss: 0.5983 - accuracy: 0.7599 - val_loss: 0.6246 - val_accuracy: 0.7302 - lr: 0.0010
+Epoch 9/30
+21/21 [==============================] - 0s 8ms/step - loss: 0.5943 - accuracy: 0.7544 - val_loss: 0.6062 - val_accuracy: 0.7363 - lr: 0.0010
+Epoch 10/30
+21/21 [==============================] - 0s 10ms/step - loss: 0.5879 - accuracy: 0.7590 - val_loss: 0.5916 - val_accuracy: 0.7355 - lr: 0.0010
+Epoch 11/30
+21/21 [==============================] - 0s 8ms/step - loss: 0.5737 - accuracy: 0.7649 - val_loss: 0.5810 - val_accuracy: 0.7363 - lr: 0.0010
+Epoch 12/30
+21/21 [==============================] - 0s 8ms/step - loss: 0.5715 - accuracy: 0.7666 - val_loss: 0.5739 - val_accuracy: 0.7431 - lr: 0.0010
+Epoch 13/30
+21/21 [==============================] - 0s 8ms/step - loss: 0.5677 - accuracy: 0.7611 - val_loss: 0.5626 - val_accuracy: 0.7462 - lr: 0.0010
+Epoch 14/30
+21/21 [==============================] - 0s 8ms/step - loss: 0.5635 - accuracy: 0.7673 - val_loss: 0.5654 - val_accuracy: 0.7431 - lr: 0.0010
+Epoch 15/30
+21/21 [==============================] - 0s 8ms/step - loss: 0.5581 - accuracy: 0.7639 - val_loss: 0.5544 - val_accuracy: 0.7416 - lr: 0.0010
+Epoch 16/30
+21/21 [==============================] - 0s 8ms/step - loss: 0.5574 - accuracy: 0.7664 - val_loss: 0.5566 - val_accuracy: 0.7470 - lr: 0.0010
+Epoch 17/30
+21/21 [==============================] - 0s 8ms/step - loss: 0.5482 - accuracy: 0.7702 - val_loss: 0.5507 - val_accuracy: 0.7470 - lr: 0.0010
+Epoch 18/30
+21/21 [==============================] - 0s 8ms/step - loss: 0.5406 - accuracy: 0.7689 - val_loss: 0.5680 - val_accuracy: 0.7515 - lr: 0.0010
+Epoch 19/30
+21/21 [==============================] - 0s 8ms/step - loss: 0.5360 - accuracy: 0.7710 - val_loss: 0.5333 - val_accuracy: 0.7530 - lr: 0.0010
+Epoch 20/30
+21/21 [==============================] - 0s 8ms/step - loss: 0.5337 - accuracy: 0.7721 - val_loss: 0.5597 - val_accuracy: 0.7447 - lr: 0.0010
+Epoch 21/30
+21/21 [==============================] - 0s 10ms/step - loss: 0.5346 - accuracy: 0.7662 - val_loss: 0.5474 - val_accuracy: 0.7553 - lr: 0.0010
+Epoch 22/30
+21/21 [==============================] - 0s 9ms/step - loss: 0.5272 - accuracy: 0.7769 - val_loss: 0.5396 - val_accuracy: 0.7698 - lr: 0.0010
+Epoch 23/30
+21/21 [==============================] - 0s 9ms/step - loss: 0.5214 - accuracy: 0.7767 - val_loss: 0.5329 - val_accuracy: 0.7637 - lr: 5.0000e-04
+Epoch 24/30
+21/21 [==============================] - 0s 8ms/step - loss: 0.5140 - accuracy: 0.7772 - val_loss: 0.5421 - val_accuracy: 0.7569 - lr: 5.0000e-04
+Epoch 25/30
+21/21 [==============================] - 0s 8ms/step - loss: 0.5201 - accuracy: 0.7790 - val_loss: 0.5297 - val_accuracy: 0.7561 - lr: 5.0000e-04
+Epoch 26/30
+21/21 [==============================] - 0s 7ms/step - loss: 0.5198 - accuracy: 0.7746 - val_loss: 0.5268 - val_accuracy: 0.7645 - lr: 5.0000e-04
+Epoch 27/30
+21/21 [==============================] - 0s 7ms/step - loss: 0.5142 - accuracy: 0.7755 - val_loss: 0.5338 - val_accuracy: 0.7668 - lr: 5.0000e-04
+Epoch 28/30
+21/21 [==============================] - 0s 8ms/step - loss: 0.5101 - accuracy: 0.7830 - val_loss: 0.5398 - val_accuracy: 0.7637 - lr: 5.0000e-04
+Epoch 29/30
+21/21 [==============================] - 0s 8ms/step - loss: 0.5119 - accuracy: 0.7782 - val_loss: 0.5283 - val_accuracy: 0.7668 - lr: 5.0000e-04
+Epoch 30/30
+21/21 [==============================] - 0s 7ms/step - loss: 0.5102 - accuracy: 0.7811 - val_loss: 0.5256 - val_accuracy: 0.7652 - lr: 2.5000e-04
+新模型训练耗时: 9.8410 Seconds
+
+新模型评估结果:
+41/41 [==============================] - 0s 2ms/step - loss: 0.5256 - accuracy: 0.7652
+新模型测试集Loss: 0.5256, Accuracy: 0.7652
+新模型分类报告:
+              precision    recall  f1-score   support
+
+           0    0.87403   0.64986   0.74545       694
+           1    0.69472   0.89482   0.78218       618
+
+    accuracy                        0.76524      1312
+   macro avg    0.78438   0.77234   0.76382      1312
+weighted avg    0.78957   0.76524   0.76275      1312
+
+
+============================================================
+特征重要性分析四大模块耗时汇总:
+1. 相关性分析: 0.2559 Seconds
+2. 特征扰动: 0.0056 Seconds
+3. 重要性评估: 11.4826 Seconds
+4. 特征选择: 0.0003 Seconds
+============================================================
+四大模块总计耗时: 11.7444 Seconds
+============================================================
+
+进程已结束，退出代码为 0

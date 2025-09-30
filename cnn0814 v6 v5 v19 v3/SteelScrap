@@ -1,0 +1,433 @@
+from model_train_v6 import train, save_model
+from feature_perturbation_v5 import CausalFeaturePerturbation
+# from graph_only_highcon import Feature, build_causal_graph
+from causal_graph_build_v22 import build_causal_graph, Feature
+from redundantRecover_v3 import PathShapleyModule
+
+/root/miniconda3/bin/python3 /root/tmp/causalFeatureX_0813/main.py
+2025-08-15 10:45:18.195442: I tensorflow/core/util/port.cc:110] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2025-08-15 10:45:18.253916: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 AVX_VNNI AMX_TILE AMX_INT8 AMX_BF16 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2025-08-15 10:45:19.251708: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+===== 开始模型训练 =====
+数据基本信息：
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 1941 entries, 0 to 1940
+Data columns (total 28 columns):
+ #   Column                 Non-Null Count  Dtype
+---  ------                 --------------  -----
+ 0   X_Minimum              1941 non-null   int64
+ 1   X_Maximum              1941 non-null   int64
+ 2   Y_Minimum              1941 non-null   int64
+ 3   Y_Maximum              1941 non-null   int64
+ 4   Pixels_Areas           1941 non-null   int64
+ 5   X_Perimeter            1941 non-null   int64
+ 6   Y_Perimeter            1941 non-null   int64
+ 7   Sum_of_Luminosity      1941 non-null   int64
+ 8   Minimum_of_Luminosity  1941 non-null   int64
+ 9   Maximum_of_Luminosity  1941 non-null   int64
+ 10  Length_of_Conveyer     1941 non-null   int64
+ 11  TypeOfSteel_A300       1941 non-null   int64
+ 12  TypeOfSteel_A400       1941 non-null   int64
+ 13  Steel_Plate_Thickness  1941 non-null   int64
+ 14  Edges_Index            1941 non-null   float64
+ 15  Empty_Index            1941 non-null   float64
+ 16  Square_Index           1941 non-null   float64
+ 17  Outside_X_Index        1941 non-null   float64
+ 18  Edges_X_Index          1941 non-null   float64
+ 19  Edges_Y_Index          1941 non-null   float64
+ 20  Outside_Global_Index   1941 non-null   float64
+ 21  LogOfAreas             1941 non-null   float64
+ 22  Log_X_Index            1941 non-null   float64
+ 23  Log_Y_Index            1941 non-null   float64
+ 24  Orientation_Index      1941 non-null   float64
+ 25  Luminosity_Index       1941 non-null   float64
+ 26  SigmoidOfAreas         1941 non-null   float64
+ 27  Faults                 1941 non-null   int64
+dtypes: float64(13), int64(15)
+memory usage: 424.7 KB
+数据集形状：(1941, 27)
+采样前训练集类别分布：
+Faults
+7    0.341495
+6    0.212629
+3    0.198454
+2    0.096005
+1    0.083119
+4    0.038015
+5    0.030284
+Name: proportion, dtype: float64
+
+应用SMOTE+ENN混合采样...
+SMOTE+ENN采样后类别分布:
+Faults
+1    530
+2    328
+3    446
+4    455
+5    466
+6    220
+7     87
+Name: count, dtype: int64
+类别平衡比例为0.16，进行二次微调...
+二次调整后类别分布:
+Faults
+1    530
+2    530
+3    446
+4    455
+5    466
+6    530
+7    530
+Name: count, dtype: int64
+根据特征维度 27 和样本量 1941 调整模型参数...
+2025-08-15 10:45:22.071688: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1639] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 22182 MB memory:  -> device: 0, name: NVIDIA GeForce RTX 4090, pci bus id: 0000:27:00.0, compute capability: 8.9
+根据样本量 1941 使用batch_size: 64
+2025-08-15 10:45:24.023889: I tensorflow/compiler/xla/stream_executor/cuda/cuda_dnn.cc:432] Loaded cuDNN version 8600
+2025-08-15 10:45:24.119720: I tensorflow/tsl/platform/default/subprocess.cc:304] Start cannot spawn child process: No such file or directory
+2025-08-15 10:45:24.192552: I tensorflow/compiler/xla/stream_executor/cuda/cuda_blas.cc:606] TensorFloat-32 will be used for the matrix multiplication. This will only be logged once.
+2025-08-15 10:45:24.229937: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x7f204e885400 initialized for platform CUDA (this does not guarantee that XLA will be used). Devices:
+2025-08-15 10:45:24.229972: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): NVIDIA GeForce RTX 4090, Compute Capability 8.9
+2025-08-15 10:45:24.236839: I tensorflow/compiler/mlir/tensorflow/utils/dump_mlir_util.cc:255] disabling MLIR crash reproducer, set env var `MLIR_CRASH_REPRODUCER_DIRECTORY` to enable.
+2025-08-15 10:45:24.322550: I tensorflow/tsl/platform/default/subprocess.cc:304] Start cannot spawn child process: No such file or directory
+2025-08-15 10:45:24.409002: I ./tensorflow/compiler/jit/device_compiler.h:186] Compiled cluster using XLA!  This line is logged at most once for the lifetime of the process.
+
+Epoch 26: ReduceLROnPlateau reducing learning rate to 0.0002500000118743628.
+
+Epoch 32: ReduceLROnPlateau reducing learning rate to 0.0001250000059371814.
+
+Epoch 35: ReduceLROnPlateau reducing learning rate to 6.25000029685907e-05.
+
+Epoch 38: ReduceLROnPlateau reducing learning rate to 3.125000148429535e-05.
+Restoring model weights from the end of the best epoch: 29.
+Epoch 39: early stopping
+模型训练耗时: 15.86秒
+测试集损失: 1.3965, 测试集准确率: 0.4396
+13/13 [==============================] - 0s 1ms/step
+
+分类报告:
+              precision    recall  f1-score   support
+
+           0    0.21053   0.68966   0.32258        29
+           1    0.44444   0.19512   0.27119        41
+           2    0.86420   0.84337   0.85366        83
+           3    0.85714   0.92308   0.88889        13
+           4    0.33333   0.12500   0.18182         8
+           5    0.30573   0.66667   0.41921        72
+           6    0.57143   0.08392   0.14634       143
+
+    accuracy                        0.43959       389
+   macro avg    0.51240   0.50383   0.44053       389
+weighted avg    0.54908   0.43959   0.39961       389
+
+
+保存模型...
+
+模型已成功保存至: /root/tmp/causalFeatureX_0813/saved_models/SteelScrap_CNN.keras
+模型预期输入形状: (None, 27, 1)
+===== 运行特征扰动模块 =====
+生成特征扰动值: 100%|████████████████████████| 27/27 [00:00<00:00, 16369.79it/s]
+使用 8 个线程并行计算特征贡献值...
+计算特征贡献值: 100%|███████████████████████████| 27/27 [00:02<00:00,  9.83it/s]
+特征扰动实验总耗时：2.80秒
+特征数据形状: (1941, 27)
+已将原始样本预测值存入全局变量，形状: (1941, 7)
+基线分布形状: (7,), 平均JS散度: 0.1290
+各特征最大JS散度（按影响程度排序）：
+  特征 Sum_of_Luminosity: 0.0916
+  特征 Log_Y_Index: 0.0445
+  特征 Y_Maximum: 0.0397
+  特征 LogOfAreas: 0.02
+  特征 Log_X_Index: 0.0142
+  特征 Steel_Plate_Thickness: 0.0047
+  特征 Maximum_of_Luminosity: 0.003
+  特征 Edges_Y_Index: 0.0028
+  特征 Square_Index: 0.0012
+  特征 Outside_Global_Index: 0.0011
+  特征 Outside_X_Index: 0.0008
+  特征 Y_Minimum: 0.0007
+  特征 Edges_X_Index: 0.0004
+  特征 Pixels_Areas: 0.0003
+  特征 SigmoidOfAreas: 0.0002
+  特征 Orientation_Index: 0.0002
+  特征 Y_Perimeter: 0.0001
+  特征 Length_of_Conveyer: 0.0001
+  特征 Edges_Index: 0.0
+  特征 Minimum_of_Luminosity: 0.0
+  特征 Luminosity_Index: 0.0
+  特征 Empty_Index: 0.0
+  特征 X_Perimeter: 0.0
+  特征 TypeOfSteel_A400: 0.0
+  特征 TypeOfSteel_A300: 0.0
+  特征 X_Minimum: 0.0
+  特征 X_Maximum: 0.0
+==================================================
+真实样本的预测值: [[0.32194987 0.15029226 0.0021003  ... 0.27086696 0.12311307 0.13023108]
+ [0.32451195 0.13940859 0.00117822 ... 0.275037   0.1380284  0.1196515 ]
+ [0.2868809  0.15149844 0.00128223 ... 0.23814328 0.18552585 0.13234489]
+ ...
+ [0.03960037 0.23218332 0.13484785 ... 0.04998185 0.23770903 0.27916214]
+ [0.05688562 0.24122022 0.15876171 ... 0.06895496 0.18706726 0.27484345]
+ [0.06512495 0.24151216 0.02163227 ... 0.06998748 0.34169197 0.24339375]]
+
+===== 运行因果图构建模块 =====
+============================================================
+           因果图构建关键参数 summary
+============================================================
+目标变量: ['Faults']
+特征总数: 28
+使用的alpha阈值列表: [0.001, 0.003, 0.005, 0.01, 0.015, 0.02, 0.025, 0.03, 0.035, 0.04, 0.045, 0.05]
+最大路径长度限制: 3
+Bootstrap抽样次数: 30
+最小有效路径数阈值: 1
+------------------------------------------------------------
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:05<00:00,  5.52it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:05<00:00,  5.49it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:05<00:00,  5.53it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:05<00:00,  5.51it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:05<00:00,  5.52it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:05<00:00,  5.51it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:05<00:00,  5.52it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:05<00:00,  5.50it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:05<00:00,  5.51it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:05<00:00,  5.51it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:05<00:00,  5.50it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:05<00:00,  5.54it/s]
+阈值搜索进度: 100%|█████████████████████████████| 12/12 [00:05<00:00,  2.16it/s]
+alpha=0.001 有效路径数: 4
+alpha=0.003 有效路径数: 4
+alpha=0.005 有效路径数: 5
+alpha=0.010 有效路径数: 4
+alpha=0.015 有效路径数: 4
+alpha=0.020 有效路径数: 4
+alpha=0.025 有效路径数: 5
+alpha=0.030 有效路径数: 5
+alpha=0.035 有效路径数: 4
+alpha=0.040 有效路径数: 4
+alpha=0.045 有效路径数: 4
+alpha=0.050 有效路径数: 5
+
+【有效路径涉及的特征】共3个:
+1. Square_Index
+2. X_Maximum
+3. X_Minimum
+
+【直接路径（特征→target）】
+1. X_Minimum → Faults
+2. X_Maximum → Faults
+3. Square_Index → Faults
+
+【间接路径（特征→...→target）】
+1. X_Minimum → X_Maximum → Faults
+2. X_Maximum → X_Minimum → Faults
+
+============================================================
+           因果图构建最终结果
+============================================================
+1. 最优alpha阈值: 0.0500
+2. 有效路径总数: 5
+   - 直接路径数: 3
+   - 间接路径数: 2
+3. 高贡献特征判定阈值 (平均): 0.0142
+4. 高贡献特征数量: 5
+5. 路径稳定性FDR控制水平: 0.28943160626844383
+6. 最小稳定性阈值: 0.1
+============================================================
+
+
+【高贡献特征列表】共5个:
+1. Y_Maximum (贡献值: 0.0397)
+2. Sum_of_Luminosity (贡献值: 0.0916)
+3. LogOfAreas (贡献值: 0.0200)
+4. Log_X_Index (贡献值: 0.0142)
+5. Log_Y_Index (贡献值: 0.0445)
+
+有向图矩阵（行：起点，列：终点，1表示存在有向边）：
+节点顺序：['X_Minimum', 'X_Maximum', 'Y_Minimum', 'Y_Maximum', 'Pixels_Areas', 'X_Perimeter', 'Y_Perimeter', 'Sum_of_Luminosity', 'Minimum_of_Luminosity', 'Maximum_of_Luminosity', 'Length_of_Conveyer', 'TypeOfSteel_A300', 'TypeOfSteel_A400', 'Steel_Plate_Thickness', 'Edges_Index', 'Empty_Index', 'Square_Index', 'Outside_X_Index', 'Edges_X_Index', 'Edges_Y_Index', 'Outside_Global_Index', 'LogOfAreas', 'Log_X_Index', 'Log_Y_Index', 'Orientation_Index', 'Luminosity_Index', 'SigmoidOfAreas', 'Faults']
+[[0. 1. 0. 0. 0. 0. 0. 0. 1. 0. 1. 0. 0. 0. 1. 1. 0. 1. 1. 1. 0. 1. 0. 1.
+  0. 0. 0. 1.]
+ [1. 0. 0. 0. 0. 0. 0. 0. 1. 0. 1. 0. 0. 0. 1. 1. 0. 0. 0. 0. 0. 0. 0. 0.
+  0. 0. 0. 1.]
+ [0. 0. 0. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.
+  0. 0. 0. 0.]
+ [0. 0. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.
+  0. 0. 0. 0.]
+ [0. 0. 0. 0. 0. 1. 0. 1. 1. 0. 0. 0. 0. 0. 0. 0. 0. 1. 1. 1. 0. 1. 1. 1.
+  0. 0. 1. 0.]
+ [0. 0. 0. 0. 0. 0. 0. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.
+  0. 0. 0. 0.]
+ [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.
+  0. 0. 0. 0.]
+ [0. 0. 0. 0. 0. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.
+  0. 0. 0. 0.]
+ [0. 0. 0. 0. 0. 1. 0. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 1. 1. 1.
+  0. 0. 1. 0.]
+ [0. 0. 0. 0. 0. 0. 0. 0. 1. 0. 1. 1. 1. 0. 1. 0. 0. 0. 1. 1. 1. 0. 1. 0.
+  0. 1. 0. 0.]
+ [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0.
+  0. 0. 0. 0.]
+ [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.
+  0. 1. 0. 0.]
+ [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 1. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.
+  0. 1. 0. 0.]
+ [0. 0. 0. 1. 0. 0. 0. 0. 0. 1. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.
+  0. 0. 0. 0.]
+ [0. 0. 0. 0. 0. 0. 0. 0. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.
+  0. 0. 0. 0.]
+ [0. 0. 0. 0. 0. 1. 0. 1. 0. 0. 1. 0. 0. 0. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0.
+  0. 0. 0. 0.]
+ [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 1. 1. 1. 1. 0. 0. 0. 1. 0. 0. 1. 0. 0.
+  0. 0. 0. 1.]
+ [0. 0. 0. 0. 0. 1. 0. 1. 1. 0. 1. 0. 1. 1. 1. 1. 0. 0. 0. 0. 0. 0. 0. 0.
+  0. 0. 1. 0.]
+ [0. 1. 0. 0. 0. 1. 0. 1. 1. 0. 1. 1. 1. 0. 1. 1. 0. 0. 0. 0. 0. 0. 0. 0.
+  0. 0. 0. 0.]
+ [0. 1. 0. 0. 0. 1. 0. 1. 1. 0. 1. 1. 1. 1. 1. 1. 0. 1. 1. 0. 0. 0. 1. 0.
+  0. 0. 0. 0.]
+ [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 1. 0. 0. 1. 0. 1. 0. 1. 1. 1. 0. 0. 0. 0.
+  0. 0. 0. 0.]
+ [0. 1. 0. 0. 0. 1. 0. 1. 0. 0. 1. 1. 1. 1. 1. 1. 0. 1. 1. 1. 0. 0. 0. 1.
+  0. 0. 1. 0.]
+ [1. 1. 0. 0. 0. 1. 0. 1. 0. 0. 1. 1. 1. 1. 1. 1. 0. 1. 1. 1. 1. 1. 0. 0.
+  0. 0. 0. 0.]
+ [0. 1. 0. 0. 0. 1. 0. 1. 0. 0. 1. 1. 1. 0. 1. 1. 1. 1. 1. 1. 1. 1. 1. 0.
+  0. 0. 1. 0.]
+ [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.
+  0. 0. 0. 0.]
+ [0. 0. 0. 0. 0. 0. 0. 0. 1. 0. 1. 0. 0. 0. 1. 0. 0. 0. 0. 0. 0. 1. 0. 1.
+  0. 0. 0. 0.]
+ [1. 1. 0. 0. 0. 1. 0. 1. 0. 0. 1. 1. 1. 0. 1. 1. 1. 0. 1. 1. 0. 1. 1. 1.
+  0. 1. 0. 0.]
+ [1. 1. 0. 0. 0. 0. 0. 0. 1. 0. 1. 0. 0. 1. 1. 0. 1. 1. 1. 1. 0. 1. 1. 1.
+  0. 0. 1. 0.]]
+
+===== 检查冗余特征中的关键交互 =====
+识别到 24 个非因果特征：['Minimum_of_Luminosity', 'Outside_Global_Index', 'Steel_Plate_Thickness', 'Edges_X_Index', 'Log_Y_Index', 'LogOfAreas', 'Log_X_Index', 'Y_Minimum', 'TypeOfSteel_A300', 'Y_Maximum', 'Edges_Index', 'SigmoidOfAreas', 'Outside_X_Index', 'Maximum_of_Luminosity', 'X_Perimeter', 'Orientation_Index', 'Sum_of_Luminosity', 'Pixels_Areas', 'Length_of_Conveyer', 'Empty_Index', 'Edges_Y_Index', 'TypeOfSteel_A400', 'Y_Perimeter', 'Luminosity_Index']
+识别到 5 个高贡献特征：['Y_Maximum', 'Sum_of_Luminosity', 'LogOfAreas', 'Log_X_Index', 'Log_Y_Index']
+非因果特征子集∩高贡献特征子集为：['Log_Y_Index', 'LogOfAreas', 'Log_X_Index', 'Y_Maximum', 'Sum_of_Luminosity']
+开始双特征扰动：因果特征3个，非因果特征∩高贡献特征5个
+生成双特征组合共15对
+
+----- 开始计算组合 (Square_Index, Sum_of_Luminosity) 的联合效应 -----
+组合数过多（77770），采样10000个组合
+
+----- 开始计算组合 (Square_Index, Log_Y_Index) 的联合效应 -----
+
+----- 开始计算组合 (Square_Index, Y_Maximum) 的联合效应 -----
+----- 开始计算组合 (Square_Index, LogOfAreas) 的联合效应 -----
+
+----- 开始计算组合 (Square_Index, Log_X_Index) 的联合效应 -----
+
+
+----- 开始计算组合 (X_Minimum, Sum_of_Luminosity) 的联合效应 -----
+组合数过多（77770），采样10000个组合组合数过多（172306），采样10000个组合
+
+
+----- 开始计算组合 (X_Minimum, Log_Y_Index) 的联合效应 -----
+
+----- 开始计算组合 (X_Minimum, Y_Maximum) 的联合效应 -----
+----- 开始计算组合 (X_Minimum, LogOfAreas) 的联合效应 -----
+
+组合数过多（172306），采样10000个组合
+组合数过多（10236），采样10000个组合
+
+----- 开始计算组合 (X_Minimum, Log_X_Index) 的联合效应 -----
+
+----- 开始计算组合 (X_Maximum, Sum_of_Luminosity) 的联合效应 -----
+组合数过多（172710），采样10000个组合
+----- 开始计算组合 (X_Maximum, Log_Y_Index) 的联合效应 -----
+
+
+----- 开始计算组合 (X_Maximum, Y_Maximum) 的联合效应 -----
+
+----- 开始计算组合 (X_Maximum, LogOfAreas) 的联合效应 -----组合数过多（172710），采样10000个组合
+组合数过多（10260），采样10000个组合
+
+
+双特征扰动评估（并行）:   0%|                            | 0/15 [00:00<?, ?it/s]
+组合(Square_Index, Log_X_Index)：联合效应0.0204 > 单特征和0.0153×1.0631533593435039，标记为显著
+双特征扰动评估（并行）:   7%|█▎                  | 1/15 [00:01<00:22,  1.61s/it]组合(Square_Index, Log_Y_Index)：联合效应0.0627 > 单特征和0.0456×0.9904426783451434，标记为显著
+双特征扰动评估（并行）:  13%|██▋                 | 2/15 [00:02<00:12,  1.00it/s]组合(Square_Index, LogOfAreas)：联合效应0.0229 > 单特征和0.0211×1.0492814072635837，标记为显著
+双特征扰动评估（并行）:  33%|██████▋             | 5/15 [00:04<00:07,  1.27it/s]组合(X_Minimum, Log_Y_Index)：联合效应0.0445 > 单特征和0.0445×0.9932458510095118，标记为显著
+双特征扰动评估（并行）:  40%|████████            | 6/15 [00:05<00:07,  1.28it/s]组合(X_Maximum, Log_Y_Index)：联合效应0.0445 > 单特征和0.0445×0.993246088644579，标记为显著
+双特征扰动评估（并行）:  47%|█████████▎          | 7/15 [00:05<00:06,  1.29it/s]组合(Square_Index, Sum_of_Luminosity)：联合效应0.0967 > 单特征和0.0928×0.8771965542518775，标记为显著
+双特征扰动评估（并行）:  53%|██████████▋         | 8/15 [00:06<00:05,  1.30it/s]组合(Square_Index, Y_Maximum)：联合效应0.0465 > 单特征和0.0409×1.0018715003852179，标记为显著
+双特征扰动评估（并行）:  67%|████████████▋      | 10/15 [00:21<00:21,  4.39s/it]组合(X_Minimum, Sum_of_Luminosity)：联合效应0.0916 > 单特征和0.0916×0.8799997269162458，标记为显著
+双特征扰动评估（并行）:  73%|█████████████▉     | 11/15 [00:21<00:12,  3.08s/it]组合(X_Maximum, Sum_of_Luminosity)：联合效应0.0916 > 单特征和0.0916×0.879999964551313，标记为显著
+双特征扰动评估（并行）: 100%|███████████████████| 15/15 [00:25<00:00,  1.70s/it]
+双特征扰动完成，新增5个特征到特征选择子集：['LogOfAreas', 'Log_X_Index', 'Log_Y_Index', 'Sum_of_Luminosity', 'Y_Maximum']，更新后特征选择子集共8个特征
+
+===== 特征选择前后训练结果 =====
+===== 开始模型训练 =====
+原始数据形状：(1941, 28)
+警告：筛选特征顺序已调整为与原始数据一致
+筛选后数据集形状：(1941, 8)
+使用筛选后的特征：['X_Minimum', 'X_Maximum', 'Y_Maximum', 'Sum_of_Luminosity', 'Square_Index', 'LogOfAreas', 'Log_X_Index', 'Log_Y_Index']
+采样前训练集类别分布：
+Faults
+7    0.341495
+6    0.212629
+3    0.198454
+2    0.096005
+1    0.083119
+4    0.038015
+5    0.030284
+Name: proportion, dtype: float64
+
+应用SMOTE+ENN混合采样...
+SMOTE+ENN采样后类别分布:
+Faults
+1    530
+2    325
+3    448
+4    470
+5    471
+6    230
+7     98
+Name: count, dtype: int64
+类别平衡比例为0.18，进行二次微调...
+二次调整后类别分布:
+Faults
+1    530
+2    530
+3    448
+4    470
+5    471
+6    530
+7    530
+Name: count, dtype: int64
+根据特征维度 8 和样本量 1941 调整模型参数...
+根据样本量 1941 使用batch_size: 64
+
+Epoch 40: ReduceLROnPlateau reducing learning rate to 0.0002500000118743628.
+
+Epoch 43: ReduceLROnPlateau reducing learning rate to 0.0001250000059371814.
+
+Epoch 46: ReduceLROnPlateau reducing learning rate to 6.25000029685907e-05.
+Restoring model weights from the end of the best epoch: 37.
+Epoch 47: early stopping
+模型训练耗时: 16.89秒
+测试集损失: 1.4953, 测试集准确率: 0.4139
+13/13 [==============================] - 0s 1ms/step
+
+分类报告:
+              precision    recall  f1-score   support
+
+           0    0.20000   0.37931   0.26190        29
+           1    0.25564   0.82927   0.39080        41
+           2    0.84146   0.83133   0.83636        83
+           3    0.80000   0.92308   0.85714        13
+           4    1.00000   0.00000   0.00000         8
+           5    0.32323   0.44444   0.37427        72
+           6    0.60000   0.02098   0.04054       143
+
+    accuracy                        0.41388       389
+   macro avg    0.57433   0.48977   0.39443       389
+weighted avg    0.54909   0.41388   0.35199       389
+
+特征选择前:27
+特征选择后:8
+模型运行时间减少了-1.03s
+模型准确率提升了-2.57%
+
+进程已结束，退出代码为 0

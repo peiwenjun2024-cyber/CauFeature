@@ -1,0 +1,257 @@
+from model_train_v6 import train, save_model
+from feature_perturbation_v7 import CausalFeaturePerturbation
+from causal_graph_build_v19 import build_causal_graph, Feature
+from redundantRecover_v12 import PathShapleyModule
+
+/root/miniconda3/bin/python3 /root/tmp/causalFeatureX_LSTM_0915/main.py
+2025-09-23 19:56:09.323129: I tensorflow/core/util/port.cc:110] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2025-09-23 19:56:09.364683: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2025-09-23 19:56:09.966992: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+===== 开始模型训练 =====
+数据基本信息：
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 1025 entries, 0 to 1024
+Data columns (total 14 columns):
+ #   Column    Non-Null Count  Dtype
+---  ------    --------------  -----
+ 0   age       1025 non-null   int64
+ 1   sex       1025 non-null   int64
+ 2   cp        1025 non-null   int64
+ 3   trestbps  1025 non-null   int64
+ 4   chol      1025 non-null   int64
+ 5   fbs       1025 non-null   int64
+ 6   restecg   1025 non-null   int64
+ 7   thalach   1025 non-null   int64
+ 8   exang     1025 non-null   int64
+ 9   oldpeak   1025 non-null   float64
+ 10  slope     1025 non-null   int64
+ 11  ca        1025 non-null   int64
+ 12  thal      1025 non-null   int64
+ 13  target    1025 non-null   int64
+dtypes: float64(1), int64(13)
+memory usage: 112.2 KB
+数据集形状：(1025, 13)
+采样前训练集类别分布：
+target
+1    0.515854
+0    0.484146
+Name: proportion, dtype: float64
+
+应用SMOTE+ENN混合采样...
+SMOTE+ENN采样后类别分布:
+target
+0    423
+1    384
+Name: count, dtype: int64
+根据特征维度 13 和样本量 1025 调整模型参数...
+2025-09-23 19:56:11.489315: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1639] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 22324 MB memory:  -> device: 0, name: NVIDIA GeForce RTX 3090, pci bus id: 0000:9d:00.0, compute capability: 8.6
+根据样本量 1025 使用batch_size: 64
+2025-09-23 19:56:12.783512: I tensorflow/compiler/xla/stream_executor/cuda/cuda_dnn.cc:432] Loaded cuDNN version 8600
+2025-09-23 19:56:12.864378: I tensorflow/tsl/platform/default/subprocess.cc:304] Start cannot spawn child process: No such file or directory
+2025-09-23 19:56:12.920875: I tensorflow/compiler/xla/stream_executor/cuda/cuda_blas.cc:606] TensorFloat-32 will be used for the matrix multiplication. This will only be logged once.
+2025-09-23 19:56:12.939117: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x7fa6843a4500 initialized for platform CUDA (this does not guarantee that XLA will be used). Devices:
+2025-09-23 19:56:12.939170: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): NVIDIA GeForce RTX 3090, Compute Capability 8.6
+2025-09-23 19:56:12.953219: I tensorflow/compiler/mlir/tensorflow/utils/dump_mlir_util.cc:255] disabling MLIR crash reproducer, set env var `MLIR_CRASH_REPRODUCER_DIRECTORY` to enable.
+2025-09-23 19:56:13.073591: I tensorflow/tsl/platform/default/subprocess.cc:304] Start cannot spawn child process: No such file or directory
+2025-09-23 19:56:13.145617: I ./tensorflow/compiler/jit/device_compiler.h:186] Compiled cluster using XLA!  This line is logged at most once for the lifetime of the process.
+模型训练耗时: 15.13秒
+测试集损失: 0.5077, 测试集准确率: 0.7707
+7/7 [==============================] - 0s 1ms/step
+
+分类报告:
+              precision    recall  f1-score   support
+
+           0    0.77228   0.76471   0.76847       102
+           1    0.76923   0.77670   0.77295       103
+
+    accuracy                        0.77073       205
+   macro avg    0.77075   0.77070   0.77071       205
+weighted avg    0.77075   0.77073   0.77072       205
+
+
+保存模型...
+
+模型已成功保存至: /root/tmp/causalFeatureX_LSTM_0915/saved_models/HeartDisease_CNN.keras
+模型预期输入形状: (None, 13, 1)
+===== 运行特征扰动模块 =====
+生成特征扰动值: 100%|███████████████████████| 13/13 [00:00<00:00, 198276.19it/s]
+使用 8 个线程并行计算特征贡献值...
+计算特征贡献值: 100%|███████████████████████████| 13/13 [00:00<00:00, 27.62it/s]
+特征扰动实验总耗时：0.49秒
+特征数据形状: (1025, 13)
+已将原始样本预测值存入全局变量，形状: (1025, 2)
+基线分布形状: (2,), 平均JS散度: 0.0476
+各特征最大JS散度（按影响程度排序）：
+  特征 oldpeak: 0.077
+  特征 ca: 0.0424
+  特征 slope: 0.0311
+  特征 thal: 0.0157
+  特征 cp: 0.005
+  特征 exang: 0.0011
+  特征 chol: 0.001
+  特征 trestbps: 0.0007
+  特征 sex: 0.0003
+  特征 restecg: 0.0
+  特征 age: 0.0
+  特征 thalach: 0.0
+  特征 fbs: 0.0
+==================================================
+真实样本的预测值: [[0.7644773  0.23552269]
+ [0.91338927 0.08661076]
+ [0.8949853  0.10501472]
+ ...
+ [0.80714035 0.19285963]
+ [0.23402448 0.7659755 ]
+ [0.8338153  0.16618472]]
+
+===== 运行因果图构建模块 =====
+============================================================
+           因果图构建关键参数 summary
+============================================================
+目标变量: ['target']
+特征总数: 14
+使用的alpha阈值列表: [0.001, 0.003, 0.005, 0.01, 0.015, 0.02, 0.025, 0.03, 0.035, 0.04, 0.045, 0.05]
+最大路径长度限制: 3
+Bootstrap抽样次数: 30
+最小有效路径数阈值: 1
+------------------------------------------------------------
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 15.74it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 15.84it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 15.86it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 15.80it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 15.82it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 15.83it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 15.78it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 15.74it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 15.81it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 15.79it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 15.78it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 15.81it/s]
+阈值搜索进度: 100%|█████████████████████████████| 12/12 [00:01<00:00,  6.04it/s]
+alpha=0.001 有效路径数: 25
+路径数充足，提前终止阈值搜索
+
+【有效路径涉及的特征】共9个:
+1. age
+2. ca
+3. cp
+4. exang
+5. oldpeak
+6. sex
+7. slope
+8. thal
+9. thalach
+
+【直接路径（特征→target）】
+1. age → target
+2. sex → target
+3. cp → target
+4. thalach → target
+5. exang → target
+6. oldpeak → target
+7. slope → target
+8. ca → target
+9. thal → target
+
+【间接路径（特征→...→target）】
+1. age → thalach → target
+2. age → oldpeak → target
+3. age → slope → target
+4. age → ca → target
+5. sex → thal → target
+6. cp → thalach → target
+7. exang → thalach → target
+8. oldpeak → age → target
+9. oldpeak → thalach → target
+10. oldpeak → slope → target
+11. slope → age → target
+12. slope → thalach → target
+13. slope → exang → target
+14. slope → oldpeak → target
+15. ca → age → target
+16. thal → sex → target
+
+============================================================
+           因果图构建最终结果
+============================================================
+1. 最优alpha阈值: 0.0500
+2. 有效路径总数: 25
+   - 直接路径数: 9
+   - 间接路径数: 16
+3. 高贡献特征判定阈值 (平均): 0.0157
+4. 高贡献特征数量: 4
+5. 路径稳定性FDR控制水平: 0.2292256071356476
+6. 最小稳定性阈值: 0.1
+============================================================
+
+
+【高贡献特征列表】共4个:
+1. oldpeak (贡献值: 0.0770)
+2. slope (贡献值: 0.0311)
+3. ca (贡献值: 0.0424)
+4. thal (贡献值: 0.0157)
+
+有向图矩阵（行：起点，列：终点，1表示存在有向边）：
+节点顺序：['age', 'sex', 'cp', 'trestbps', 'chol', 'fbs', 'restecg', 'thalach', 'exang', 'oldpeak', 'slope', 'ca', 'thal', 'target']
+[[0. 0. 0. 1. 1. 0. 0. 1. 0. 1. 1. 1. 0. 1.]
+ [0. 0. 0. 0. 1. 0. 0. 0. 0. 0. 0. 0. 1. 1.]
+ [0. 0. 0. 0. 0. 0. 0. 1. 1. 0. 0. 0. 0. 1.]
+ [1. 0. 0. 0. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+ [1. 1. 0. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+ [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+ [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+ [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 1.]
+ [0. 0. 0. 0. 0. 0. 0. 1. 0. 0. 0. 0. 0. 1.]
+ [1. 0. 0. 0. 0. 0. 0. 1. 0. 0. 1. 0. 0. 1.]
+ [1. 0. 0. 0. 0. 0. 0. 1. 1. 1. 0. 0. 0. 1.]
+ [1. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 1.]
+ [0. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 1.]
+ [1. 1. 1. 0. 0. 0. 0. 1. 1. 1. 1. 1. 1. 0.]]
+
+===== 检查冗余特征中的关键交互 =====
+识别到 4 个非因果特征：['fbs', 'restecg', 'chol', 'trestbps']
+识别到 4 个高贡献特征：['oldpeak', 'slope', 'ca', 'thal']
+非因果特征子集∩高贡献特征子集为：[]
+非因果特征子集∩高贡献特征子集为空，无需执行双特征扰动
+
+===== 特征选择前后训练结果 =====
+===== 开始模型训练 =====
+原始数据形状：(1025, 14)
+警告：筛选特征顺序已调整为与原始数据一致
+筛选后数据集形状：(1025, 9)
+使用筛选后的特征：['age', 'sex', 'cp', 'thalach', 'exang', 'oldpeak', 'slope', 'ca', 'thal']
+采样前训练集类别分布：
+target
+1    0.515854
+0    0.484146
+Name: proportion, dtype: float64
+
+应用SMOTE+ENN混合采样...
+SMOTE+ENN采样后类别分布:
+target
+0    423
+1    390
+Name: count, dtype: int64
+根据特征维度 9 和样本量 1025 调整模型参数...
+根据样本量 1025 使用batch_size: 64
+模型训练耗时: 13.39秒
+测试集损失: 0.5120, 测试集准确率: 0.7659
+7/7 [==============================] - 0s 1ms/step
+
+分类报告:
+              precision    recall  f1-score   support
+
+           0    0.80000   0.70588   0.75000       102
+           1    0.73913   0.82524   0.77982       103
+
+    accuracy                        0.76585       205
+   macro avg    0.76957   0.76556   0.76491       205
+weighted avg    0.76942   0.76585   0.76498       205
+
+特征选择前:13
+特征选择后:9
+模型运行时间减少了1.73s
+模型准确率提升了-0.49%
+
+进程已结束，退出代码为 0

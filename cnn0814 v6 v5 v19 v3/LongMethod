@@ -1,0 +1,270 @@
+from model_train_v6 import train, save_model
+from feature_perturbation_v5 import CausalFeaturePerturbation
+from graph_only_highcon import Feature, build_causal_graph
+# from causal_graph_build_v22 import build_causal_graph, Feature
+from redundantRecover_v3 import PathShapleyModule
+
+
+/root/miniconda3/bin/python3 /root/tmp/causalFeatureX_0813/main.py
+2025-08-14 22:03:56.104713: I tensorflow/core/util/port.cc:110] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2025-08-14 22:03:56.153492: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 AVX_VNNI AMX_TILE AMX_INT8 AMX_BF16 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2025-08-14 22:03:57.007305: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+===== 开始模型训练 =====
+数据基本信息：
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 10491 entries, 0 to 10490
+Data columns (total 36 columns):
+ #   Column             Non-Null Count  Dtype
+---  ------             --------------  -----
+ 0   package            10491 non-null  object
+ 1   complextype        10490 non-null  object
+ 2   method             10491 non-null  object
+ 3   NOP_method         10491 non-null  int64
+ 4   CC_method          10491 non-null  int64
+ 5   ATFD_method        10491 non-null  int64
+ 6   FDP_method         10491 non-null  int64
+ 7   CM_method          10491 non-null  int64
+ 8   MAXNESTING_method  10491 non-null  int64
+ 9   LOC_method         10491 non-null  int64
+ 10  CYCLO_method       10491 non-null  int64
+ 11  NOLV_method        10491 non-null  int64
+ 12  NOAV_method        10491 non-null  int64
+ 13  LAA_method         10491 non-null  float64
+ 14  FANOUT_method      10491 non-null  int64
+ 15  CINT_method        10491 non-null  int64
+ 16  CDISP_method       10491 non-null  float64
+ 17  NOAM_type          10491 non-null  int64
+ 18  NOM_type           10491 non-null  int64
+ 19  ATFD_type          10491 non-null  int64
+ 20  FANOUT_type        10491 non-null  int64
+ 21  NOA_type           10491 non-null  int64
+ 22  DIT_type           10491 non-null  int64
+ 23  LOC_type           10491 non-null  int64
+ 24  TCC_type           10491 non-null  float64
+ 25  NOPA_type          10491 non-null  int64
+ 26  CBO_type           10491 non-null  int64
+ 27  WMC_type           10491 non-null  int64
+ 28  WOC_type           10491 non-null  float64
+ 29  AMW_type           10491 non-null  float64
+ 30  NOC_package        10491 non-null  int64
+ 31  NOM_package        10491 non-null  int64
+ 32  NOM_project        10491 non-null  int64
+ 33  LOC_project        10491 non-null  int64
+ 34  isStatic_method    10491 non-null  int64
+ 35  is_long methood    10491 non-null  int64
+dtypes: float64(5), int64(28), object(3)
+memory usage: 2.9+ MB
+发现非数值型特征，将进行编码：['package', 'complextype', 'method']
+数据集形状：(10491, 35)
+采样前训练集类别分布：
+is_long methood
+0    0.952455
+1    0.047545
+Name: proportion, dtype: float64
+
+应用SMOTE+ENN混合采样...
+SMOTE+ENN采样后类别分布:
+is_long methood
+0    7993
+1    7867
+Name: count, dtype: int64
+根据特征维度 35 和样本量 10491 调整模型参数...
+2025-08-14 22:03:59.844619: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1639] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 22182 MB memory:  -> device: 0, name: NVIDIA GeForce RTX 4090, pci bus id: 0000:a8:00.0, compute capability: 8.9
+根据样本量 10491 使用batch_size: 256
+2025-08-14 22:04:01.871121: I tensorflow/compiler/xla/stream_executor/cuda/cuda_dnn.cc:432] Loaded cuDNN version 8600
+2025-08-14 22:04:01.959731: I tensorflow/tsl/platform/default/subprocess.cc:304] Start cannot spawn child process: No such file or directory
+2025-08-14 22:04:02.056658: I tensorflow/compiler/xla/stream_executor/cuda/cuda_blas.cc:606] TensorFloat-32 will be used for the matrix multiplication. This will only be logged once.
+2025-08-14 22:04:02.088953: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x7f218c407d40 initialized for platform CUDA (this does not guarantee that XLA will be used). Devices:
+2025-08-14 22:04:02.088993: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): NVIDIA GeForce RTX 4090, Compute Capability 8.9
+2025-08-14 22:04:02.096864: I tensorflow/compiler/mlir/tensorflow/utils/dump_mlir_util.cc:255] disabling MLIR crash reproducer, set env var `MLIR_CRASH_REPRODUCER_DIRECTORY` to enable.
+2025-08-14 22:04:02.179597: I tensorflow/tsl/platform/default/subprocess.cc:304] Start cannot spawn child process: No such file or directory
+2025-08-14 22:04:02.251895: I ./tensorflow/compiler/jit/device_compiler.h:186] Compiled cluster using XLA!  This line is logged at most once for the lifetime of the process.
+
+Epoch 10: ReduceLROnPlateau reducing learning rate to 0.0003000000142492354.
+
+Epoch 12: ReduceLROnPlateau reducing learning rate to 9.000000427477062e-05.
+
+Epoch 14: ReduceLROnPlateau reducing learning rate to 2.700000040931627e-05.
+
+Epoch 16: ReduceLROnPlateau reducing learning rate to 8.100000013655517e-06.
+Restoring model weights from the end of the best epoch: 8.
+
+Epoch 18: ReduceLROnPlateau reducing learning rate to 2.429999949526973e-06.
+Epoch 18: early stopping
+模型训练耗时: 11.14秒
+测试集损失: 0.0798, 测试集准确率: 0.9814
+66/66 [==============================] - 0s 1ms/step
+
+分类报告:
+              precision    recall  f1-score   support
+
+           0    0.98661   0.99400   0.99029      2001
+           1    0.85542   0.72449   0.78453        98
+
+    accuracy                        0.98142      2099
+   macro avg    0.92101   0.85925   0.88741      2099
+weighted avg    0.98048   0.98142   0.98068      2099
+
+
+保存模型...
+
+模型已成功保存至: /root/tmp/causalFeatureX_0813/saved_models/LongMethod_CNN.keras
+模型预期输入形状: (None, 35, 1)
+===== 运行特征扰动模块 =====
+生成特征扰动值: 100%|████████████████████████| 35/35 [00:00<00:00, 30212.11it/s]
+使用 8 个线程并行计算特征贡献值...
+计算特征贡献值: 100%|███████████████████████████| 35/35 [00:04<00:00,  7.48it/s]
+特征扰动实验总耗时：4.75秒
+特征数据形状: (10491, 35)
+已将原始样本预测值存入全局变量，形状: (10491, 2)
+基线分布形状: (2,), 平均JS散度: 0.0253
+各特征最大JS散度（按影响程度排序）：
+  特征 LOC_method: 0.3705
+  特征 ATFD_method: 0.2238
+  特征 NOAV_method: 0.0484
+  特征 NOM_type: 0.0234
+  特征 CYCLO_method: 0.0203
+  特征 NOLV_method: 0.0039
+  特征 CM_method: 0.0031
+  特征 ATFD_type: 0.0028
+  特征 FANOUT_type: 0.0026
+  特征 FANOUT_method: 0.0021
+  特征 WMC_type: 0.0021
+  特征 method: 0.0021
+  特征 NOM_package: 0.0016
+  特征 LOC_type: 0.0012
+  特征 NOAM_type: 0.0009
+  特征 CINT_method: 0.0009
+  特征 MAXNESTING_method: 0.0005
+  特征 complextype: 0.0003
+  特征 NOA_type: 0.0002
+  特征 FDP_method: 0.0001
+  特征 NOC_package: 0.0001
+  特征 NOM_project: 0.0001
+  特征 LOC_project: 0.0001
+  特征 NOP_method: 0.0
+  特征 AMW_type: 0.0
+  特征 CBO_type: 0.0
+  特征 CC_method: 0.0
+  特征 LAA_method: 0.0
+  特征 NOPA_type: 0.0
+  特征 package: 0.0
+  特征 DIT_type: 0.0
+  特征 CDISP_method: 0.0
+  特征 TCC_type: 0.0
+  特征 WOC_type: 0.0
+  特征 isStatic_method: 0.0
+==================================================
+真实样本的预测值: [[0.9951917  0.00480836]
+ [0.9900075  0.00999243]
+ [0.68230385 0.31769615]
+ ...
+ [0.95375574 0.04624421]
+ [0.98334175 0.01665832]
+ [0.9894622  0.01053777]]
+
+===== 运行因果图构建模块 =====
+
+兜底路径: LOC_method -> is_long methood (贡献值: 0.3705, 噪声: 2.4717)
+
+【所有特征列表】共1个:
+1. LOC_method
+
+【直接路径（最高贡献特征→目标）】
+1. LOC_method → is_long methood
+
+============================================================
+           因果图构建最终结果
+============================================================
+1. 兜底路径: LOC_method -> is_long methood
+2. 最高贡献特征贡献值: 0.3705
+3. 最高贡献特征噪声: 2.4717
+4. 高贡献特征判定阈值 (平均): 0.0234
+5. 高贡献特征数量: 4
+============================================================
+
+
+【高贡献特征列表】共4个:
+1. ATFD_method (贡献值: 0.2238)
+2. LOC_method (贡献值: 0.3705)
+3. NOAV_method (贡献值: 0.0484)
+4. NOM_type (贡献值: 0.0234)
+
+有向图矩阵（行：起点，列：终点，1表示存在有向边）：
+节点顺序：['package', 'complextype', 'method', 'NOP_method', 'CC_method', 'ATFD_method', 'FDP_method', 'CM_method', 'MAXNESTING_method', 'LOC_method', 'CYCLO_method', 'NOLV_method', 'NOAV_method', 'LAA_method', 'FANOUT_method', 'CINT_method', 'CDISP_method', 'NOAM_type', 'NOM_type', 'ATFD_type', 'FANOUT_type', 'NOA_type', 'DIT_type', 'LOC_type', 'TCC_type', 'NOPA_type', 'CBO_type', 'WMC_type', 'WOC_type', 'AMW_type', 'NOC_package', 'NOM_package', 'NOM_project', 'LOC_project', 'isStatic_method', 'is_long methood']
+None
+
+===== 检查冗余特征中的关键交互 =====
+识别到 34 个非因果特征：['CINT_method', 'DIT_type', 'package', 'CBO_type', 'complextype', 'WOC_type', 'CC_method', 'CM_method', 'NOM_type', 'CYCLO_method', 'isStatic_method', 'NOM_project', 'NOA_type', 'method', 'NOM_package', 'NOAV_method', 'ATFD_method', 'AMW_type', 'NOPA_type', 'ATFD_type', 'LOC_type', 'FANOUT_type', 'FANOUT_method', 'NOAM_type', 'NOC_package', 'FDP_method', 'CDISP_method', 'LOC_project', 'LAA_method', 'NOP_method', 'TCC_type', 'NOLV_method', 'WMC_type', 'MAXNESTING_method']
+识别到 4 个高贡献特征：['ATFD_method', 'LOC_method', 'NOAV_method', 'NOM_type']
+非因果特征子集∩高贡献特征子集为：['ATFD_method', 'NOAV_method', 'NOM_type']
+开始双特征扰动：因果特征1个，非因果特征∩高贡献特征3个
+生成双特征组合共3对
+
+----- 开始计算组合 (LOC_method, ATFD_method) 的联合效应 -----
+组合数过多（115500），采样10000个组合
+
+----- 开始计算组合 (LOC_method, NOAV_method) 的联合效应 -----
+
+----- 开始计算组合 (LOC_method, NOM_type) 的联合效应 -----组合数过多（195888），采样10000个组合
+
+双特征扰动评估（并行）:   0%|                             | 0/3 [00:00<?, ?it/s]组合数过多（134904），采样10000个组合
+组合(LOC_method, NOM_type)：联合效应0.5016 > 单特征和0.3940×0.9448376398202418，标记为显著
+双特征扰动评估（并行）:  33%|███████              | 1/3 [00:04<00:08,  4.21s/it]组合(LOC_method, NOAV_method)：联合效应0.6295 > 单特征和0.4190×0.9286283249721012，标记为显著
+组合(LOC_method, ATFD_method)：联合效应0.6031 > 单特征和0.5943×0.8150744846029336，标记为显著
+双特征扰动评估（并行）: 100%|█████████████████████| 3/3 [00:04<00:00,  1.65s/it]
+双特征扰动完成，新增3个特征到特征选择子集：['ATFD_method', 'NOAV_method', 'NOM_type']，更新后特征选择子集共4个特征
+
+===== 特征选择前后训练结果 =====
+===== 开始模型训练 =====
+原始数据形状：(10491, 36)
+警告：筛选特征顺序已调整为与原始数据一致
+筛选后数据集形状：(10491, 4)
+使用筛选后的特征：['ATFD_method', 'LOC_method', 'NOAV_method', 'NOM_type']
+采样前训练集类别分布：
+is_long methood
+0    0.952455
+1    0.047545
+Name: proportion, dtype: float64
+
+应用SMOTE+ENN混合采样...
+SMOTE+ENN采样后类别分布:
+is_long methood
+0    7993
+1    7617
+Name: count, dtype: int64
+根据特征维度 4 和样本量 10491 调整模型参数...
+根据样本量 10491 使用batch_size: 256
+
+Epoch 8: ReduceLROnPlateau reducing learning rate to 0.0003000000142492354.
+
+Epoch 10: ReduceLROnPlateau reducing learning rate to 9.000000427477062e-05.
+
+Epoch 12: ReduceLROnPlateau reducing learning rate to 2.700000040931627e-05.
+
+Epoch 14: ReduceLROnPlateau reducing learning rate to 8.100000013655517e-06.
+Restoring model weights from the end of the best epoch: 6.
+
+Epoch 16: ReduceLROnPlateau reducing learning rate to 2.429999949526973e-06.
+Epoch 16: early stopping
+模型训练耗时: 10.27秒
+测试集损失: 0.0844, 测试集准确率: 0.9786
+66/66 [==============================] - 0s 1ms/step
+
+分类报告:
+              precision    recall  f1-score   support
+
+           0    0.98705   0.99050   0.98878      2001
+           1    0.79121   0.73469   0.76190        98
+
+    accuracy                        0.97856      2099
+   macro avg    0.88913   0.86260   0.87534      2099
+weighted avg    0.97791   0.97856   0.97818      2099
+
+特征选择前:35
+特征选择后:4
+模型运行时间减少了0.87s
+模型准确率提升了-0.29%
+
+进程已结束，退出代码为 0

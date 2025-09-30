@@ -1,0 +1,356 @@
+from model_train_v7 import train, save_model
+from feature_perturbation_v7 import CausalFeaturePerturbation
+from causal_graph_build_v19 import build_causal_graph, Feature
+from redundantRecover_v10 import PathShapleyModule
+
+/root/miniconda3/bin/python3 /root/tmp/causalFeatureX_LSTM_0915/main.py
+2025-09-24 14:42:49.005595: I tensorflow/core/util/port.cc:110] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2025-09-24 14:42:49.063154: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 AVX_VNNI AMX_TILE AMX_INT8 AMX_BF16 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2025-09-24 14:42:49.974798: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+===== 开始模型训练 =====
+数据基本信息：
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 13611 entries, 0 to 13610
+Data columns (total 17 columns):
+ #   Column           Non-Null Count  Dtype
+---  ------           --------------  -----
+ 0   锘緼rea            13611 non-null  int64
+ 1   Perimeter        13611 non-null  float64
+ 2   MajorAxisLength  13611 non-null  float64
+ 3   MinorAxisLength  13611 non-null  float64
+ 4   AspectRation     13611 non-null  float64
+ 5   Eccentricity     13611 non-null  float64
+ 6   ConvexArea       13611 non-null  int64
+ 7   EquivDiameter    13611 non-null  float64
+ 8   Extent           13611 non-null  float64
+ 9   Solidity         13611 non-null  float64
+ 10  roundness        13611 non-null  float64
+ 11  Compactness      13611 non-null  float64
+ 12  ShapeFactor1     13611 non-null  float64
+ 13  ShapeFactor2     13611 non-null  float64
+ 14  ShapeFactor3     13611 non-null  float64
+ 15  ShapeFactor4     13611 non-null  float64
+ 16  Class            13611 non-null  object
+dtypes: float64(14), int64(2), object(1)
+memory usage: 1.8+ MB
+目标变量为非数值型，进行编码
+数据集形状：(13611, 16)
+尝试使用SVMSMOTE进行过采样...
+SVMSMOTE过采样成功！过采样后训练集形状: (20125, 16)
+过采样后类别分布:
+Class
+3    2875
+5    2875
+0    2875
+6    2875
+2    2875
+4    2875
+1    2875
+Name: count, dtype: int64
+2025-09-24 14:43:01.362956: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1639] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 22182 MB memory:  -> device: 0, name: NVIDIA GeForce RTX 4090, pci bus id: 0000:16:00.0, compute capability: 8.9
+2025-09-24 14:43:03.381289: I tensorflow/compiler/xla/stream_executor/cuda/cuda_dnn.cc:432] Loaded cuDNN version 8600
+2025-09-24 14:43:03.479006: I tensorflow/tsl/platform/default/subprocess.cc:304] Start cannot spawn child process: No such file or directory
+2025-09-24 14:43:03.553391: I tensorflow/compiler/xla/stream_executor/cuda/cuda_blas.cc:606] TensorFloat-32 will be used for the matrix multiplication. This will only be logged once.
+2025-09-24 14:43:03.590627: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x7feb543a5a80 initialized for platform CUDA (this does not guarantee that XLA will be used). Devices:
+2025-09-24 14:43:03.590665: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): NVIDIA GeForce RTX 4090, Compute Capability 8.9
+2025-09-24 14:43:03.597673: I tensorflow/compiler/mlir/tensorflow/utils/dump_mlir_util.cc:255] disabling MLIR crash reproducer, set env var `MLIR_CRASH_REPRODUCER_DIRECTORY` to enable.
+2025-09-24 14:43:03.686157: I tensorflow/tsl/platform/default/subprocess.cc:304] Start cannot spawn child process: No such file or directory
+2025-09-24 14:43:03.769377: I ./tensorflow/compiler/jit/device_compiler.h:186] Compiled cluster using XLA!  This line is logged at most once for the lifetime of the process.
+Restoring model weights from the end of the best epoch: 22.
+Epoch 27: early stopping
+模型训练耗时: 17.24秒
+测试集损失: 0.5216, 测试集准确率: 0.7808
+86/86 [==============================] - 0s 1ms/step
+
+分类报告:
+              precision    recall  f1-score   support
+
+           0    0.92925   0.75479   0.83298       261
+           1    0.98000   0.83761   0.90323       117
+           2    0.83099   0.93060   0.87798       317
+           3    0.61185   0.89270   0.72606       671
+           4    0.95792   0.94853   0.95320       408
+           5    0.86742   0.93462   0.89977       413
+           6    0.71930   0.30597   0.42932       536
+
+    accuracy                        0.78076      2723
+   macro avg    0.84239   0.80069   0.80322      2723
+weighted avg    0.79537   0.78076   0.76358      2723
+
+
+保存模型...
+
+模型已成功保存至: /root/tmp/causalFeatureX_LSTM_0915/saved_models/DriedBean_CNN.keras
+模型预期输入形状: (None, 16, 1)
+===== 运行特征扰动模块 =====
+生成特征扰动值: 100%|██████████████████████████| 16/16 [00:00<00:00, 805.74it/s]
+使用 8 个线程并行计算特征贡献值...
+计算特征贡献值: 100%|███████████████████████████| 16/16 [01:06<00:00,  4.18s/it]
+特征扰动实验总耗时：67.03秒
+特征数据形状: (13611, 16)
+已将原始样本预测值存入全局变量，形状: (13611, 7)
+基线分布形状: (7,), 平均JS散度: 0.3081
+各特征最大JS散度（按影响程度排序）：
+  特征 ShapeFactor3: 0.6821
+  特征 roundness: 0.6634
+  特征 EquivDiameter: 0.658
+  特征 锘緼rea: 0.4994
+  特征 MajorAxisLength: 0.1289
+  特征 Compactness: 0.1099
+  特征 Perimeter: 0.0792
+  特征 MinorAxisLength: 0.0792
+  特征 Extent: 0.003
+  特征 ShapeFactor4: 0.0005
+  特征 ShapeFactor1: 0.0001
+  特征 Solidity: 0.0
+  特征 ShapeFactor2: 0.0
+  特征 ConvexArea: -0.0
+  特征 AspectRation: -0.0
+  特征 Eccentricity: -0.0
+==================================================
+真实样本的预测值: [[1.4293617e-05 6.3088475e-05 9.4605532e-09 ... 1.3044592e-09
+  9.7810125e-01 3.6102170e-04]
+ [2.7923512e-05 8.2963918e-05 6.5391514e-09 ... 6.0734551e-10
+  9.9090403e-01 1.6048289e-04]
+ [1.6352891e-05 6.8554989e-05 1.1190391e-08 ... 1.5263677e-09
+  9.7694492e-01 3.9817533e-04]
+ ...
+ [6.9419527e-04 3.0058381e-04 2.1060760e-04 ... 6.0784521e-05
+  2.0359917e-02 2.5561950e-01]
+ [8.9941424e-04 3.4137035e-04 3.4268419e-04 ... 1.0076799e-04
+  1.5456296e-02 2.9102710e-01]
+ [1.5462417e-03 4.7059366e-04 3.3835694e-03 ... 2.2353516e-03
+  3.4301535e-03 4.5271337e-01]]
+
+===== 运行因果图构建模块 =====
+============================================================
+           因果图构建关键参数 summary
+============================================================
+目标变量: ['Class']
+特征总数: 17
+使用的alpha阈值列表: [0.001, 0.003, 0.005, 0.01, 0.015, 0.02, 0.025, 0.03, 0.035, 0.04, 0.045, 0.05]
+最大路径长度限制: 3
+Bootstrap抽样次数: 30
+最小有效路径数阈值: 1
+------------------------------------------------------------
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 16.08it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 15.81it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 16.36it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 15.72it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 15.59it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 15.84it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 16.07it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 15.85it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 16.18it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 16.14it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 15.64it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 16.09it/s]
+阈值搜索进度: 100%|█████████████████████████████| 12/12 [00:02<00:00,  5.78it/s]
+alpha=0.001 有效路径数: 32
+路径数充足，提前终止阈值搜索
+
+【有效路径涉及的特征】共8个:
+1. AspectRation
+2. ConvexArea
+3. Eccentricity
+4. EquivDiameter
+5. MajorAxisLength
+6. MinorAxisLength
+7. Perimeter
+8. 锘緼rea
+/root/miniconda3/lib/python3.8/site-packages/matplotlib/collections.py:963: RuntimeWarning: invalid value encountered in sqrt
+  scale = np.sqrt(self._sizes) * dpi / 72.0 * self._factor
+
+【直接路径（特征→target）】
+1. 锘緼rea → Class
+2. Perimeter → Class
+3. MajorAxisLength → Class
+4. MinorAxisLength → Class
+5. AspectRation → Class
+6. Eccentricity → Class
+7. ConvexArea → Class
+8. EquivDiameter → Class
+
+【间接路径（特征→...→target）】
+1. 锘緼rea → Perimeter → Class
+2. 锘緼rea → MajorAxisLength → Class
+3. 锘緼rea → MinorAxisLength → Class
+4. 锘緼rea → AspectRation → Class
+5. 锘緼rea → Eccentricity → Class
+6. 锘緼rea → EquivDiameter → Class
+7. Perimeter → EquivDiameter → Class
+8. MajorAxisLength → Perimeter → Class
+9. MajorAxisLength → MinorAxisLength → Class
+10. MajorAxisLength → AspectRation → Class
+11. MajorAxisLength → Eccentricity → Class
+12. MajorAxisLength → EquivDiameter → Class
+13. MinorAxisLength → MajorAxisLength → Class
+14. MinorAxisLength → EquivDiameter → Class
+15. AspectRation → MajorAxisLength → Class
+16. AspectRation → Eccentricity → Class
+17. AspectRation → EquivDiameter → Class
+18. Eccentricity → MajorAxisLength → Class
+19. Eccentricity → AspectRation → Class
+20. ConvexArea → MajorAxisLength → Class
+21. ConvexArea → Eccentricity → Class
+22. ConvexArea → EquivDiameter → Class
+23. EquivDiameter → Perimeter → Class
+24. EquivDiameter → Eccentricity → Class
+
+============================================================
+           因果图构建最终结果
+============================================================
+1. 最优alpha阈值: 0.0500
+2. 有效路径总数: 32
+   - 直接路径数: 8
+   - 间接路径数: 24
+3. 高贡献特征判定阈值 (平均): 0.1289
+4. 高贡献特征数量: 5
+5. 路径稳定性FDR控制水平: 0.24608978427565478
+6. 最小稳定性阈值: 0.15565433293836456
+============================================================
+
+
+【高贡献特征列表】共5个:
+1. 锘緼rea (贡献值: 0.4994)
+2. MajorAxisLength (贡献值: 0.1289)
+3. EquivDiameter (贡献值: 0.6580)
+4. roundness (贡献值: 0.6634)
+5. ShapeFactor3 (贡献值: 0.6821)
+
+有向图矩阵（行：起点，列：终点，1表示存在有向边）：
+节点顺序：['锘緼rea', 'Perimeter', 'MajorAxisLength', 'MinorAxisLength', 'AspectRation', 'Eccentricity', 'ConvexArea', 'EquivDiameter', 'Extent', 'Solidity', 'roundness', 'Compactness', 'ShapeFactor1', 'ShapeFactor2', 'ShapeFactor3', 'ShapeFactor4', 'Class']
+[[0. 1. 1. 1. 1. 1. 1. 1. 0. 0. 0. 0. 0. 0. 0. 0. 1.]
+ [1. 0. 0. 0. 0. 0. 0. 1. 0. 0. 0. 0. 0. 0. 0. 0. 1.]
+ [0. 1. 0. 1. 1. 1. 1. 1. 0. 1. 1. 1. 1. 1. 1. 1. 1.]
+ [0. 1. 1. 0. 0. 0. 1. 1. 0. 1. 1. 0. 1. 1. 0. 1. 1.]
+ [0. 1. 1. 0. 0. 1. 1. 1. 0. 1. 1. 1. 0. 0. 1. 1. 1.]
+ [0. 1. 1. 0. 1. 0. 0. 0. 0. 0. 0. 1. 0. 0. 1. 1. 1.]
+ [0. 1. 1. 0. 0. 1. 0. 1. 0. 1. 1. 0. 0. 1. 0. 1. 1.]
+ [1. 1. 0. 0. 0. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 1.]
+ [0. 0. 1. 1. 1. 1. 1. 0. 0. 1. 1. 1. 1. 1. 1. 1. 0.]
+ [1. 1. 1. 0. 0. 1. 1. 1. 0. 0. 1. 0. 0. 1. 0. 1. 0.]
+ [1. 1. 1. 0. 0. 1. 1. 1. 0. 1. 0. 0. 0. 1. 0. 1. 0.]
+ [1. 1. 1. 0. 1. 1. 1. 1. 0. 1. 1. 0. 0. 0. 1. 1. 0.]
+ [1. 1. 1. 1. 0. 0. 1. 1. 0. 1. 1. 0. 0. 0. 0. 1. 0.]
+ [1. 1. 1. 0. 1. 1. 1. 1. 0. 1. 1. 1. 1. 0. 0. 1. 0.]
+ [1. 1. 1. 0. 1. 1. 1. 1. 0. 1. 1. 1. 0. 1. 0. 1. 0.]
+ [1. 1. 1. 1. 1. 1. 1. 1. 0. 1. 1. 1. 1. 1. 1. 0. 0.]
+ [1. 1. 0. 0. 0. 0. 0. 1. 0. 1. 1. 1. 1. 1. 1. 1. 0.]]
+
+===== 检查冗余特征中的关键交互 =====
+识别到 8 个非因果特征：['ShapeFactor4', 'Extent', 'ShapeFactor2', 'Solidity', 'roundness', 'Compactness', 'ShapeFactor3', 'ShapeFactor1']
+识别到 5 个高贡献特征：['锘緼rea', 'MajorAxisLength', 'EquivDiameter', 'roundness', 'ShapeFactor3']
+非因果特征子集∩高贡献特征子集为：['ShapeFactor3', 'roundness']
+开始双特征扰动：因果特征8个，非因果特征∩高贡献特征2个
+生成双特征组合共16对
+
+----- 开始计算组合 (EquivDiameter, ShapeFactor3) 的联合效应 -----
+
+----- 开始计算组合 (EquivDiameter, roundness) 的联合效应 -----组合数过多（5539087），采样10000个组合
+
+组合数过多（5537860），采样10000个组合
+
+----- 开始计算组合 (锘緼rea, ShapeFactor3) 的联合效应 -----
+组合数过多（3171729971），采样10000个组合
+
+----- 开始计算组合 (锘緼rea, roundness) 的联合效应 -----
+组合数过多（3171027380），采样10000个组合
+
+----- 开始计算组合 (MajorAxisLength, ShapeFactor3) 的联合效应 -----
+组合数过多（7529908），采样10000个组合
+
+----- 开始计算组合 (MajorAxisLength, roundness) 的联合效应 -----
+
+----- 开始计算组合 (MinorAxisLength, ShapeFactor3) 的联合效应 -----组合数过多（7528240），采样10000个组合
+组合数过多（4591077），采样10000个组合
+
+
+----- 开始计算组合 (Perimeter, ShapeFactor3) 的联合效应 -----
+----- 开始计算组合 (MinorAxisLength, roundness) 的联合效应 -----
+
+组合数过多（4590060），采样10000个组合
+
+----- 开始计算组合 (Perimeter, roundness) 的联合效应 -----组合数过多（19799866），采样10000个组合
+
+组合数过多（19795480），采样10000个组合
+
+----- 开始计算组合 (ConvexArea, roundness) 的联合效应 -----
+组合数过多（3284506120），采样10000个组合
+
+----- 开始计算组合 (ConvexArea, ShapeFactor3) 的联合效应 -----
+组合数过多（3285233854），采样10000个组合
+
+----- 开始计算组合 (AspectRation, roundness) 的联合效应 -----
+组合数过多（27080），采样10000个组合
+
+----- 开始计算组合 (Eccentricity, roundness) 的联合效应 -----
+组合数过多（183372220），采样10000个组合
+
+----- 开始计算组合 (AspectRation, ShapeFactor3) 的联合效应 -----
+组合数过多（27086），采样10000个组合
+双特征扰动评估（并行）:   0%|                            | 0/16 [00:00<?, ?it/s]
+
+组合数过多（183412849），采样10000个组合
+组合(MajorAxisLength, roundness)：联合效应0.6643 > 单特征和0.7923×0.7677026066344499，标记为显著
+双特征扰动评估（并行）:   6%|█                | 1/16 [12:50<3:12:31, 770.12s/it]组合(Perimeter, roundness)：联合效应0.6643 > 单特征和0.7426×0.782281387953025，标记为显著
+双特征扰动评估（并行）:  12%|██▏              | 2/16 [12:56<1:14:50, 320.75s/it]组合(MajorAxisLength, ShapeFactor3)：联合效应0.6821 > 单特征和0.8111×0.7621985621822619，标记为显著
+双特征扰动评估（并行）:  25%|████▊              | 4/16 [12:59<21:15, 106.32s/it]组合(MinorAxisLength, roundness)：联合效应0.6643 > 单特征和0.7426×0.782281387953025，标记为显著
+双特征扰动评估（并行）:  31%|██████▎             | 5/16 [12:59<12:29, 68.11s/it]组合(AspectRation, ShapeFactor3)：联合效应0.6821 > 单特征和0.6821×0.8000000089596278，标记为显著
+双特征扰动评估（并行）:  44%|████████▊           | 7/16 [13:00<05:04, 33.85s/it]组合(MinorAxisLength, ShapeFactor3)：联合效应0.6821 > 单特征和0.7614×0.7767773435008369，标记为显著
+双特征扰动评估（并行）:  50%|██████████          | 8/16 [13:01<03:20, 25.03s/it]组合(Eccentricity, ShapeFactor3)：联合效应0.6821 > 单特征和0.6821×0.8000000089596278，标记为显著
+双特征扰动评估（并行）:  56%|███████████▎        | 9/16 [13:01<02:07, 18.22s/it]组合(Perimeter, ShapeFactor3)：联合效应0.6821 > 单特征和0.7614×0.7767773435008369，标记为显著
+双特征扰动评估（并行）:  62%|███████████▉       | 10/16 [13:02<01:19, 13.31s/it]组合(AspectRation, roundness)：联合效应0.6634 > 单特征和0.6634×0.8055040534118157，标记为显著
+双特征扰动评估（并行）:  69%|█████████████      | 11/16 [13:02<00:47,  9.57s/it]组合(Eccentricity, roundness)：联合效应0.6634 > 单特征和0.6634×0.8055040534118157，标记为显著
+双特征扰动评估（并行）:  81%|███████████████▍   | 13/16 [13:07<00:18,  6.27s/it]组合(ConvexArea, ShapeFactor3)：联合效应0.6821 > 单特征和0.6821×0.8000000041377285，标记为显著
+双特征扰动评估（并行）:  88%|████████████████▋  | 14/16 [13:08<00:08,  4.45s/it]组合(ConvexArea, roundness)：联合效应0.6634 > 单特征和0.6634×0.8055040485899165，标记为显著
+双特征扰动评估（并行）: 100%|███████████████████| 16/16 [13:08<00:00, 49.26s/it]
+双特征扰动完成，新增2个特征到特征选择子集：['ShapeFactor3', 'roundness']，更新后特征选择子集共10个特征
+
+===== 特征选择前后训练结果 =====
+===== 开始模型训练 =====
+原始数据形状：(13611, 17)
+警告：筛选特征顺序已调整为与原始数据一致
+目标变量为非数值型，进行编码
+筛选后数据集形状：(13611, 10)
+使用筛选后的特征：['锘緼rea', 'Perimeter', 'MajorAxisLength', 'MinorAxisLength', 'AspectRation', 'Eccentricity', 'ConvexArea', 'EquivDiameter', 'roundness', 'ShapeFactor3']
+尝试使用SVMSMOTE进行过采样...
+SVMSMOTE过采样成功！过采样后训练集形状: (20125, 10)
+过采样后类别分布:
+Class
+3    2875
+5    2875
+0    2875
+6    2875
+2    2875
+4    2875
+1    2875
+Name: count, dtype: int64
+Restoring model weights from the end of the best epoch: 19.
+Epoch 24: early stopping
+模型训练耗时: 11.60秒
+测试集损失: 0.4869, 测试集准确率: 0.8358
+86/86 [==============================] - 0s 1ms/step
+
+分类报告:
+              precision    recall  f1-score   support
+
+           0    0.87059   0.85057   0.86047       261
+           1    1.00000   0.93162   0.96460       117
+           2    0.81744   0.94637   0.87719       317
+           3    0.73469   0.85842   0.79175       671
+           4    0.95970   0.93382   0.94658       408
+           5    0.90865   0.91525   0.91194       413
+           6    0.78481   0.57836   0.66595       536
+
+    accuracy                        0.83584      2723
+   macro avg    0.86798   0.85920   0.85978      2723
+weighted avg    0.83871   0.83584   0.83238      2723
+
+特征选择前:16
+特征选择后:10
+模型运行时间减少了5.64s
+模型准确率提升了5.51%
+
+进程已结束，退出代码为 0

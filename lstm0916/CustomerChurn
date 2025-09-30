@@ -1,0 +1,402 @@
+/root/miniconda3/bin/python3 /root/tmp/causalFeatureX_LSTM_0915/main.py
+2025-09-16 10:28:29.434780: I tensorflow/core/util/port.cc:110] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2025-09-16 10:28:29.493020: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 AVX_VNNI AMX_TILE AMX_INT8 AMX_BF16 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2025-09-16 10:28:30.473920: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+===== 开始模型训练 =====
+数据基本信息：
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 5227 entries, 0 to 5226
+Data columns (total 16 columns):
+ #   Column            Non-Null Count  Dtype
+---  ------            --------------  -----
+ 0   ID                5227 non-null   int64
+ 1   Contract          5227 non-null   object
+ 2   Dependents        5227 non-null   object
+ 3   DeviceProtection  5227 non-null   object
+ 4   InternetService   5227 non-null   object
+ 5   MonthlyCharges    5227 non-null   float64
+ 6   MultipleLines     5227 non-null   object
+ 7   Partner           5227 non-null   object
+ 8   PaymentMethod     5227 non-null   object
+ 9   PhoneService      5227 non-null   object
+ 10  SeniorCitizen     5227 non-null   int64
+ 11  TVProgram         5227 non-null   object
+ 12  TotalCharges      5227 non-null   float64
+ 13  gender            5227 non-null   object
+ 14  tenure            5227 non-null   int64
+ 15  Label             5227 non-null   object
+dtypes: float64(2), int64(3), object(11)
+memory usage: 653.5+ KB
+发现非数值型特征，将进行编码：['Contract', 'Dependents', 'DeviceProtection', 'InternetService', 'MultipleLines', 'Partner', 'PaymentMethod', 'PhoneService', 'TVProgram', 'gender']
+目标变量为非数值型，进行编码
+数据集形状：(5227, 15)
+2025-09-16 10:28:32.876941: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1639] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 22182 MB memory:  -> device: 0, name: NVIDIA GeForce RTX 4090, pci bus id: 0000:5a:00.0, compute capability: 8.9
+WARNING:tensorflow:Layer lstm will not use cuDNN kernels since it doesn't meet the criteria. It will use a generic GPU kernel as fallback when running on GPU.
+WARNING:tensorflow:Layer lstm_1 will not use cuDNN kernels since it doesn't meet the criteria. It will use a generic GPU kernel as fallback when running on GPU.
+
+开始训练LSTM模型...
+Epoch 1/150
+2025-09-16 10:28:37.493677: I tensorflow/compiler/xla/stream_executor/cuda/cuda_blas.cc:606] TensorFloat-32 will be used for the matrix multiplication. This will only be logged once.
+2025-09-16 10:28:37.583419: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x7f6ba03f4bf0 initialized for platform CUDA (this does not guarantee that XLA will be used). Devices:
+2025-09-16 10:28:37.583453: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): NVIDIA GeForce RTX 4090, Compute Capability 8.9
+2025-09-16 10:28:37.590149: I tensorflow/compiler/mlir/tensorflow/utils/dump_mlir_util.cc:255] disabling MLIR crash reproducer, set env var `MLIR_CRASH_REPRODUCER_DIRECTORY` to enable.
+2025-09-16 10:28:37.610002: I tensorflow/compiler/xla/stream_executor/cuda/cuda_dnn.cc:432] Loaded cuDNN version 8600
+2025-09-16 10:28:37.683232: I tensorflow/tsl/platform/default/subprocess.cc:304] Start cannot spawn child process: No such file or directory
+2025-09-16 10:28:37.765502: I ./tensorflow/compiler/jit/device_compiler.h:186] Compiled cluster using XLA!  This line is logged at most once for the lifetime of the process.
+41/41 [==============================] - 9s 78ms/step - loss: 0.8777 - accuracy: 0.6328 - val_loss: 0.5775 - val_accuracy: 0.6826 - lr: 9.9958e-04
+Epoch 2/150
+41/41 [==============================] - 3s 65ms/step - loss: 0.6956 - accuracy: 0.6950 - val_loss: 0.5526 - val_accuracy: 0.7161 - lr: 9.9915e-04
+Epoch 3/150
+41/41 [==============================] - 3s 65ms/step - loss: 0.6453 - accuracy: 0.7074 - val_loss: 0.5279 - val_accuracy: 0.7428 - lr: 9.9872e-04
+Epoch 4/150
+41/41 [==============================] - 3s 68ms/step - loss: 0.5981 - accuracy: 0.7208 - val_loss: 0.5281 - val_accuracy: 0.7419 - lr: 9.9828e-04
+Epoch 5/150
+41/41 [==============================] - 3s 71ms/step - loss: 0.5646 - accuracy: 0.7319 - val_loss: 0.5137 - val_accuracy: 0.7457 - lr: 9.9785e-04
+Epoch 6/150
+41/41 [==============================] - 3s 66ms/step - loss: 0.5516 - accuracy: 0.7447 - val_loss: 0.5091 - val_accuracy: 0.7476 - lr: 9.9742e-04
+Epoch 7/150
+41/41 [==============================] - 3s 64ms/step - loss: 0.5404 - accuracy: 0.7495 - val_loss: 0.5130 - val_accuracy: 0.7467 - lr: 9.9699e-04
+Epoch 8/150
+41/41 [==============================] - 3s 66ms/step - loss: 0.5229 - accuracy: 0.7667 - val_loss: 0.5118 - val_accuracy: 0.7533 - lr: 9.9656e-04
+Epoch 9/150
+41/41 [==============================] - 3s 64ms/step - loss: 0.5256 - accuracy: 0.7595 - val_loss: 0.5140 - val_accuracy: 0.7524 - lr: 9.9613e-04
+Epoch 10/150
+41/41 [==============================] - 3s 66ms/step - loss: 0.5189 - accuracy: 0.7568 - val_loss: 0.5223 - val_accuracy: 0.7524 - lr: 9.9570e-04
+Epoch 11/150
+41/41 [==============================] - 3s 67ms/step - loss: 0.5180 - accuracy: 0.7616 - val_loss: 0.5250 - val_accuracy: 0.7486 - lr: 9.9527e-04
+Epoch 12/150
+41/41 [==============================] - ETA: 0s - loss: 0.5104 - accuracy: 0.7713
+Epoch 12: ReduceLROnPlateau reducing learning rate to 0.0006963881198316812.
+41/41 [==============================] - 3s 63ms/step - loss: 0.5104 - accuracy: 0.7713 - val_loss: 0.5208 - val_accuracy: 0.7524 - lr: 9.9484e-04
+Epoch 13/150
+41/41 [==============================] - 3s 65ms/step - loss: 0.5121 - accuracy: 0.7641 - val_loss: 0.5183 - val_accuracy: 0.7553 - lr: 9.9441e-04
+Epoch 14/150
+41/41 [==============================] - 3s 64ms/step - loss: 0.5114 - accuracy: 0.7673 - val_loss: 0.5147 - val_accuracy: 0.7572 - lr: 9.9398e-04
+Epoch 15/150
+41/41 [==============================] - 3s 64ms/step - loss: 0.5111 - accuracy: 0.7662 - val_loss: 0.5171 - val_accuracy: 0.7524 - lr: 9.9355e-04
+Epoch 16/150
+41/41 [==============================] - 3s 65ms/step - loss: 0.5101 - accuracy: 0.7656 - val_loss: 0.5109 - val_accuracy: 0.7514 - lr: 9.9312e-04
+Epoch 17/150
+41/41 [==============================] - 3s 66ms/step - loss: 0.5018 - accuracy: 0.7675 - val_loss: 0.5322 - val_accuracy: 0.7562 - lr: 9.9269e-04
+Epoch 18/150
+41/41 [==============================] - 3s 65ms/step - loss: 0.5049 - accuracy: 0.7694 - val_loss: 0.5331 - val_accuracy: 0.7581 - lr: 9.9227e-04
+Epoch 19/150
+41/41 [==============================] - 3s 67ms/step - loss: 0.4988 - accuracy: 0.7723 - val_loss: 0.5169 - val_accuracy: 0.7553 - lr: 9.9184e-04
+Epoch 20/150
+41/41 [==============================] - 3s 66ms/step - loss: 0.5000 - accuracy: 0.7673 - val_loss: 0.5119 - val_accuracy: 0.7610 - lr: 9.9141e-04
+Epoch 21/150
+41/41 [==============================] - 3s 64ms/step - loss: 0.4993 - accuracy: 0.7736 - val_loss: 0.5156 - val_accuracy: 0.7533 - lr: 9.9098e-04
+Epoch 22/150
+41/41 [==============================] - 3s 63ms/step - loss: 0.4972 - accuracy: 0.7729 - val_loss: 0.5133 - val_accuracy: 0.7562 - lr: 9.9055e-04
+Epoch 23/150
+41/41 [==============================] - 3s 63ms/step - loss: 0.4935 - accuracy: 0.7729 - val_loss: 0.5067 - val_accuracy: 0.7610 - lr: 9.9012e-04
+Epoch 24/150
+41/41 [==============================] - ETA: 0s - loss: 0.4907 - accuracy: 0.7715
+Epoch 24: ReduceLROnPlateau reducing learning rate to 0.0006927876151166856.
+41/41 [==============================] - 3s 63ms/step - loss: 0.4907 - accuracy: 0.7715 - val_loss: 0.5271 - val_accuracy: 0.7533 - lr: 9.8970e-04
+Epoch 25/150
+41/41 [==============================] - 3s 62ms/step - loss: 0.4912 - accuracy: 0.7809 - val_loss: 0.5162 - val_accuracy: 0.7581 - lr: 9.8927e-04
+Epoch 26/150
+41/41 [==============================] - 3s 62ms/step - loss: 0.4897 - accuracy: 0.7773 - val_loss: 0.5101 - val_accuracy: 0.7505 - lr: 9.8884e-04
+Epoch 27/150
+41/41 [==============================] - 3s 63ms/step - loss: 0.4960 - accuracy: 0.7721 - val_loss: 0.5196 - val_accuracy: 0.7553 - lr: 9.8841e-04
+Epoch 28/150
+41/41 [==============================] - ETA: 0s - loss: 0.4883 - accuracy: 0.7759Restoring model weights from the end of the best epoch: 20.
+
+Epoch 28: ReduceLROnPlateau reducing learning rate to 0.0006915915757417678.
+41/41 [==============================] - 3s 65ms/step - loss: 0.4883 - accuracy: 0.7759 - val_loss: 0.5060 - val_accuracy: 0.7572 - lr: 9.8799e-04
+Epoch 28: early stopping
+模型训练耗时: 80.74秒
+
+评估LSTM模型性能...
+测试集损失: 0.5119, 测试集准确率: 0.7610
+33/33 [==============================] - 1s 10ms/step
+
+分类报告:
+              precision    recall  f1-score   support
+
+           0    0.85641   0.75112   0.80032       667
+           1    0.63991   0.77836   0.70238       379
+
+    accuracy                        0.76099      1046
+   macro avg    0.74816   0.76474   0.75135      1046
+weighted avg    0.77797   0.76099   0.76483      1046
+
+
+LSTM模型已成功保存至: /root/tmp/causalFeatureX_LSTM_0915/saved_models/CustomerChurn_lstm_model.keras
+
+保存模型...
+
+LSTM模型已成功保存至: /root/tmp/causalFeatureX_LSTM_0915/saved_models/CustomerChurn_CNN.keras
+模型预期输入形状: (None, 15, 1)
+===== 运行特征扰动模块 =====
+生成特征扰动值: 100%|████████████████████████| 15/15 [00:00<00:00, 31936.32it/s]
+使用 8 个线程并行计算特征贡献值...
+计算特征贡献值: 100%|███████████████████████████| 15/15 [00:05<00:00,  2.72it/s]
+特征扰动实验总耗时：5.57秒
+特征数据形状: (5227, 15)
+已将原始样本预测值存入全局变量，形状: (5227, 2)
+基线分布形状: (2,), 平均JS散度: 0.0017
+各特征最大JS散度（按影响程度排序）：
+  特征 ID: 0.0162
+  特征 MultipleLines: 0.0016
+  特征 DeviceProtection: 0.001
+  特征 Partner: 0.001
+  特征 PhoneService: 0.0009
+  特征 InternetService: 0.0008
+  特征 Contract: 0.0008
+  特征 TVProgram: 0.0006
+  特征 PaymentMethod: 0.0006
+  特征 SeniorCitizen: 0.0005
+  特征 gender: 0.0004
+  特征 TotalCharges: 0.0004
+  特征 Dependents: 0.0004
+  特征 tenure: 0.0002
+  特征 MonthlyCharges: 0.0
+==================================================
+真实样本的预测值: [[0.8279905  0.17200953]
+ [0.87466323 0.1253368 ]
+ [0.8546884  0.14531153]
+ ...
+ [0.8356201  0.16437986]
+ [0.8711041  0.12889592]
+ [0.83524096 0.16475902]]
+
+===== 运行因果图构建模块 =====
+============================================================
+           因果图构建关键参数 summary
+============================================================
+目标变量: ['Label']
+特征总数: 16
+使用的alpha阈值列表: [0.001, 0.003, 0.005, 0.01, 0.015, 0.02, 0.025, 0.03, 0.035, 0.04, 0.045, 0.05]
+最大路径长度限制: 3
+Bootstrap抽样次数: 30
+最小有效路径数阈值: 1
+------------------------------------------------------------
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 18.21it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 18.54it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 18.16it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 18.37it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 18.41it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 18.31it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 18.47it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 18.31it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 18.14it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 18.52it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 18.20it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 18.15it/s]
+阈值搜索进度: 100%|█████████████████████████████| 12/12 [00:01<00:00,  6.99it/s]
+alpha=0.001 有效路径数: 4
+alpha=0.003 有效路径数: 4
+alpha=0.005 有效路径数: 4
+alpha=0.010 有效路径数: 4
+alpha=0.015 有效路径数: 5
+alpha=0.020 有效路径数: 5
+alpha=0.025 有效路径数: 5
+alpha=0.030 有效路径数: 5
+alpha=0.035 有效路径数: 5
+alpha=0.040 有效路径数: 6
+alpha=0.045 有效路径数: 6
+alpha=0.050 有效路径数: 12
+路径数充足，提前终止阈值搜索
+
+【有效路径涉及的特征】共4个:
+1. Contract
+2. Dependents
+3. DeviceProtection
+4. Partner
+
+【直接路径（特征→target）】
+1. Contract → Label
+2. Dependents → Label
+3. DeviceProtection → Label
+4. Partner → Label
+
+【间接路径（特征→...→target）】
+1. Contract → DeviceProtection → Label
+2. Contract → Partner → Label
+3. Dependents → DeviceProtection → Label
+4. Dependents → Partner → Label
+5. DeviceProtection → Contract → Label
+6. DeviceProtection → Partner → Label
+7. Partner → Contract → Label
+8. Partner → DeviceProtection → Label
+
+============================================================
+           因果图构建最终结果
+============================================================
+1. 最优alpha阈值: 0.0500
+2. 有效路径总数: 12
+   - 直接路径数: 4
+   - 间接路径数: 8
+3. 高贡献特征判定阈值 (平均): 0.0009
+4. 高贡献特征数量: 4
+5. 路径稳定性FDR控制水平: 0.24082399653118497
+6. 最小稳定性阈值: 0.1
+============================================================
+
+
+【高贡献特征列表】共4个:
+1. ID (贡献值: 0.0162)
+2. DeviceProtection (贡献值: 0.0010)
+3. MultipleLines (贡献值: 0.0016)
+4. Partner (贡献值: 0.0010)
+
+有向图矩阵（行：起点，列：终点，1表示存在有向边）：
+节点顺序：['ID', 'Contract', 'Dependents', 'DeviceProtection', 'InternetService', 'MonthlyCharges', 'MultipleLines', 'Partner', 'PaymentMethod', 'PhoneService', 'SeniorCitizen', 'TVProgram', 'TotalCharges', 'gender', 'tenure', 'Label']
+[[0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+ [0. 0. 1. 1. 0. 1. 0. 1. 0. 0. 0. 1. 0. 0. 0. 1.]
+ [0. 0. 0. 1. 0. 1. 0. 1. 1. 0. 0. 0. 0. 0. 0. 1.]
+ [0. 1. 0. 0. 0. 0. 0. 1. 0. 0. 0. 0. 0. 0. 0. 1.]
+ [0. 0. 0. 0. 0. 1. 1. 0. 1. 1. 0. 1. 1. 0. 0. 0.]
+ [0. 0. 0. 1. 0. 0. 0. 0. 1. 0. 0. 0. 0. 0. 0. 0.]
+ [0. 1. 0. 1. 0. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+ [0. 1. 0. 1. 0. 1. 1. 0. 0. 0. 0. 0. 0. 0. 0. 1.]
+ [0. 1. 0. 1. 0. 0. 1. 1. 0. 0. 0. 0. 0. 0. 0. 0.]
+ [0. 0. 0. 0. 0. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+ [0. 0. 0. 0. 0. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+ [0. 0. 0. 1. 0. 1. 1. 1. 1. 0. 0. 0. 1. 0. 0. 0.]
+ [0. 1. 0. 1. 0. 1. 1. 1. 1. 1. 0. 0. 0. 0. 0. 0.]
+ [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 1. 0. 0. 1. 0.]
+ [0. 1. 1. 1. 0. 1. 1. 1. 1. 0. 0. 1. 1. 0. 0. 0.]
+ [0. 0. 1. 0. 0. 1. 0. 0. 1. 1. 0. 0. 1. 0. 1. 0.]]
+
+===== 检查冗余特征中的关键交互 =====
+识别到 11 个非因果特征：['PaymentMethod', 'InternetService', 'ID', 'tenure', 'SeniorCitizen', 'PhoneService', 'MonthlyCharges', 'TVProgram', 'MultipleLines', 'gender', 'TotalCharges']
+识别到 4 个高贡献特征：['ID', 'DeviceProtection', 'MultipleLines', 'Partner']
+非因果特征子集∩高贡献特征子集为：['MultipleLines', 'ID']
+开始双特征扰动：因果特征4个，非因果特征∩高贡献特征2个
+生成双特征组合共8对
+
+----- 开始计算组合 (DeviceProtection, ID) 的联合效应 -----
+----- 开始计算组合 (Partner, ID) 的联合效应 -----
+组合数过多（15681），采样10000个组合
+
+组合数过多（10454），采样10000个组合
+
+----- 开始计算组合 (Contract, ID) 的联合效应 -----
+组合数过多（15681），采样10000个组合
+
+----- 开始计算组合 (Dependents, ID) 的联合效应 -----
+组合数过多（10454），采样10000个组合
+
+----- 开始计算组合 (DeviceProtection, MultipleLines) 的联合效应 -----
+
+----- 开始计算组合 (Partner, MultipleLines) 的联合效应 -----
+
+----- 开始计算组合 (Contract, MultipleLines) 的联合效应 -----
+
+双特征扰动评估（并行）:   0%|                             | 0/8 [00:00<?, ?it/s]
+组合(Partner, MultipleLines)：联合效应0.0042 > 单特征和0.0025×0.9686803027471287，标记为显著
+组合(DeviceProtection, MultipleLines)：联合效应0.0040 > 单特征和0.0026×0.9682473023469668，标记为显著
+双特征扰动评估（并行）:  12%|██▋                  | 1/8 [00:00<00:01,  3.94it/s]组合(Dependents, MultipleLines)：联合效应0.0029 > 单特征和0.0020×0.9759700830249947，标记为显著
+组合(Contract, MultipleLines)：联合效应0.0037 > 单特征和0.0024×0.9701527781440514，标记为显著
+组合(DeviceProtection, ID)：联合效应0.0145 > 单特征和0.0172×0.7876596032549559，标记为显著
+双特征扰动评估（并行）:  62%|█████████████▏       | 5/8 [00:27<00:17,  5.87s/it]组合(Dependents, ID)：联合效应0.0135 > 单特征和0.0166×0.7953823839329838，标记为显著
+双特征扰动评估（并行）: 100%|█████████████████████| 8/8 [00:28<00:00,  3.52s/it]
+双特征扰动完成，新增2个特征到特征选择子集：['ID', 'MultipleLines']，更新后特征选择子集共6个特征
+
+===== 特征选择前后训练结果 =====
+===== 开始模型训练 =====
+原始数据形状：(5227, 16)
+警告：筛选特征顺序已调整为与原始数据一致
+目标变量为非数值型，进行编码
+筛选后数据集形状：(5227, 6)
+使用筛选后的特征：['ID', 'Contract', 'Dependents', 'DeviceProtection', 'MultipleLines', 'Partner']
+WARNING:tensorflow:Layer lstm_2 will not use cuDNN kernels since it doesn't meet the criteria. It will use a generic GPU kernel as fallback when running on GPU.
+WARNING:tensorflow:Layer lstm_3 will not use cuDNN kernels since it doesn't meet the criteria. It will use a generic GPU kernel as fallback when running on GPU.
+
+开始训练LSTM模型...
+Epoch 1/150
+41/41 [==============================] - 7s 43ms/step - loss: 0.9698 - accuracy: 0.6035 - val_loss: 0.6524 - val_accuracy: 0.6377 - lr: 9.9958e-04
+Epoch 2/150
+41/41 [==============================] - 1s 30ms/step - loss: 0.8012 - accuracy: 0.6347 - val_loss: 0.6188 - val_accuracy: 0.6549 - lr: 9.9915e-04
+Epoch 3/150
+41/41 [==============================] - 1s 30ms/step - loss: 0.7423 - accuracy: 0.6380 - val_loss: 0.6035 - val_accuracy: 0.6788 - lr: 9.9872e-04
+Epoch 4/150
+41/41 [==============================] - 1s 30ms/step - loss: 0.6764 - accuracy: 0.6646 - val_loss: 0.5880 - val_accuracy: 0.6816 - lr: 9.9828e-04
+Epoch 5/150
+41/41 [==============================] - 1s 29ms/step - loss: 0.6508 - accuracy: 0.6776 - val_loss: 0.5846 - val_accuracy: 0.6912 - lr: 9.9785e-04
+Epoch 6/150
+41/41 [==============================] - 1s 30ms/step - loss: 0.6250 - accuracy: 0.6906 - val_loss: 0.5849 - val_accuracy: 0.6864 - lr: 9.9742e-04
+Epoch 7/150
+41/41 [==============================] - 1s 30ms/step - loss: 0.6099 - accuracy: 0.6980 - val_loss: 0.5910 - val_accuracy: 0.6836 - lr: 9.9699e-04
+Epoch 8/150
+41/41 [==============================] - 1s 31ms/step - loss: 0.5885 - accuracy: 0.7164 - val_loss: 0.5879 - val_accuracy: 0.6883 - lr: 9.9656e-04
+Epoch 9/150
+41/41 [==============================] - ETA: 0s - loss: 0.5930 - accuracy: 0.7174
+Epoch 9: ReduceLROnPlateau reducing learning rate to 0.0006972912000492215.
+41/41 [==============================] - 1s 32ms/step - loss: 0.5930 - accuracy: 0.7174 - val_loss: 0.5810 - val_accuracy: 0.6874 - lr: 9.9613e-04
+Epoch 10/150
+41/41 [==============================] - 1s 31ms/step - loss: 0.5842 - accuracy: 0.7197 - val_loss: 0.5838 - val_accuracy: 0.6883 - lr: 9.9570e-04
+Epoch 11/150
+41/41 [==============================] - 1s 31ms/step - loss: 0.5755 - accuracy: 0.7273 - val_loss: 0.5836 - val_accuracy: 0.6902 - lr: 9.9527e-04
+Epoch 12/150
+41/41 [==============================] - 1s 31ms/step - loss: 0.5704 - accuracy: 0.7321 - val_loss: 0.5776 - val_accuracy: 0.6931 - lr: 9.9484e-04
+Epoch 13/150
+41/41 [==============================] - 1s 31ms/step - loss: 0.5685 - accuracy: 0.7248 - val_loss: 0.5782 - val_accuracy: 0.6950 - lr: 9.9441e-04
+Epoch 14/150
+41/41 [==============================] - 1s 31ms/step - loss: 0.5653 - accuracy: 0.7296 - val_loss: 0.5788 - val_accuracy: 0.6950 - lr: 9.9398e-04
+Epoch 15/150
+41/41 [==============================] - 1s 31ms/step - loss: 0.5604 - accuracy: 0.7333 - val_loss: 0.5800 - val_accuracy: 0.6941 - lr: 9.9355e-04
+Epoch 16/150
+41/41 [==============================] - 1s 31ms/step - loss: 0.5599 - accuracy: 0.7336 - val_loss: 0.5706 - val_accuracy: 0.6941 - lr: 9.9312e-04
+Epoch 17/150
+41/41 [==============================] - ETA: 0s - loss: 0.5588 - accuracy: 0.7357
+Epoch 17: ReduceLROnPlateau reducing learning rate to 0.000694885675329715.
+41/41 [==============================] - 1s 31ms/step - loss: 0.5588 - accuracy: 0.7357 - val_loss: 0.5781 - val_accuracy: 0.6922 - lr: 9.9269e-04
+Epoch 18/150
+41/41 [==============================] - 1s 31ms/step - loss: 0.5511 - accuracy: 0.7396 - val_loss: 0.5698 - val_accuracy: 0.6922 - lr: 9.9227e-04
+Epoch 19/150
+41/41 [==============================] - 1s 31ms/step - loss: 0.5462 - accuracy: 0.7411 - val_loss: 0.5704 - val_accuracy: 0.6912 - lr: 9.9184e-04
+Epoch 20/150
+41/41 [==============================] - 1s 32ms/step - loss: 0.5497 - accuracy: 0.7359 - val_loss: 0.5797 - val_accuracy: 0.6931 - lr: 9.9141e-04
+Epoch 21/150
+41/41 [==============================] - 1s 31ms/step - loss: 0.5498 - accuracy: 0.7365 - val_loss: 0.5719 - val_accuracy: 0.6960 - lr: 9.9098e-04
+Epoch 22/150
+41/41 [==============================] - 1s 32ms/step - loss: 0.5480 - accuracy: 0.7377 - val_loss: 0.5668 - val_accuracy: 0.6950 - lr: 9.9055e-04
+Epoch 23/150
+41/41 [==============================] - 1s 32ms/step - loss: 0.5450 - accuracy: 0.7380 - val_loss: 0.5597 - val_accuracy: 0.6931 - lr: 9.9012e-04
+Epoch 24/150
+41/41 [==============================] - 1s 31ms/step - loss: 0.5413 - accuracy: 0.7434 - val_loss: 0.5671 - val_accuracy: 0.6893 - lr: 9.8970e-04
+Epoch 25/150
+41/41 [==============================] - ETA: 0s - loss: 0.5431 - accuracy: 0.7434
+Epoch 25: ReduceLROnPlateau reducing learning rate to 0.0006924883811734616.
+41/41 [==============================] - 1s 32ms/step - loss: 0.5431 - accuracy: 0.7434 - val_loss: 0.5596 - val_accuracy: 0.6883 - lr: 9.8927e-04
+Epoch 26/150
+41/41 [==============================] - 1s 30ms/step - loss: 0.5404 - accuracy: 0.7447 - val_loss: 0.5571 - val_accuracy: 0.6922 - lr: 9.8884e-04
+Epoch 27/150
+41/41 [==============================] - 1s 31ms/step - loss: 0.5373 - accuracy: 0.7442 - val_loss: 0.5541 - val_accuracy: 0.6931 - lr: 9.8841e-04
+Epoch 28/150
+41/41 [==============================] - 1s 32ms/step - loss: 0.5406 - accuracy: 0.7424 - val_loss: 0.5518 - val_accuracy: 0.6950 - lr: 9.8799e-04
+Epoch 29/150
+41/41 [==============================] - ETA: 0s - loss: 0.5323 - accuracy: 0.7461Restoring model weights from the end of the best epoch: 21.
+
+Epoch 29: ReduceLROnPlateau reducing learning rate to 0.0006912928307428955.
+41/41 [==============================] - 1s 32ms/step - loss: 0.5323 - accuracy: 0.7461 - val_loss: 0.5598 - val_accuracy: 0.6960 - lr: 9.8756e-04
+Epoch 29: early stopping
+模型训练耗时: 42.68秒
+
+评估LSTM模型性能...
+测试集损失: 0.5719, 测试集准确率: 0.6960
+33/33 [==============================] - 1s 5ms/step
+
+分类报告:
+              precision    recall  f1-score   support
+
+           0    0.87207   0.61319   0.72007       667
+           1    0.55286   0.84169   0.66736       379
+
+    accuracy                        0.69598      1046
+   macro avg    0.71246   0.72744   0.69372      1046
+weighted avg    0.75641   0.69598   0.70097      1046
+
+
+LSTM模型已成功保存至: /root/tmp/causalFeatureX_LSTM_0915/saved_models/CustomerChurn_lstm_model.keras
+特征选择前:15
+特征选择后:6
+模型运行时间减少了38.06s
+模型准确率提升了-6.50%
+
+进程已结束，退出代码为 0

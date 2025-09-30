@@ -1,0 +1,268 @@
+/root/miniconda3/bin/python3 /root/tmp/causalFeatureX_0812/main.py
+2025-08-13 15:56:48.550113: I tensorflow/core/util/port.cc:110] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2025-08-13 15:56:48.613898: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 AVX_VNNI AMX_TILE AMX_INT8 AMX_BF16 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2025-08-13 15:56:49.602733: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+===== 开始模型训练 =====
+数据基本信息：
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 1100 entries, 0 to 1099
+Data columns (total 21 columns):
+ #   Column                        Non-Null Count  Dtype
+---  ------                        --------------  -----
+ 0   anxiety_level                 1100 non-null   int64
+ 1   self_esteem                   1100 non-null   int64
+ 2   mental_health_history         1100 non-null   int64
+ 3   depression                    1100 non-null   int64
+ 4   headache                      1100 non-null   int64
+ 5   blood_pressure                1100 non-null   int64
+ 6   sleep_quality                 1100 non-null   int64
+ 7   breathing_problem             1100 non-null   int64
+ 8   noise_level                   1100 non-null   int64
+ 9   living_conditions             1100 non-null   int64
+ 10  safety                        1100 non-null   int64
+ 11  basic_needs                   1100 non-null   int64
+ 12  academic_performance          1100 non-null   int64
+ 13  study_load                    1100 non-null   int64
+ 14  teacher_student_relationship  1100 non-null   int64
+ 15  future_career_concerns        1100 non-null   int64
+ 16  social_support                1100 non-null   int64
+ 17  peer_pressure                 1100 non-null   int64
+ 18  extracurricular_activities    1100 non-null   int64
+ 19  bullying                      1100 non-null   int64
+ 20  stress_level                  1100 non-null   int64
+dtypes: int64(21)
+memory usage: 180.6 KB
+数据集形状：(1100, 20)
+2025-08-13 15:56:51.727060: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1639] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 22182 MB memory:  -> device: 0, name: NVIDIA GeForce RTX 4090, pci bus id: 0000:27:00.0, compute capability: 8.9
+2025-08-13 15:56:54.073642: I tensorflow/compiler/xla/stream_executor/cuda/cuda_dnn.cc:432] Loaded cuDNN version 8600
+2025-08-13 15:56:54.171400: I tensorflow/tsl/platform/default/subprocess.cc:304] Start cannot spawn child process: No such file or directory
+2025-08-13 15:56:54.251806: I tensorflow/compiler/xla/stream_executor/cuda/cuda_blas.cc:606] TensorFloat-32 will be used for the matrix multiplication. This will only be logged once.
+2025-08-13 15:56:54.286646: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x7f821aa6c790 initialized for platform CUDA (this does not guarantee that XLA will be used). Devices:
+2025-08-13 15:56:54.286681: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): NVIDIA GeForce RTX 4090, Compute Capability 8.9
+2025-08-13 15:56:54.293277: I tensorflow/compiler/mlir/tensorflow/utils/dump_mlir_util.cc:255] disabling MLIR crash reproducer, set env var `MLIR_CRASH_REPRODUCER_DIRECTORY` to enable.
+2025-08-13 15:56:54.379096: I tensorflow/tsl/platform/default/subprocess.cc:304] Start cannot spawn child process: No such file or directory
+2025-08-13 15:56:54.465066: I ./tensorflow/compiler/jit/device_compiler.h:186] Compiled cluster using XLA!  This line is logged at most once for the lifetime of the process.
+Restoring model weights from the end of the best epoch: 21.
+Epoch 26: early stopping
+模型训练耗时: 6.75秒
+测试集损失: 0.1948, 测试集准确率: 0.9091
+7/7 [==============================] - 0s 2ms/step
+
+分类报告:
+              precision    recall  f1-score   support
+
+           0    0.87838   0.85526   0.86667        76
+           1    0.92466   0.93750   0.93103       144
+
+    accuracy                        0.90909       220
+   macro avg    0.90152   0.89638   0.89885       220
+weighted avg    0.90867   0.90909   0.90880       220
+
+
+保存模型...
+
+模型已成功保存至: /root/tmp/causalFeatureX_0812/saved_models/MentalStress_CNN.keras
+模型预期输入形状: (None, 20, 1)
+===== 运行特征扰动模块 =====
+生成特征扰动值: 100%|███████████████████████| 20/20 [00:00<00:00, 150333.48it/s]
+使用 8 个线程并行计算特征贡献值...
+计算特征贡献值: 100%|███████████████████████████| 20/20 [00:01<00:00, 19.55it/s]
+特征扰动实验总耗时：1.10秒
+特征数据形状: (1100, 20)
+已将原始样本预测值存入全局变量，形状: (1100, 2)
+基线分布形状: (2,), 平均JS散度: 0.1561
+真实样本的预测值: [[0.00667908 0.9933209 ]
+ [0.00223542 0.9977646 ]
+ [0.00724074 0.9927592 ]
+ ...
+ [0.992159   0.00784107]
+ [0.0092882  0.99071175]
+ [0.03795371 0.9620463 ]]
+各特征最大绝对差异（按影响程度排序）：
+  特征 depression: 0.0521
+  特征 noise_level: 0.0136
+  特征 study_load: 0.0109
+  特征 bullying: 0.0056
+  特征 social_support: 0.0055
+  特征 peer_pressure: 0.0045
+  特征 future_career_concerns: 0.0038
+  特征 basic_needs: 0.0036
+  特征 academic_performance: 0.0032
+  特征 teacher_student_relationship: 0.0023
+  特征 safety: 0.0017
+  特征 living_conditions: 0.0016
+  特征 self_esteem: 0.0014
+  特征 breathing_problem: 0.0014
+  特征 extracurricular_activities: 0.0012
+  特征 anxiety_level: 0.0004
+  特征 sleep_quality: 0.0002
+  特征 blood_pressure: 0.0001
+  特征 headache: 0.0001
+  特征 mental_health_history: 0.0
+==================================================
+
+===== 运行因果图构建模块 =====
+============================================================
+           因果图构建关键参数 summary
+============================================================
+目标变量: ['stress_level']
+特征总数: 21
+使用的alpha阈值列表: [0.001, 0.003, 0.005, 0.01, 0.015, 0.02, 0.025, 0.03, 0.035, 0.04, 0.045, 0.05]
+最大路径长度限制: 3
+Bootstrap抽样次数: 30
+最小有效路径数阈值: 1
+------------------------------------------------------------
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:03<00:00,  8.29it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:03<00:00,  8.30it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:03<00:00,  8.31it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:03<00:00,  8.32it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:03<00:00,  8.30it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:03<00:00,  8.28it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:03<00:00,  8.32it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:03<00:00,  8.30it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:03<00:00,  8.30it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:03<00:00,  8.29it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:03<00:00,  8.29it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:03<00:00,  8.29it/s]
+阈值搜索进度: 100%|█████████████████████████████| 12/12 [00:03<00:00,  3.24it/s]
+alpha=0.001 有效路径数: 18
+路径数充足，提前终止阈值搜索
+
+【有效路径涉及的特征】共5个:
+1. anxiety_level
+2. depression
+3. headache
+4. mental_health_history
+5. self_esteem
+
+【直接路径（特征→target）】
+1. anxiety_level → stress_level
+2. self_esteem → stress_level
+3. mental_health_history → stress_level
+4. depression → stress_level
+5. headache → stress_level
+
+【间接路径（特征→...→target）】
+1. anxiety_level → self_esteem → stress_level
+2. anxiety_level → depression → stress_level
+3. self_esteem → anxiety_level → stress_level
+4. self_esteem → depression → stress_level
+5. mental_health_history → anxiety_level → stress_level
+6. mental_health_history → self_esteem → stress_level
+7. mental_health_history → depression → stress_level
+8. depression → anxiety_level → stress_level
+9. depression → self_esteem → stress_level
+10. depression → headache → stress_level
+11. headache → anxiety_level → stress_level
+12. headache → self_esteem → stress_level
+13. headache → depression → stress_level
+
+============================================================
+           因果图构建最终结果
+============================================================
+1. 最优alpha阈值: 0.0500
+2. 有效路径总数: 18
+   - 直接路径数: 5
+   - 间接路径数: 13
+3. 高贡献特征判定阈值 (平均): 0.0109
+4. 高贡献特征数量: 3
+5. 路径稳定性FDR控制水平: 0.26444385894678385
+6. 最小稳定性阈值: 0.1
+============================================================
+
+
+【高贡献特征列表】共3个:
+1. depression (贡献值: 0.0521)
+2. noise_level (贡献值: 0.0136)
+3. study_load (贡献值: 0.0109)
+
+有向图矩阵（行：起点，列：终点，1表示存在有向边）：
+节点顺序：['anxiety_level', 'self_esteem', 'mental_health_history', 'depression', 'headache', 'blood_pressure', 'sleep_quality', 'breathing_problem', 'noise_level', 'living_conditions', 'safety', 'basic_needs', 'academic_performance', 'study_load', 'teacher_student_relationship', 'future_career_concerns', 'social_support', 'peer_pressure', 'extracurricular_activities', 'bullying', 'stress_level']
+[[0. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1.]
+ [1. 0. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1.]
+ [1. 1. 0. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1.]
+ [1. 1. 1. 0. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1.]
+ [1. 1. 1. 1. 0. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1.]
+ [1. 1. 1. 1. 1. 0. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 0.]
+ [1. 1. 1. 1. 1. 0. 0. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 0.]
+ [1. 1. 1. 1. 1. 0. 1. 0. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 0.]
+ [1. 1. 1. 1. 1. 0. 1. 1. 0. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 0.]
+ [1. 1. 1. 1. 1. 0. 1. 1. 1. 0. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 0.]
+ [1. 1. 1. 1. 1. 0. 1. 1. 1. 1. 0. 1. 1. 1. 1. 1. 1. 1. 1. 1. 0.]
+ [1. 1. 1. 1. 1. 0. 1. 1. 1. 1. 1. 0. 1. 1. 1. 1. 1. 1. 1. 1. 0.]
+ [1. 1. 1. 1. 1. 0. 1. 1. 1. 1. 1. 1. 0. 1. 1. 1. 1. 1. 1. 1. 0.]
+ [1. 1. 1. 1. 1. 0. 1. 1. 1. 1. 1. 1. 1. 0. 1. 1. 1. 1. 1. 1. 0.]
+ [1. 1. 1. 1. 1. 0. 1. 1. 1. 1. 1. 1. 1. 1. 0. 1. 1. 1. 1. 1. 0.]
+ [1. 1. 1. 1. 1. 0. 1. 1. 1. 1. 1. 1. 1. 1. 1. 0. 1. 1. 1. 1. 0.]
+ [1. 1. 1. 1. 1. 0. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 0. 1. 1. 1. 0.]
+ [1. 1. 1. 1. 1. 0. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 0. 1. 1. 0.]
+ [1. 1. 1. 1. 1. 0. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 0. 1. 0.]
+ [1. 1. 1. 1. 1. 0. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 0. 0.]
+ [1. 1. 1. 1. 1. 0. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 0.]]
+
+===== 检查冗余特征中的关键交互 =====
+识别到 15 个非因果特征：['social_support', 'basic_needs', 'living_conditions', 'future_career_concerns', 'academic_performance', 'sleep_quality', 'blood_pressure', 'peer_pressure', 'teacher_student_relationship', 'bullying', 'study_load', 'safety', 'extracurricular_activities', 'noise_level', 'breathing_problem']
+识别到 3 个高贡献特征：['depression', 'noise_level', 'study_load']
+非因果特征子集∩高贡献特征子集为：['noise_level', 'study_load']
+开始双特征扰动：因果特征5个，非因果特征∩高贡献特征2个
+生成双特征组合共10对
+
+----- 开始计算组合 (depression, noise_level) 的联合效应 -----
+
+----- 开始计算组合 (depression, study_load) 的联合效应 -----
+
+----- 开始计算组合 (self_esteem, noise_level) 的联合效应 -----
+
+----- 开始计算组合 (self_esteem, study_load) 的联合效应 -----
+
+----- 开始计算组合 (anxiety_level, noise_level) 的联合效应 -----
+
+----- 开始计算组合 (anxiety_level, study_load) 的联合效应 -----
+
+----- 开始计算组合 (headache, noise_level) 的联合效应 -----
+
+----- 开始计算组合 (headache, study_load) 的联合效应 -----
+
+----- 开始计算组合 (mental_health_history, noise_level) 的联合效应 -----
+
+----- 开始计算组合 (mental_health_history, study_load) 的联合效应 -----
+双特征扰动评估（并行）:   0%|                            | 0/10 [00:00<?, ?it/s]组合(anxiety_level, noise_level)：联合效应0.0339 > 单特征和0.0140×1.1353274672122067，标记为显著
+双特征扰动评估（并行）:  10%|██                  | 1/10 [00:00<00:03,  2.56it/s]组合(anxiety_level, study_load)：联合效应0.0241 > 单特征和0.0113×1.1479880281434773，标记为显著
+组合(headache, noise_level)：联合效应0.0199 > 单特征和0.0137×1.1366997303454371，标记为显著
+组合(headache, study_load)：联合效应0.0170 > 单特征和0.0110×1.1493602912767078，标记为显著
+组合(depression, noise_level)：联合效应0.1951 > 单特征和0.0657×0.8971637461762862，标记为显著
+组合(depression, study_load)：联合效应0.2228 > 单特征和0.0630×0.9098243071075568，标记为显著
+双特征扰动评估（并行）:  70%|██████████████      | 7/10 [00:00<00:00, 13.68it/s]组合(self_esteem, study_load)：联合效应0.0341 > 单特征和0.0123×1.1433673900058927，标记为显著
+组合(self_esteem, noise_level)：联合效应0.0383 > 单特征和0.0150×1.130706829074622，标记为显著
+双特征扰动评估（并行）: 100%|███████████████████| 10/10 [00:00<00:00, 16.45it/s]
+双特征扰动完成，新增2个特征到特征选择子集：['noise_level', 'study_load']，更新后特征选择子集共7个特征
+
+===== 特征选择前后训练结果 =====
+===== 开始模型训练 =====
+原始数据形状：(1100, 21)
+警告：筛选特征顺序已调整为与原始数据一致
+筛选后数据集形状：(1100, 7)
+使用筛选后的特征：['anxiety_level', 'self_esteem', 'mental_health_history', 'depression', 'headache', 'noise_level', 'study_load']
+Restoring model weights from the end of the best epoch: 33.
+Epoch 38: early stopping
+模型训练耗时: 6.03秒
+测试集损失: 0.2085, 测试集准确率: 0.9182
+7/7 [==============================] - 0s 2ms/step
+
+分类报告:
+              precision    recall  f1-score   support
+
+           0    0.90278   0.85526   0.87838        76
+           1    0.92568   0.95139   0.93836       144
+
+    accuracy                        0.91818       220
+   macro avg    0.91423   0.90333   0.90837       220
+weighted avg    0.91777   0.91818   0.91764       220
+
+特征选择前:20
+特征选择后:7
+模型运行时间减少了0.72s
+模型准确率提升了0.91%
+
+进程已结束，退出代码为 0

@@ -1,0 +1,262 @@
+/root/miniconda3/bin/python3 /root/tmp/causalFeatureX_0812/main.py
+2025-08-13 15:53:16.489275: I tensorflow/core/util/port.cc:110] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2025-08-13 15:53:16.550075: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 AVX_VNNI AMX_TILE AMX_INT8 AMX_BF16 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2025-08-13 15:53:17.600516: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+===== 开始模型训练 =====
+数据基本信息：
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 45218 entries, 0 to 45217
+Data columns (total 15 columns):
+ #   Column          Non-Null Count  Dtype
+---  ------          --------------  -----
+ 0   age             45218 non-null  int64
+ 1   workclass       45218 non-null  object
+ 2   fnlwgt          45218 non-null  int64
+ 3   education       45218 non-null  object
+ 4   education-num   45218 non-null  int64
+ 5   marital-status  45218 non-null  object
+ 6   occupation      45218 non-null  object
+ 7   relationship    45218 non-null  object
+ 8   race            45218 non-null  object
+ 9   sex             45218 non-null  object
+ 10  capital-gain    45218 non-null  int64
+ 11  capital-loss    45218 non-null  int64
+ 12  hours-per-week  45218 non-null  int64
+ 13  native-country  45218 non-null  object
+ 14  income          45218 non-null  object
+dtypes: int64(6), object(9)
+memory usage: 5.2+ MB
+发现非数值型特征，将进行编码：['workclass', 'education', 'marital-status', 'occupation', 'relationship', 'race', 'sex', 'native-country']
+目标变量为非数值型，进行编码
+数据集形状：(45218, 14)
+2025-08-13 15:53:38.327557: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1639] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 22182 MB memory:  -> device: 0, name: NVIDIA GeForce RTX 4090, pci bus id: 0000:27:00.0, compute capability: 8.9
+2025-08-13 15:53:40.458092: I tensorflow/compiler/xla/stream_executor/cuda/cuda_dnn.cc:432] Loaded cuDNN version 8600
+2025-08-13 15:53:40.543268: I tensorflow/tsl/platform/default/subprocess.cc:304] Start cannot spawn child process: No such file or directory
+2025-08-13 15:53:40.622380: I tensorflow/compiler/xla/stream_executor/cuda/cuda_blas.cc:606] TensorFloat-32 will be used for the matrix multiplication. This will only be logged once.
+2025-08-13 15:53:40.653550: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x7f97cafdba50 initialized for platform CUDA (this does not guarantee that XLA will be used). Devices:
+2025-08-13 15:53:40.653576: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): NVIDIA GeForce RTX 4090, Compute Capability 8.9
+2025-08-13 15:53:40.664097: I tensorflow/compiler/mlir/tensorflow/utils/dump_mlir_util.cc:255] disabling MLIR crash reproducer, set env var `MLIR_CRASH_REPRODUCER_DIRECTORY` to enable.
+2025-08-13 15:53:40.737892: I tensorflow/tsl/platform/default/subprocess.cc:304] Start cannot spawn child process: No such file or directory
+2025-08-13 15:53:40.803986: I ./tensorflow/compiler/jit/device_compiler.h:186] Compiled cluster using XLA!  This line is logged at most once for the lifetime of the process.
+Restoring model weights from the end of the best epoch: 19.
+Epoch 24: early stopping
+模型训练耗时: 28.68秒
+测试集损失: 0.3795, 测试集准确率: 0.8064
+283/283 [==============================] - 1s 1ms/step
+
+分类报告:
+              precision    recall  f1-score   support
+
+           0    0.90886   0.82572   0.86530      6811
+           1    0.58438   0.74742   0.65592      2233
+
+    accuracy                        0.80639      9044
+   macro avg    0.74662   0.78657   0.76061      9044
+weighted avg    0.82874   0.80639   0.81360      9044
+
+
+保存模型...
+
+模型已成功保存至: /root/tmp/causalFeatureX_0812/saved_models/Income_CNN.keras
+模型预期输入形状: (None, 14, 1)
+===== 运行特征扰动模块 =====
+生成特征扰动值: 100%|████████████████████████| 14/14 [00:00<00:00, 13832.80it/s]
+使用 8 个线程并行计算特征贡献值...
+计算特征贡献值: 100%|███████████████████████████| 14/14 [00:04<00:00,  3.02it/s]
+特征扰动实验总耗时：4.73秒
+特征数据形状: (45218, 14)
+已将原始样本预测值存入全局变量，形状: (45218, 2)
+基线分布形状: (2,), 平均JS散度: 0.0742
+真实样本的预测值: [[0.7663974  0.23360258]
+ [0.17294927 0.82705075]
+ [0.15721266 0.8427873 ]
+ ...
+ [0.21026136 0.78973866]
+ [0.390996   0.609004  ]
+ [0.2215901  0.7784099 ]]
+各特征最大绝对差异（按影响程度排序）：
+  特征 marital-status: 0.0698
+  特征 capital-gain: 0.0692
+  特征 education-num: 0.0543
+  特征 hours-per-week: 0.0414
+  特征 capital-loss: 0.0164
+  特征 relationship: 0.0089
+  特征 native-country: 0.0049
+  特征 education: 0.0042
+  特征 occupation: 0.0021
+  特征 race: 0.001
+  特征 sex: 0.0002
+  特征 age: 0.0
+  特征 workclass: 0.0
+  特征 fnlwgt: -0.0
+==================================================
+
+===== 运行因果图构建模块 =====
+============================================================
+           因果图构建关键参数 summary
+============================================================
+目标变量: ['income']
+特征总数: 15
+使用的alpha阈值列表: [0.001, 0.003, 0.005, 0.01, 0.015, 0.02, 0.025, 0.03, 0.035, 0.04, 0.045, 0.05]
+最大路径长度限制: 3
+Bootstrap抽样次数: 30
+最小有效路径数阈值: 1
+------------------------------------------------------------
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 15.59it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 16.12it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 15.37it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 15.68it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 15.89it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 15.93it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 15.43it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 16.80it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 16.24it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 16.47it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 16.64it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:01<00:00, 17.42it/s]
+阈值搜索进度: 100%|█████████████████████████████| 12/12 [00:02<00:00,  5.87it/s]
+alpha=0.001 有效路径数: 2
+alpha=0.003 有效路径数: 4
+alpha=0.005 有效路径数: 4
+alpha=0.010 有效路径数: 4
+alpha=0.015 有效路径数: 4
+alpha=0.020 有效路径数: 4
+alpha=0.025 有效路径数: 4
+alpha=0.030 有效路径数: 4
+alpha=0.035 有效路径数: 4
+alpha=0.040 有效路径数: 4
+alpha=0.045 有效路径数: 4
+alpha=0.050 有效路径数: 4
+
+【有效路径涉及的特征】共3个:
+1. age
+2. education
+3. occupation
+/root/miniconda3/lib/python3.8/site-packages/matplotlib/collections.py:963: RuntimeWarning: invalid value encountered in sqrt
+  scale = np.sqrt(self._sizes) * dpi / 72.0 * self._factor
+
+【直接路径（特征→target）】
+1. age → income
+2. education → income
+3. occupation → income
+
+【间接路径（特征→...→target）】
+1. education → occupation → income
+
+============================================================
+           因果图构建最终结果
+============================================================
+1. 最优alpha阈值: 0.0500
+2. 有效路径总数: 4
+   - 直接路径数: 3
+   - 间接路径数: 1
+3. 高贡献特征判定阈值 (平均): 0.0164
+4. 高贡献特征数量: 5
+5. 路径稳定性FDR控制水平: 0.2352182518111363
+6. 最小稳定性阈值: 0.1
+============================================================
+
+
+【高贡献特征列表】共5个:
+1. education-num (贡献值: 0.0543)
+2. marital-status (贡献值: 0.0698)
+3. capital-gain (贡献值: 0.0692)
+4. capital-loss (贡献值: 0.0164)
+5. hours-per-week (贡献值: 0.0414)
+
+有向图矩阵（行：起点，列：终点，1表示存在有向边）：
+节点顺序：['age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marital-status', 'occupation', 'relationship', 'race', 'sex', 'capital-gain', 'capital-loss', 'hours-per-week', 'native-country', 'income']
+[[0. 1. 1. 0. 1. 1. 0. 1. 1. 1. 0. 0. 1. 0. 1.]
+ [1. 0. 0. 0. 1. 1. 0. 1. 1. 1. 0. 0. 1. 0. 0.]
+ [0. 1. 0. 0. 1. 1. 0. 0. 1. 1. 0. 0. 0. 0. 0.]
+ [0. 0. 1. 0. 1. 1. 1. 0. 0. 0. 0. 0. 0. 1. 1.]
+ [0. 0. 0. 0. 0. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+ [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+ [0. 0. 0. 0. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0. 1.]
+ [1. 0. 0. 0. 1. 1. 1. 0. 0. 0. 0. 0. 1. 0. 0.]
+ [0. 0. 0. 0. 1. 1. 0. 1. 0. 1. 0. 0. 0. 0. 0.]
+ [1. 0. 0. 1. 0. 1. 1. 1. 0. 0. 0. 0. 0. 0. 0.]
+ [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+ [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+ [1. 0. 0. 1. 1. 1. 0. 1. 1. 1. 0. 0. 0. 0. 0.]
+ [0. 0. 1. 0. 1. 1. 0. 0. 1. 0. 0. 0. 0. 0. 0.]
+ [1. 0. 0. 1. 1. 1. 1. 1. 1. 1. 0. 0. 1. 0. 0.]]
+
+===== 检查冗余特征中的关键交互 =====
+识别到 11 个非因果特征：['hours-per-week', 'marital-status', 'workclass', 'sex', 'education-num', 'native-country', 'race', 'fnlwgt', 'capital-loss', 'relationship', 'capital-gain']
+识别到 5 个高贡献特征：['education-num', 'marital-status', 'capital-gain', 'capital-loss', 'hours-per-week']
+非因果特征子集∩高贡献特征子集为：['hours-per-week', 'marital-status', 'education-num', 'capital-loss', 'capital-gain']
+开始双特征扰动：因果特征3个，非因果特征∩高贡献特征5个
+生成双特征组合共15对
+
+----- 开始计算组合 (education, marital-status) 的联合效应 -----
+
+----- 开始计算组合 (education, capital-gain) 的联合效应 -----
+
+----- 开始计算组合 (education, education-num) 的联合效应 -----
+
+----- 开始计算组合 (education, hours-per-week) 的联合效应 -----
+
+----- 开始计算组合 (occupation, marital-status) 的联合效应 -----
+
+----- 开始计算组合 (occupation, capital-gain) 的联合效应 -----
+
+----- 开始计算组合 (occupation, education-num) 的联合效应 -----
+
+----- 开始计算组合 (occupation, hours-per-week) 的联合效应 -----
+
+----- 开始计算组合 (education, capital-loss) 的联合效应 -----
+组合数过多（69712），采样10000个组合
+
+双特征扰动评估（并行）:   0%|                            | 0/15 [00:00<?, ?it/s]
+组合数过多（60998），采样10000个组合
+组合(education, marital-status)：联合效应0.0754 > 单特征和0.0740×0.9455060181221777，标记为显著
+
+----- 开始计算组合 (age, capital-gain) 的联合效应 -----
+双特征扰动评估（并行）:   7%|█▎                  | 1/15 [00:00<00:13,  1.06it/s]组合(occupation, marital-status)：联合效应0.0720 > 单特征和0.0719×0.9527975467611705，标记为显著
+
+----- 开始计算组合 (age, capital-loss) 的联合效应 -----
+组合数过多（322418），采样10000个组合
+
+双特征扰动评估（并行）:  20%|████                | 3/15 [00:01<00:03,  3.30it/s]
+组合(education, education-num)：联合效应0.0657 > 单特征和0.0586×0.9987006460255339，标记为显著
+
+----- 开始计算组合 (age, hours-per-week) 的联合效应 -----
+双特征扰动评估（并行）:  27%|█████▎              | 4/15 [00:01<00:02,  3.81it/s]组合(occupation, hours-per-week)：联合效应0.0507 > 单特征和0.0435×1.050500603364779，标记为显著
+双特征扰动评估（并行）:  53%|██████████▋         | 8/15 [00:02<00:01,  3.98it/s]组合(occupation, capital-gain)：联合效应0.0798 > 单特征和0.0713×0.9547711241962561，标记为显著
+组合(education, capital-gain)：联合效应0.0706 > 单特征和0.0735×0.9474795955572632，标记为显著
+双特征扰动评估（并行）:  73%|█████████████▉     | 11/15 [00:04<00:01,  2.01it/s]组合(age, capital-gain)：联合效应0.0692 > 单特征和0.0692×0.9619735774350855，标记为显著
+双特征扰动评估（并行）:  87%|████████████████▍  | 13/15 [00:14<00:05,  2.86s/it]组合(occupation, capital-loss)：联合效应0.0237 > 单特征和0.0185×1.1365501929177384，标记为显著
+双特征扰动评估（并行）: 100%|███████████████████| 15/15 [00:16<00:00,  1.12s/it]
+双特征扰动完成，新增5个特征到特征选择子集：['capital-gain', 'capital-loss', 'education-num', 'hours-per-week', 'marital-status']，更新后特征选择子集共8个特征
+
+===== 特征选择前后训练结果 =====
+===== 开始模型训练 =====
+原始数据形状：(45218, 15)
+警告：筛选特征顺序已调整为与原始数据一致
+目标变量为非数值型，进行编码
+筛选后数据集形状：(45218, 8)
+使用筛选后的特征：['age', 'education', 'education-num', 'marital-status', 'occupation', 'capital-gain', 'capital-loss', 'hours-per-week']
+Restoring model weights from the end of the best epoch: 9.
+Epoch 14: early stopping
+模型训练耗时: 17.87秒
+测试集损失: 0.4384, 测试集准确率: 0.7613
+283/283 [==============================] - 0s 1ms/step
+
+分类报告:
+              precision    recall  f1-score   support
+
+           0    0.94696   0.72354   0.82031      6811
+           1    0.50964   0.87640   0.64449      2233
+
+    accuracy                        0.76128      9044
+   macro avg    0.72830   0.79997   0.73240      9044
+weighted avg    0.83899   0.76128   0.77690      9044
+
+特征选择前:14
+特征选择后:8
+模型运行时间减少了10.81s
+模型准确率提升了-4.51%
+
+进程已结束，退出代码为 0

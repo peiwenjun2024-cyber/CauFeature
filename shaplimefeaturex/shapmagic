@@ -1,0 +1,800 @@
+/root/miniconda3/bin/python3 /root/tmp/causalFeatureX_LSTM_0915/shap_cnn_fast.py
+2025-09-25 19:31:59.173467: I tensorflow/core/util/port.cc:110] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2025-09-25 19:31:59.228263: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 AVX_VNNI AMX_TILE AMX_INT8 AMX_BF16 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2025-09-25 19:32:00.005564: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+✅ 混合精度策略已启用：mixed_float16
+📊 数据基本信息：特征数9，类别数2
+🚀 无缓存，执行SVMSMOTE过采样（仅1次）...
+SVMSMOTE过采样: 100%|█████████████████████████████| 1/1 [00:06<00:00,  6.59s/it]
+💾 过采样数据已缓存至：npz/MagicGamma_preprocessed_data.npz
+`sparse` was renamed to `sparse_output` in version 1.2 and will be removed in 1.4. `sparse_output` is ignored unless you leave `sparse` to its default value.
+📥 训练集形状：(19731, 9, 1)，测试集形状：(4933, 9, 1)
+2025-09-25 19:32:09.686046: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1639] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 22182 MB memory:  -> device: 0, name: NVIDIA GeForce RTX 4090, pci bus id: 0000:5a:00.0, compute capability: 8.9
+🖥️ 使用1个GPU，最终批次大小：128
+🚩 训练配置：epochs=30（早停兜底），steps_per_epoch=154
+2025-09-25 19:32:10.637749: W tensorflow/core/grappler/optimizers/data/auto_shard.cc:786] AUTO sharding policy will apply DATA sharding policy as it failed to apply FILE sharding policy because of the following reason: Found an unshardable source dataset: name: "TensorSliceDataset/_2"
+op: "TensorSliceDataset"
+input: "Placeholder/_0"
+input: "Placeholder/_1"
+attr {
+  key: "Toutput_types"
+  value {
+    list {
+      type: DT_DOUBLE
+      type: DT_DOUBLE
+    }
+  }
+}
+attr {
+  key: "_cardinality"
+  value {
+    i: 19731
+  }
+}
+attr {
+  key: "is_files"
+  value {
+    b: false
+  }
+}
+attr {
+  key: "metadata"
+  value {
+    s: "\n\024TensorSliceDataset:0"
+  }
+}
+attr {
+  key: "output_shapes"
+  value {
+    list {
+      shape {
+        dim {
+          size: 9
+        }
+        dim {
+          size: 1
+        }
+      }
+      shape {
+        dim {
+          size: 2
+        }
+      }
+    }
+  }
+}
+attr {
+  key: "replicate_on_split"
+  value {
+    b: false
+  }
+}
+experimental_type {
+  type_id: TFT_PRODUCT
+  args {
+    type_id: TFT_DATASET
+    args {
+      type_id: TFT_PRODUCT
+      args {
+        type_id: TFT_TENSOR
+        args {
+          type_id: TFT_DOUBLE
+        }
+      }
+      args {
+        type_id: TFT_TENSOR
+        args {
+          type_id: TFT_DOUBLE
+        }
+      }
+    }
+  }
+}
+
+Epoch 1/30
+2025-09-25 19:32:14.143880: I tensorflow/compiler/xla/stream_executor/cuda/cuda_dnn.cc:432] Loaded cuDNN version 8600
+2025-09-25 19:32:14.226828: I tensorflow/tsl/platform/default/subprocess.cc:304] Start cannot spawn child process: No such file or directory
+2025-09-25 19:32:14.462204: I tensorflow/compiler/xla/stream_executor/cuda/cuda_blas.cc:606] TensorFloat-32 will be used for the matrix multiplication. This will only be logged once.
+2025-09-25 19:32:14.675715: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x7fcf607e28f0 initialized for platform CUDA (this does not guarantee that XLA will be used). Devices:
+2025-09-25 19:32:14.675779: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): NVIDIA GeForce RTX 4090, Compute Capability 8.9
+2025-09-25 19:32:14.682235: I tensorflow/compiler/mlir/tensorflow/utils/dump_mlir_util.cc:255] disabling MLIR crash reproducer, set env var `MLIR_CRASH_REPRODUCER_DIRECTORY` to enable.
+2025-09-25 19:32:14.760234: I tensorflow/tsl/platform/default/subprocess.cc:304] Start cannot spawn child process: No such file or directory
+2025-09-25 19:32:14.833929: I ./tensorflow/compiler/jit/device_compiler.h:186] Compiled cluster using XLA!  This line is logged at most once for the lifetime of the process.
+152/154 [============================>.] - ETA: 0s - loss: 0.8588 - accuracy: 0.65572025-09-25 19:32:19.092526: W tensorflow/core/grappler/optimizers/data/auto_shard.cc:786] AUTO sharding policy will apply DATA sharding policy as it failed to apply FILE sharding policy because of the following reason: Found an unshardable source dataset: name: "TensorSliceDataset/_2"
+op: "TensorSliceDataset"
+input: "Placeholder/_0"
+input: "Placeholder/_1"
+attr {
+  key: "Toutput_types"
+  value {
+    list {
+      type: DT_DOUBLE
+      type: DT_DOUBLE
+    }
+  }
+}
+attr {
+  key: "_cardinality"
+  value {
+    i: 4933
+  }
+}
+attr {
+  key: "is_files"
+  value {
+    b: false
+  }
+}
+attr {
+  key: "metadata"
+  value {
+    s: "\n\024TensorSliceDataset:5"
+  }
+}
+attr {
+  key: "output_shapes"
+  value {
+    list {
+      shape {
+        dim {
+          size: 9
+        }
+        dim {
+          size: 1
+        }
+      }
+      shape {
+        dim {
+          size: 2
+        }
+      }
+    }
+  }
+}
+attr {
+  key: "replicate_on_split"
+  value {
+    b: false
+  }
+}
+experimental_type {
+  type_id: TFT_PRODUCT
+  args {
+    type_id: TFT_DATASET
+    args {
+      type_id: TFT_PRODUCT
+      args {
+        type_id: TFT_TENSOR
+        args {
+          type_id: TFT_DOUBLE
+        }
+      }
+      args {
+        type_id: TFT_TENSOR
+        args {
+          type_id: TFT_DOUBLE
+        }
+      }
+    }
+  }
+}
+
+154/154 [==============================] - 9s 12ms/step - loss: 0.8580 - accuracy: 0.6565 - val_loss: 0.7003 - val_accuracy: 0.7593 - lr: 0.0010
+Epoch 2/30
+154/154 [==============================] - 2s 10ms/step - loss: 0.7029 - accuracy: 0.7397 - val_loss: 0.6257 - val_accuracy: 0.7638 - lr: 0.0010
+Epoch 3/30
+154/154 [==============================] - 2s 10ms/step - loss: 0.6311 - accuracy: 0.7541 - val_loss: 0.5850 - val_accuracy: 0.7601 - lr: 0.0010
+Epoch 4/30
+154/154 [==============================] - 2s 11ms/step - loss: 0.5821 - accuracy: 0.7608 - val_loss: 0.5682 - val_accuracy: 0.7512 - lr: 0.0010
+Epoch 5/30
+154/154 [==============================] - 2s 11ms/step - loss: 0.5472 - accuracy: 0.7638 - val_loss: 0.5539 - val_accuracy: 0.7506 - lr: 0.0010
+Epoch 6/30
+154/154 [==============================] - 2s 11ms/step - loss: 0.5270 - accuracy: 0.7666 - val_loss: 0.5270 - val_accuracy: 0.7599 - lr: 0.0010
+Epoch 7/30
+154/154 [==============================] - 2s 11ms/step - loss: 0.5094 - accuracy: 0.7689 - val_loss: 0.5254 - val_accuracy: 0.7578 - lr: 0.0010
+Epoch 8/30
+154/154 [==============================] - 2s 11ms/step - loss: 0.4951 - accuracy: 0.7676 - val_loss: 0.4685 - val_accuracy: 0.7800 - lr: 0.0010
+Epoch 9/30
+154/154 [==============================] - 2s 11ms/step - loss: 0.4892 - accuracy: 0.7701 - val_loss: 0.4624 - val_accuracy: 0.7831 - lr: 0.0010
+Epoch 10/30
+154/154 [==============================] - 2s 11ms/step - loss: 0.4823 - accuracy: 0.7732 - val_loss: 0.4836 - val_accuracy: 0.7671 - lr: 0.0010
+Epoch 11/30
+154/154 [==============================] - 2s 11ms/step - loss: 0.4769 - accuracy: 0.7768 - val_loss: 0.4558 - val_accuracy: 0.7808 - lr: 0.0010
+Epoch 12/30
+154/154 [==============================] - 2s 11ms/step - loss: 0.4701 - accuracy: 0.7777 - val_loss: 0.4559 - val_accuracy: 0.7829 - lr: 0.0010
+Epoch 13/30
+154/154 [==============================] - 2s 11ms/step - loss: 0.4738 - accuracy: 0.7729 - val_loss: 0.4482 - val_accuracy: 0.7862 - lr: 0.0010
+Epoch 14/30
+154/154 [==============================] - 2s 11ms/step - loss: 0.4687 - accuracy: 0.7792 - val_loss: 0.4519 - val_accuracy: 0.7858 - lr: 0.0010
+Epoch 15/30
+154/154 [==============================] - 2s 11ms/step - loss: 0.4682 - accuracy: 0.7760 - val_loss: 0.4574 - val_accuracy: 0.7794 - lr: 0.0010
+Epoch 16/30
+154/154 [==============================] - 2s 11ms/step - loss: 0.4655 - accuracy: 0.7790 - val_loss: 0.4493 - val_accuracy: 0.7872 - lr: 0.0010
+Epoch 17/30
+154/154 [==============================] - 2s 11ms/step - loss: 0.4581 - accuracy: 0.7823 - val_loss: 0.4613 - val_accuracy: 0.7798 - lr: 5.0000e-04
+Epoch 18/30
+150/154 [============================>.] - ETA: 0s - loss: 0.4563 - accuracy: 0.7818Restoring model weights from the end of the best epoch: 13.
+154/154 [==============================] - 2s 11ms/step - loss: 0.4564 - accuracy: 0.7819 - val_loss: 0.4610 - val_accuracy: 0.7796 - lr: 5.0000e-04
+Epoch 18: early stopping
+2025-09-25 19:32:48.680229: W tensorflow/core/grappler/optimizers/data/auto_shard.cc:786] AUTO sharding policy will apply DATA sharding policy as it failed to apply FILE sharding policy because of the following reason: Found an unshardable source dataset: name: "TensorSliceDataset/_2"
+op: "TensorSliceDataset"
+input: "Placeholder/_0"
+input: "Placeholder/_1"
+attr {
+  key: "Toutput_types"
+  value {
+    list {
+      type: DT_DOUBLE
+      type: DT_DOUBLE
+    }
+  }
+}
+attr {
+  key: "_cardinality"
+  value {
+    i: 4933
+  }
+}
+attr {
+  key: "is_files"
+  value {
+    b: false
+  }
+}
+attr {
+  key: "metadata"
+  value {
+    s: "\n\024TensorSliceDataset:5"
+  }
+}
+attr {
+  key: "output_shapes"
+  value {
+    list {
+      shape {
+        dim {
+          size: 9
+        }
+        dim {
+          size: 1
+        }
+      }
+      shape {
+        dim {
+          size: 2
+        }
+      }
+    }
+  }
+}
+attr {
+  key: "replicate_on_split"
+  value {
+    b: false
+  }
+}
+experimental_type {
+  type_id: TFT_PRODUCT
+  args {
+    type_id: TFT_DATASET
+    args {
+      type_id: TFT_PRODUCT
+      args {
+        type_id: TFT_TENSOR
+        args {
+          type_id: TFT_DOUBLE
+        }
+      }
+      args {
+        type_id: TFT_TENSOR
+        args {
+          type_id: TFT_DOUBLE
+        }
+      }
+    }
+  }
+}
+
+38/38 [==============================] - 0s 3ms/step - loss: 0.4482 - accuracy: 0.7862
+
+📈 验证集性能：损失0.4482，精度0.7862
+⏱️  首次训练总耗时：37.82 秒
+2025-09-25 19:32:48.935488: W tensorflow/core/grappler/optimizers/data/auto_shard.cc:786] AUTO sharding policy will apply DATA sharding policy as it failed to apply FILE sharding policy because of the following reason: Found an unshardable source dataset: name: "TensorSliceDataset/_2"
+op: "TensorSliceDataset"
+input: "Placeholder/_0"
+input: "Placeholder/_1"
+attr {
+  key: "Toutput_types"
+  value {
+    list {
+      type: DT_DOUBLE
+      type: DT_DOUBLE
+    }
+  }
+}
+attr {
+  key: "_cardinality"
+  value {
+    i: 4933
+  }
+}
+attr {
+  key: "is_files"
+  value {
+    b: false
+  }
+}
+attr {
+  key: "metadata"
+  value {
+    s: "\n\024TensorSliceDataset:5"
+  }
+}
+attr {
+  key: "output_shapes"
+  value {
+    list {
+      shape {
+        dim {
+          size: 9
+        }
+        dim {
+          size: 1
+        }
+      }
+      shape {
+        dim {
+          size: 2
+        }
+      }
+    }
+  }
+}
+attr {
+  key: "replicate_on_split"
+  value {
+    b: false
+  }
+}
+experimental_type {
+  type_id: TFT_PRODUCT
+  args {
+    type_id: TFT_DATASET
+    args {
+      type_id: TFT_PRODUCT
+      args {
+        type_id: TFT_TENSOR
+        args {
+          type_id: TFT_DOUBLE
+        }
+      }
+      args {
+        type_id: TFT_TENSOR
+        args {
+          type_id: TFT_DOUBLE
+        }
+      }
+    }
+  }
+}
+
+38/38 [==============================] - 0s 2ms/step
+
+📋 分类报告：
+              precision    recall  f1-score   support
+
+           0    0.78479   0.78349   0.78414      2411
+           1    0.78755   0.78883   0.78819      2453
+
+    accuracy                        0.78618      4864
+   macro avg    0.78617   0.78616   0.78617      4864
+weighted avg    0.78618   0.78618   0.78618      4864
+
+
+🔥 开始计算SHAP值（复用缓存数据，CPU单进程分批）...
+🚀 无SHAP值缓存，开始计算...
+计算SHAP值:   0%|                                        | 0/10 [00:00<?, ?批/s]`tf.keras.backend.set_learning_phase` is deprecated and will be removed after 2020-10-11. To update it, simply pass a True/False value to the `training` argument of the `__call__` method of your layer or model.
+计算SHAP值: 100%|███████████████████████████████| 10/10 [00:20<00:00,  2.05s/批]
+💾 SHAP值已缓存至：dataset/shap_values_MagicGamma.npz
+⏱️  SHAP计算耗时：20.51 秒
+
+🎯 筛选出的低重要性特征数量：3
+   低重要性特征：['fSize', 'fConc', 'fConc1']
+
+🚀 开始训练筛选后模型（复用优化配置）...
+📥 筛选后训练集形状：(19731, 6, 1)（特征数减少3个）
+2025-09-25 19:33:35.294675: W tensorflow/core/grappler/optimizers/data/auto_shard.cc:786] AUTO sharding policy will apply DATA sharding policy as it failed to apply FILE sharding policy because of the following reason: Found an unshardable source dataset: name: "TensorSliceDataset/_2"
+op: "TensorSliceDataset"
+input: "Placeholder/_0"
+input: "Placeholder/_1"
+attr {
+  key: "Toutput_types"
+  value {
+    list {
+      type: DT_DOUBLE
+      type: DT_DOUBLE
+    }
+  }
+}
+attr {
+  key: "_cardinality"
+  value {
+    i: 19731
+  }
+}
+attr {
+  key: "is_files"
+  value {
+    b: false
+  }
+}
+attr {
+  key: "metadata"
+  value {
+    s: "\n\026TensorSliceDataset:221"
+  }
+}
+attr {
+  key: "output_shapes"
+  value {
+    list {
+      shape {
+        dim {
+          size: 6
+        }
+        dim {
+          size: 1
+        }
+      }
+      shape {
+        dim {
+          size: 2
+        }
+      }
+    }
+  }
+}
+attr {
+  key: "replicate_on_split"
+  value {
+    b: false
+  }
+}
+experimental_type {
+  type_id: TFT_PRODUCT
+  args {
+    type_id: TFT_DATASET
+    args {
+      type_id: TFT_PRODUCT
+      args {
+        type_id: TFT_TENSOR
+        args {
+          type_id: TFT_DOUBLE
+        }
+      }
+      args {
+        type_id: TFT_TENSOR
+        args {
+          type_id: TFT_DOUBLE
+        }
+      }
+    }
+  }
+}
+
+Epoch 1/30
+149/154 [============================>.] - ETA: 0s - loss: 0.8454 - accuracy: 0.66612025-09-25 19:33:42.276901: W tensorflow/core/grappler/optimizers/data/auto_shard.cc:786] AUTO sharding policy will apply DATA sharding policy as it failed to apply FILE sharding policy because of the following reason: Found an unshardable source dataset: name: "TensorSliceDataset/_2"
+op: "TensorSliceDataset"
+input: "Placeholder/_0"
+input: "Placeholder/_1"
+attr {
+  key: "Toutput_types"
+  value {
+    list {
+      type: DT_DOUBLE
+      type: DT_DOUBLE
+    }
+  }
+}
+attr {
+  key: "_cardinality"
+  value {
+    i: 4933
+  }
+}
+attr {
+  key: "is_files"
+  value {
+    b: false
+  }
+}
+attr {
+  key: "metadata"
+  value {
+    s: "\n\026TensorSliceDataset:226"
+  }
+}
+attr {
+  key: "output_shapes"
+  value {
+    list {
+      shape {
+        dim {
+          size: 6
+        }
+        dim {
+          size: 1
+        }
+      }
+      shape {
+        dim {
+          size: 2
+        }
+      }
+    }
+  }
+}
+attr {
+  key: "replicate_on_split"
+  value {
+    b: false
+  }
+}
+experimental_type {
+  type_id: TFT_PRODUCT
+  args {
+    type_id: TFT_DATASET
+    args {
+      type_id: TFT_PRODUCT
+      args {
+        type_id: TFT_TENSOR
+        args {
+          type_id: TFT_DOUBLE
+        }
+      }
+      args {
+        type_id: TFT_TENSOR
+        args {
+          type_id: TFT_DOUBLE
+        }
+      }
+    }
+  }
+}
+
+154/154 [==============================] - 8s 12ms/step - loss: 0.8419 - accuracy: 0.6678 - val_loss: 0.7039 - val_accuracy: 0.7636 - lr: 0.0010
+Epoch 2/30
+154/154 [==============================] - 2s 10ms/step - loss: 0.6947 - accuracy: 0.7429 - val_loss: 0.6472 - val_accuracy: 0.7621 - lr: 0.0010
+Epoch 3/30
+154/154 [==============================] - 2s 10ms/step - loss: 0.6242 - accuracy: 0.7535 - val_loss: 0.6117 - val_accuracy: 0.7325 - lr: 0.0010
+Epoch 4/30
+154/154 [==============================] - 2s 10ms/step - loss: 0.5840 - accuracy: 0.7567 - val_loss: 0.5467 - val_accuracy: 0.7582 - lr: 0.0010
+Epoch 5/30
+154/154 [==============================] - 2s 10ms/step - loss: 0.5513 - accuracy: 0.7584 - val_loss: 0.5044 - val_accuracy: 0.7697 - lr: 0.0010
+Epoch 6/30
+154/154 [==============================] - 2s 10ms/step - loss: 0.5276 - accuracy: 0.7602 - val_loss: 0.5080 - val_accuracy: 0.7625 - lr: 0.0010
+Epoch 7/30
+154/154 [==============================] - 2s 10ms/step - loss: 0.5097 - accuracy: 0.7665 - val_loss: 0.4934 - val_accuracy: 0.7726 - lr: 0.0010
+Epoch 8/30
+154/154 [==============================] - 2s 10ms/step - loss: 0.5004 - accuracy: 0.7677 - val_loss: 0.4820 - val_accuracy: 0.7763 - lr: 0.0010
+Epoch 9/30
+154/154 [==============================] - 2s 10ms/step - loss: 0.4903 - accuracy: 0.7697 - val_loss: 0.4557 - val_accuracy: 0.7845 - lr: 0.0010
+Epoch 10/30
+154/154 [==============================] - 2s 10ms/step - loss: 0.4862 - accuracy: 0.7725 - val_loss: 0.4607 - val_accuracy: 0.7773 - lr: 0.0010
+Epoch 11/30
+154/154 [==============================] - 2s 10ms/step - loss: 0.4813 - accuracy: 0.7720 - val_loss: 0.4717 - val_accuracy: 0.7782 - lr: 0.0010
+Epoch 12/30
+154/154 [==============================] - 2s 10ms/step - loss: 0.4720 - accuracy: 0.7775 - val_loss: 0.4506 - val_accuracy: 0.7827 - lr: 0.0010
+Epoch 13/30
+154/154 [==============================] - 2s 10ms/step - loss: 0.4713 - accuracy: 0.7787 - val_loss: 0.4830 - val_accuracy: 0.7782 - lr: 0.0010
+Epoch 14/30
+154/154 [==============================] - 2s 10ms/step - loss: 0.4696 - accuracy: 0.7752 - val_loss: 0.4416 - val_accuracy: 0.7876 - lr: 0.0010
+Epoch 15/30
+154/154 [==============================] - 2s 10ms/step - loss: 0.4671 - accuracy: 0.7774 - val_loss: 0.4417 - val_accuracy: 0.7909 - lr: 0.0010
+Epoch 16/30
+154/154 [==============================] - 2s 10ms/step - loss: 0.4657 - accuracy: 0.7789 - val_loss: 0.4503 - val_accuracy: 0.7860 - lr: 0.0010
+Epoch 17/30
+154/154 [==============================] - 2s 10ms/step - loss: 0.4638 - accuracy: 0.7774 - val_loss: 0.4415 - val_accuracy: 0.7903 - lr: 0.0010
+Epoch 18/30
+154/154 [==============================] - 2s 10ms/step - loss: 0.4604 - accuracy: 0.7791 - val_loss: 0.4395 - val_accuracy: 0.7930 - lr: 5.0000e-04
+Epoch 19/30
+154/154 [==============================] - 2s 10ms/step - loss: 0.4594 - accuracy: 0.7840 - val_loss: 0.4466 - val_accuracy: 0.7895 - lr: 5.0000e-04
+Epoch 20/30
+154/154 [==============================] - 2s 10ms/step - loss: 0.4522 - accuracy: 0.7874 - val_loss: 0.4383 - val_accuracy: 0.7907 - lr: 5.0000e-04
+Epoch 21/30
+154/154 [==============================] - 2s 10ms/step - loss: 0.4551 - accuracy: 0.7823 - val_loss: 0.4412 - val_accuracy: 0.7880 - lr: 5.0000e-04
+Epoch 22/30
+154/154 [==============================] - 2s 10ms/step - loss: 0.4532 - accuracy: 0.7824 - val_loss: 0.4367 - val_accuracy: 0.7905 - lr: 5.0000e-04
+Epoch 23/30
+154/154 [==============================] - 2s 10ms/step - loss: 0.4541 - accuracy: 0.7843 - val_loss: 0.4322 - val_accuracy: 0.7934 - lr: 5.0000e-04
+Epoch 24/30
+154/154 [==============================] - 2s 10ms/step - loss: 0.4540 - accuracy: 0.7856 - val_loss: 0.4416 - val_accuracy: 0.7911 - lr: 5.0000e-04
+Epoch 25/30
+154/154 [==============================] - 2s 10ms/step - loss: 0.4527 - accuracy: 0.7853 - val_loss: 0.4409 - val_accuracy: 0.7907 - lr: 5.0000e-04
+Epoch 26/30
+154/154 [==============================] - 2s 10ms/step - loss: 0.4474 - accuracy: 0.7887 - val_loss: 0.4533 - val_accuracy: 0.7852 - lr: 5.0000e-04
+Epoch 27/30
+154/154 [==============================] - 2s 10ms/step - loss: 0.4507 - accuracy: 0.7862 - val_loss: 0.4314 - val_accuracy: 0.7967 - lr: 2.5000e-04
+Epoch 28/30
+154/154 [==============================] - 2s 10ms/step - loss: 0.4483 - accuracy: 0.7875 - val_loss: 0.4408 - val_accuracy: 0.7903 - lr: 2.5000e-04
+Epoch 29/30
+154/154 [==============================] - 2s 10ms/step - loss: 0.4463 - accuracy: 0.7851 - val_loss: 0.4405 - val_accuracy: 0.7907 - lr: 2.5000e-04
+Epoch 30/30
+154/154 [==============================] - 2s 10ms/step - loss: 0.4456 - accuracy: 0.7888 - val_loss: 0.4325 - val_accuracy: 0.7940 - lr: 2.5000e-04
+2025-09-25 19:34:28.414599: W tensorflow/core/grappler/optimizers/data/auto_shard.cc:786] AUTO sharding policy will apply DATA sharding policy as it failed to apply FILE sharding policy because of the following reason: Found an unshardable source dataset: name: "TensorSliceDataset/_2"
+op: "TensorSliceDataset"
+input: "Placeholder/_0"
+input: "Placeholder/_1"
+attr {
+  key: "Toutput_types"
+  value {
+    list {
+      type: DT_DOUBLE
+      type: DT_DOUBLE
+    }
+  }
+}
+attr {
+  key: "_cardinality"
+  value {
+    i: 4933
+  }
+}
+attr {
+  key: "is_files"
+  value {
+    b: false
+  }
+}
+attr {
+  key: "metadata"
+  value {
+    s: "\n\026TensorSliceDataset:226"
+  }
+}
+attr {
+  key: "output_shapes"
+  value {
+    list {
+      shape {
+        dim {
+          size: 6
+        }
+        dim {
+          size: 1
+        }
+      }
+      shape {
+        dim {
+          size: 2
+        }
+      }
+    }
+  }
+}
+attr {
+  key: "replicate_on_split"
+  value {
+    b: false
+  }
+}
+experimental_type {
+  type_id: TFT_PRODUCT
+  args {
+    type_id: TFT_DATASET
+    args {
+      type_id: TFT_PRODUCT
+      args {
+        type_id: TFT_TENSOR
+        args {
+          type_id: TFT_DOUBLE
+        }
+      }
+      args {
+        type_id: TFT_TENSOR
+        args {
+          type_id: TFT_DOUBLE
+        }
+      }
+    }
+  }
+}
+
+38/38 [==============================] - 0s 3ms/step - loss: 0.4325 - accuracy: 0.7940
+
+📈 筛选后模型验证性能：损失0.4325，精度0.7940
+⏱️  筛选后模型训练耗时：53.12 秒
+2025-09-25 19:34:28.667759: W tensorflow/core/grappler/optimizers/data/auto_shard.cc:786] AUTO sharding policy will apply DATA sharding policy as it failed to apply FILE sharding policy because of the following reason: Found an unshardable source dataset: name: "TensorSliceDataset/_2"
+op: "TensorSliceDataset"
+input: "Placeholder/_0"
+input: "Placeholder/_1"
+attr {
+  key: "Toutput_types"
+  value {
+    list {
+      type: DT_DOUBLE
+      type: DT_DOUBLE
+    }
+  }
+}
+attr {
+  key: "_cardinality"
+  value {
+    i: 4933
+  }
+}
+attr {
+  key: "is_files"
+  value {
+    b: false
+  }
+}
+attr {
+  key: "metadata"
+  value {
+    s: "\n\026TensorSliceDataset:226"
+  }
+}
+attr {
+  key: "output_shapes"
+  value {
+    list {
+      shape {
+        dim {
+          size: 6
+        }
+        dim {
+          size: 1
+        }
+      }
+      shape {
+        dim {
+          size: 2
+        }
+      }
+    }
+  }
+}
+attr {
+  key: "replicate_on_split"
+  value {
+    b: false
+  }
+}
+experimental_type {
+  type_id: TFT_PRODUCT
+  args {
+    type_id: TFT_DATASET
+    args {
+      type_id: TFT_PRODUCT
+      args {
+        type_id: TFT_TENSOR
+        args {
+          type_id: TFT_DOUBLE
+        }
+      }
+      args {
+        type_id: TFT_TENSOR
+        args {
+          type_id: TFT_DOUBLE
+        }
+      }
+    }
+  }
+}
+
+38/38 [==============================] - 0s 2ms/step
+
+📋 筛选后模型分类报告：
+              precision    recall  f1-score   support
+
+           0    0.77444   0.82455   0.79871      2411
+           1    0.81585   0.76396   0.78905      2453
+
+    accuracy                        0.79400      4864
+   macro avg    0.79515   0.79426   0.79388      4864
+weighted avg    0.79532   0.79400   0.79384      4864
+
+
+进程已结束，退出代码为 0

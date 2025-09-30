@@ -1,0 +1,377 @@
+from model_train_v6 import train, save_model
+from feature_perturbation_v7 import CausalFeaturePerturbation
+from causal_graph_build_v19 import build_causal_graph, Feature
+from redundantRecover_v10 import PathShapleyModule
+
+/root/miniconda3/bin/python3 /root/tmp/causalFeatureX_LSTM_0915/main.py
+2025-09-23 19:46:46.423798: I tensorflow/core/util/port.cc:110] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2025-09-23 19:46:46.465079: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2025-09-23 19:46:47.068606: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+===== 开始模型训练 =====
+数据基本信息：
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 12330 entries, 0 to 12329
+Data columns (total 18 columns):
+ #   Column                   Non-Null Count  Dtype
+---  ------                   --------------  -----
+ 0   Administrative           12330 non-null  int64
+ 1   Administrative_Duration  12330 non-null  float64
+ 2   Informational            12330 non-null  int64
+ 3   Informational_Duration   12330 non-null  float64
+ 4   ProductRelated           12330 non-null  int64
+ 5   ProductRelated_Duration  12330 non-null  float64
+ 6   BounceRates              12330 non-null  float64
+ 7   ExitRates                12330 non-null  float64
+ 8   PageValues               12330 non-null  float64
+ 9   SpecialDay               12330 non-null  float64
+ 10  Month                    12330 non-null  object
+ 11  OperatingSystems         12330 non-null  int64
+ 12  Browser                  12330 non-null  int64
+ 13  Region                   12330 non-null  int64
+ 14  TrafficType              12330 non-null  int64
+ 15  VisitorType              12330 non-null  object
+ 16  Weekend                  12330 non-null  bool
+ 17  Revenue                  12330 non-null  bool
+dtypes: bool(2), float64(7), int64(7), object(2)
+memory usage: 1.5+ MB
+发现非数值型特征，将进行编码：['Month', 'VisitorType', 'Weekend']
+数据集形状：(12330, 17)
+采样前训练集类别分布：
+Revenue
+False    0.848236
+True     0.151764
+Name: proportion, dtype: float64
+
+应用SMOTE+ENN混合采样...
+SMOTE+ENN采样后类别分布:
+Revenue
+False    8367
+True     8086
+Name: count, dtype: int64
+根据特征维度 17 和样本量 12330 调整模型参数...
+2025-09-23 19:46:48.968313: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1639] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 22324 MB memory:  -> device: 0, name: NVIDIA GeForce RTX 3090, pci bus id: 0000:9d:00.0, compute capability: 8.6
+根据样本量 12330 使用batch_size: 256
+2025-09-23 19:46:50.533226: I tensorflow/compiler/xla/stream_executor/cuda/cuda_dnn.cc:432] Loaded cuDNN version 8600
+2025-09-23 19:46:50.614104: I tensorflow/tsl/platform/default/subprocess.cc:304] Start cannot spawn child process: No such file or directory
+2025-09-23 19:46:50.688322: I tensorflow/compiler/xla/stream_executor/cuda/cuda_blas.cc:606] TensorFloat-32 will be used for the matrix multiplication. This will only be logged once.
+2025-09-23 19:46:50.726346: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x7fbdef141d90 initialized for platform CUDA (this does not guarantee that XLA will be used). Devices:
+2025-09-23 19:46:50.726374: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): NVIDIA GeForce RTX 3090, Compute Capability 8.6
+2025-09-23 19:46:50.732113: I tensorflow/compiler/mlir/tensorflow/utils/dump_mlir_util.cc:255] disabling MLIR crash reproducer, set env var `MLIR_CRASH_REPRODUCER_DIRECTORY` to enable.
+2025-09-23 19:46:50.800731: I tensorflow/tsl/platform/default/subprocess.cc:304] Start cannot spawn child process: No such file or directory
+2025-09-23 19:46:50.857511: I ./tensorflow/compiler/jit/device_compiler.h:186] Compiled cluster using XLA!  This line is logged at most once for the lifetime of the process.
+
+Epoch 6: ReduceLROnPlateau reducing learning rate to 0.0003000000142492354.
+
+Epoch 8: ReduceLROnPlateau reducing learning rate to 9.000000427477062e-05.
+
+Epoch 10: ReduceLROnPlateau reducing learning rate to 2.700000040931627e-05.
+
+Epoch 12: ReduceLROnPlateau reducing learning rate to 8.100000013655517e-06.
+Restoring model weights from the end of the best epoch: 4.
+
+Epoch 14: ReduceLROnPlateau reducing learning rate to 2.429999949526973e-06.
+Epoch 14: early stopping
+模型训练耗时: 13.77秒
+测试集损失: 0.3184, 测试集准确率: 0.8747
+78/78 [==============================] - 0s 2ms/step
+
+分类报告:
+              precision    recall  f1-score   support
+
+           0    0.94815   0.89878   0.92281      2055
+           1    0.59846   0.75426   0.66738       411
+
+    accuracy                        0.87470      2466
+   macro avg    0.77330   0.82652   0.79510      2466
+weighted avg    0.88987   0.87470   0.88024      2466
+
+
+保存模型...
+
+模型已成功保存至: /root/tmp/causalFeatureX_LSTM_0915/saved_models/online_shoppers_intention_CNN.keras
+模型预期输入形状: (None, 17, 1)
+===== 运行特征扰动模块 =====
+生成特征扰动值: 100%|█████████████████████████| 17/17 [00:00<00:00, 9849.86it/s]
+使用 8 个线程并行计算特征贡献值...
+计算特征贡献值: 100%|███████████████████████████| 17/17 [00:11<00:00,  1.53it/s]
+特征扰动实验总耗时：11.12秒
+特征数据形状: (12330, 17)
+已将原始样本预测值存入全局变量，形状: (12330, 2)
+基线分布形状: (2,), 平均JS散度: 0.0655
+各特征最大JS散度（按影响程度排序）：
+  特征 PageValues: 0.2283
+  特征 OperatingSystems: 0.0065
+  特征 Administrative_Duration: 0.005
+  特征 VisitorType: 0.0038
+  特征 Month: 0.0031
+  特征 Informational_Duration: 0.0008
+  特征 Browser: 0.0005
+  特征 TrafficType: 0.0005
+  特征 ProductRelated: 0.0002
+  特征 Weekend: 0.0002
+  特征 SpecialDay: 0.0001
+  特征 Region: 0.0001
+  特征 ProductRelated_Duration: 0.0001
+  特征 Administrative: 0.0001
+  特征 Informational: 0.0001
+  特征 ExitRates: 0.0
+  特征 BounceRates: 0.0
+==================================================
+真实样本的预测值: [[0.98015815 0.01984191]
+ [0.98416257 0.01583738]
+ [0.99203134 0.00796867]
+ ...
+ [0.97791255 0.02208742]
+ [0.8913425  0.10865748]
+ [0.96328485 0.03671518]]
+
+===== 运行因果图构建模块 =====
+============================================================
+           因果图构建关键参数 summary
+============================================================
+目标变量: ['Revenue']
+特征总数: 18
+使用的alpha阈值列表: [0.001, 0.003, 0.005, 0.01, 0.015, 0.02, 0.025, 0.03, 0.035, 0.04, 0.045, 0.05]
+最大路径长度限制: 3
+Bootstrap抽样次数: 30
+最小有效路径数阈值: 1
+------------------------------------------------------------
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:03<00:00,  7.53it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:03<00:00,  7.57it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:03<00:00,  7.61it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:03<00:00,  7.55it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:03<00:00,  7.51it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:04<00:00,  7.50it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:03<00:00,  7.57it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:03<00:00,  7.55it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:03<00:00,  7.61it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:03<00:00,  7.57it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:03<00:00,  7.57it/s]
+Bootstrap抽样验证: 100%|████████████████████████| 30/30 [00:04<00:00,  7.46it/s]
+阈值搜索进度: 100%|█████████████████████████████| 12/12 [00:04<00:00,  2.94it/s]
+alpha=0.001 有效路径数: 1
+alpha=0.003 有效路径数: 2
+alpha=0.005 有效路径数: 2
+alpha=0.010 有效路径数: 2
+alpha=0.015 有效路径数: 2
+alpha=0.020 有效路径数: 3
+alpha=0.025 有效路径数: 3
+alpha=0.030 有效路径数: 4
+alpha=0.035 有效路径数: 4
+alpha=0.040 有效路径数: 5
+alpha=0.045 有效路径数: 5
+alpha=0.050 有效路径数: 5
+
+【有效路径涉及的特征】共4个:
+1. Administrative
+2. Month
+3. PageValues
+4. VisitorType
+
+【直接路径（特征→target）】
+1. Administrative → Revenue
+2. PageValues → Revenue
+3. Month → Revenue
+4. VisitorType → Revenue
+
+【间接路径（特征→...→target）】
+1. Administrative → Month → Revenue
+
+============================================================
+           因果图构建最终结果
+============================================================
+1. 最优alpha阈值: 0.0500
+2. 有效路径总数: 5
+   - 直接路径数: 4
+   - 间接路径数: 1
+3. 高贡献特征判定阈值 (平均): 0.0002
+4. 高贡献特征数量: 9
+5. 路径稳定性FDR控制水平: 0.25105450102066124
+6. 最小稳定性阈值: 0.1
+============================================================
+
+
+【高贡献特征列表】共9个:
+1. Administrative_Duration (贡献值: 0.0050)
+2. Informational_Duration (贡献值: 0.0008)
+3. ProductRelated (贡献值: 0.0002)
+4. PageValues (贡献值: 0.2283)
+5. Month (贡献值: 0.0031)
+6. OperatingSystems (贡献值: 0.0065)
+7. Browser (贡献值: 0.0005)
+8. TrafficType (贡献值: 0.0005)
+9. VisitorType (贡献值: 0.0038)
+
+有向图矩阵（行：起点，列：终点，1表示存在有向边）：
+节点顺序：['Administrative', 'Administrative_Duration', 'Informational', 'Informational_Duration', 'ProductRelated', 'ProductRelated_Duration', 'BounceRates', 'ExitRates', 'PageValues', 'SpecialDay', 'Month', 'OperatingSystems', 'Browser', 'Region', 'TrafficType', 'VisitorType', 'Weekend', 'Revenue']
+[[0. 1. 1. 0. 1. 1. 1. 1. 0. 0. 1. 0. 0. 0. 0. 0. 0. 1.]
+ [1. 0. 0. 0. 1. 1. 0. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+ [0. 1. 0. 0. 0. 0. 0. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+ [0. 0. 1. 0. 1. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+ [0. 0. 1. 0. 0. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+ [0. 0. 1. 0. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+ [0. 0. 0. 0. 1. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+ [0. 0. 0. 0. 1. 1. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+ [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 1.]
+ [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+ [0. 0. 0. 0. 1. 1. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 1.]
+ [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 1. 0. 1. 1. 1. 0. 0. 0.]
+ [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 1. 1. 0. 0. 1. 0. 0. 0.]
+ [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 1. 0. 1. 0. 0. 0.]
+ [0. 0. 0. 0. 0. 0. 0. 1. 0. 0. 1. 1. 1. 0. 0. 0. 0. 0.]
+ [0. 0. 0. 0. 1. 1. 1. 1. 0. 0. 0. 0. 0. 1. 0. 0. 0. 1.]
+ [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+ [1. 0. 0. 0. 1. 1. 0. 1. 1. 0. 0. 0. 0. 0. 0. 1. 0. 0.]]
+
+===== 检查冗余特征中的关键交互 =====
+识别到 13 个非因果特征：['Administrative_Duration', 'ProductRelated_Duration', 'TrafficType', 'Browser', 'Informational', 'Weekend', 'ExitRates', 'Region', 'BounceRates', 'Informational_Duration', 'SpecialDay', 'ProductRelated', 'OperatingSystems']
+识别到 9 个高贡献特征：['Administrative_Duration', 'Informational_Duration', 'ProductRelated', 'PageValues', 'Month', 'OperatingSystems', 'Browser', 'TrafficType', 'VisitorType']
+非因果特征子集∩高贡献特征子集为：['Administrative_Duration', 'TrafficType', 'Browser', 'Informational_Duration', 'ProductRelated', 'OperatingSystems']
+开始双特征扰动：因果特征4个，非因果特征∩高贡献特征6个
+生成双特征组合共24对
+
+----- 开始计算组合 (PageValues, OperatingSystems) 的联合效应 -----
+
+----- 开始计算组合 (PageValues, Administrative_Duration) 的联合效应 -----
+----- 开始计算组合 (PageValues, Informational_Duration) 的联合效应 -----
+组合数过多（923100），采样10000个组合
+
+组合数过多（1230438），采样10000个组合
+
+----- 开始计算组合 (PageValues, Browser) 的联合效应 -----
+
+----- 开始计算组合 (PageValues, TrafficType) 的联合效应 -----
+
+----- 开始计算组合 (PageValues, ProductRelated) 的联合效应 -----
+组合数过多（255572），采样10000个组合
+
+----- 开始计算组合 (VisitorType, OperatingSystems) 的联合效应 -----
+
+----- 开始计算组合 (Month, OperatingSystems) 的联合效应 -----
+
+----- 开始计算组合 (VisitorType, Administrative_Duration) 的联合效应 -----
+组合数过多（10197），采样10000个组合
+
+----- 开始计算组合 (Month, Administrative_Duration) 的联合效应 -----
+组合数过多（33990），采样10000个组合
+
+----- 开始计算组合 (VisitorType, Informational_Duration) 的联合效应 -----
+----- 开始计算组合 (Month, Informational_Duration) 的联合效应 -----
+
+组合数过多（25500），采样10000个组合
+
+----- 开始计算组合 (VisitorType, Browser) 的联合效应 -----
+
+----- 开始计算组合 (VisitorType, TrafficType) 的联合效应 -----
+----- 开始计算组合 (Month, Browser) 的联合效应 -----
+
+----- 开始计算组合 (Month, TrafficType) 的联合效应 -----
+
+----- 开始计算组合 (VisitorType, ProductRelated) 的联合效应 -----
+
+----- 开始计算组合 (Month, ProductRelated) 的联合效应 -----
+
+
+----- 开始计算组合 (Administrative, OperatingSystems) 的联合效应 -----
+
+----- 开始计算组合 (Administrative, Administrative_Duration) 的联合效应 -----
+组合数过多（95172），采样10000个组合
+
+----- 开始计算组合 (Administrative, Informational_Duration) 的联合效应 -----
+----- 开始计算组合 (Administrative, Browser) 的联合效应 -----
+----- 开始计算组合 (Administrative, TrafficType) 的联合效应 -----
+
+组合数过多（71400），采样10000个组合
+
+
+----- 开始计算组合 (Administrative, ProductRelated) 的联合效应 -----
+组合数过多（19768），采样10000个组合
+双特征扰动评估（并行）:   4%|▊                   | 1/24 [00:00<00:13,  1.64it/s]组合(VisitorType, TrafficType)：联合效应0.0064 > 单特征和0.0043×0.996211265549752，标记为显著
+组合(Month, OperatingSystems)：联合效应0.0097 > 单特征和0.0096×0.9915871876179001，标记为显著
+双特征扰动评估（并行）:  21%|████▏               | 5/24 [00:00<00:02,  8.93it/s]组合(Month, TrafficType)：联合效应0.0046 > 单特征和0.0036×0.9968652738577484，标记为显著
+双特征扰动评估（并行）:  33%|██████▋             | 8/24 [00:01<00:01,  9.48it/s]组合(Administrative, TrafficType)：联合效应0.0009 > 单特征和0.0005×0.9995203640312973，标记为显著
+组合(VisitorType, ProductRelated)：联合效应0.0059 > 单特征和0.0040×0.9964822137370448，标记为显著
+双特征扰动评估（并行）:  42%|███████▉           | 10/24 [00:01<00:03,  4.55it/s]组合(PageValues, OperatingSystems)：联合效应0.2638 > 单特征和0.2348×0.7942970235989395，标记为显著
+组合(PageValues, Browser)：联合效应0.2415 > 单特征和0.2288×0.7995342348294864，标记为显著
+双特征扰动评估（并行）:  54%|██████████▎        | 13/24 [00:04<00:05,  1.88it/s]组合(PageValues, TrafficType)：联合效应0.2423 > 单特征和0.2288×0.7995751098387878，标记为显著
+双特征扰动评估（并行）:  58%|███████████        | 14/24 [00:05<00:05,  1.77it/s]组合(VisitorType, Informational_Duration)：联合效应0.0075 > 单特征和0.0046×0.9959372181005706，标记为显著
+双特征扰动评估（并行）:  62%|███████████▉       | 15/24 [00:06<00:05,  1.70it/s]2025-09-23 19:48:13.086885: W tensorflow/core/framework/op_kernel.cc:1828] OP_REQUIRES failed at strided_slice_op.cc:117 : INVALID_ARGUMENT: Expected begin, end, and strides to be 1D equal size tensors, but got shapes [2], [1], and [1] instead.
+
+===== 组合 (PageValues, Informational_Duration) 计算失败 =====
+错误原因: {{function_node __wrapped__Pack_N_313_device_/job:localhost/replica:0/task:0/device:GPU:0}} Shapes of all inputs must match: values[0].shape = [1] != values[310].shape = [0] [Op:Pack] name: stack
+特征 PageValues 的扰动值长度: 362
+特征 PageValues 的前3个扰动值: [0, 1, 2]
+特征 Informational_Duration 的扰动值长度: 2550
+特征 Informational_Duration 的前3个扰动值: [0, 1, 2]
+计算组合(PageValues, Informational_Duration)联合效应失败：{{function_node __wrapped__Pack_N_313_device_/job:localhost/replica:0/task:0/device:GPU:0}} Shapes of all inputs must match: values[0].shape = [1] != values[310].shape = [0] [Op:Pack] name: stack
+
+===== 组合 (Administrative, ProductRelated) 计算失败 =====
+错误原因: {{function_node __wrapped__StridedSlice_device_/job:localhost/replica:0/task:0/device:GPU:0}} Expected begin, end, and strides to be 1D equal size tensors, but got shapes [2], [1], and [1] instead. [Op:StridedSlice] name: strided_slice/
+特征 Administrative 的扰动值长度: 28
+特征 Administrative 的前3个扰动值: [0, 1, 2]
+特征 ProductRelated 的扰动值长度: 706
+特征 ProductRelated 的前3个扰动值: [0, 1, 2]
+计算组合(Administrative, ProductRelated)联合效应失败：{{function_node __wrapped__StridedSlice_device_/job:localhost/replica:0/task:0/device:GPU:0}} Expected begin, end, and strides to be 1D equal size tensors, but got shapes [2], [1], and [1] instead. [Op:StridedSlice] name: strided_slice/
+组合(Administrative, Administrative_Duration)：联合效应0.0063 > 单特征和0.0051×0.9955542140741819，标记为显著
+双特征扰动评估（并行）:  75%|██████████████▎    | 18/24 [00:49<00:39,  6.58s/it]组合(PageValues, ProductRelated)：联合效应0.2283 > 单特征和0.2285×0.7998460580260807，标记为显著
+双特征扰动评估（并行）:  79%|███████████████    | 19/24 [01:01<00:38,  7.76s/it]组合(PageValues, Administrative_Duration)：联合效应0.2302 > 单特征和0.2333×0.7956089598816725，标记为显著
+双特征扰动评估（并行）:  88%|████████████████▋  | 21/24 [01:02<00:14,  4.87s/it]组合(VisitorType, Administrative_Duration)：联合效应0.0207 > 单特征和0.0089×0.9922451155926366，标记为显著
+双特征扰动评估（并行）:  92%|█████████████████▍ | 22/24 [01:02<00:07,  3.83s/it]组合(Administrative, Informational_Duration)：联合效应0.0013 > 单特征和0.0009×0.9992463165821158，标记为显著
+双特征扰动评估（并行）: 100%|███████████████████| 24/24 [01:03<00:00,  2.63s/it]
+双特征扰动完成，新增6个特征到特征选择子集：['Administrative_Duration', 'Browser', 'Informational_Duration', 'OperatingSystems', 'ProductRelated', 'TrafficType']，更新后特征选择子集共10个特征
+
+===== 特征选择前后训练结果 =====
+===== 开始模型训练 =====
+原始数据形状：(12330, 18)
+警告：筛选特征顺序已调整为与原始数据一致
+筛选后数据集形状：(12330, 10)
+使用筛选后的特征：['Administrative', 'Administrative_Duration', 'Informational_Duration', 'ProductRelated', 'PageValues', 'Month', 'OperatingSystems', 'Browser', 'TrafficType', 'VisitorType']
+采样前训练集类别分布：
+Revenue
+False    0.848236
+True     0.151764
+Name: proportion, dtype: float64
+
+应用SMOTE+ENN混合采样...
+SMOTE+ENN采样后类别分布:
+Revenue
+False    8367
+True     8099
+Name: count, dtype: int64
+根据特征维度 10 和样本量 12330 调整模型参数...
+根据样本量 12330 使用batch_size: 256
+
+Epoch 6: ReduceLROnPlateau reducing learning rate to 0.0003000000142492354.
+
+Epoch 8: ReduceLROnPlateau reducing learning rate to 9.000000427477062e-05.
+
+Epoch 11: ReduceLROnPlateau reducing learning rate to 2.700000040931627e-05.
+
+Epoch 15: ReduceLROnPlateau reducing learning rate to 8.100000013655517e-06.
+
+Epoch 17: ReduceLROnPlateau reducing learning rate to 2.429999949526973e-06.
+
+Epoch 19: ReduceLROnPlateau reducing learning rate to 1.0000000474974512e-06.
+Restoring model weights from the end of the best epoch: 13.
+Epoch 23: early stopping
+模型训练耗时: 20.11秒
+测试集损失: 0.3213, 测试集准确率: 0.8767
+78/78 [==============================] - 0s 1ms/step
+
+分类报告:
+              precision    recall  f1-score   support
+
+           0    0.95245   0.89684   0.92381      2055
+           1    0.60075   0.77616   0.67728       411
+
+    accuracy                        0.87672      2466
+   macro avg    0.77660   0.83650   0.80055      2466
+weighted avg    0.89384   0.87672   0.88272      2466
+
+特征选择前:17
+特征选择后:10
+模型运行时间减少了-6.34s
+模型准确率提升了0.20%
+
+进程已结束，退出代码为 0
