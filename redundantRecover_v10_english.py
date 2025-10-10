@@ -98,6 +98,7 @@ class PathShapleyModule:
         Perform dual-feature perturbation: verify interaction effects between causal and non-causal subsets, extend causal subset
         :param threshold: Threshold for joint effect to exceed sum of individual effects (e.g., 1.2 means joint effect must exceed 1.2x sum of individuals)
         """
+        shared_globals.significant_feature_pairs_log = []
 
         causal_features = shared_globals.filtered_features
 
@@ -168,14 +169,19 @@ class PathShapleyModule:
 
             if sum_single < 1e-9:
                 if joint_effect > 1e-6:
-                    self.logger.info(
-                        f"Combination ({c_feat}, {nc_feat}): joint effect {joint_effect:.4f} > sum of individual effects 0, marked as significant")
+                    log_text = f"Combination ({c_feat}, {nc_feat}): joint effect {joint_effect:.4f} > sum of individual effects 0, marked as significant"
+                    self.logger.info(log_text)
+
+                    with to_add_lock:
+                        shared_globals.significant_feature_pairs_log.append({"log_text": log_text})
                     return nc_feat
             else:
                 if joint_effect > sum_single * dynamic_threshold:
-                    self.logger.info(
-                        f"Combination ({c_feat}, {nc_feat}): joint effect {joint_effect:.4f} > sum of individual effects {sum_single:.4f}×{dynamic_threshold}, marked as significant"
-                    )
+                    log_text = f"Combination ({c_feat}, {nc_feat}): joint effect {joint_effect:.4f} > sum of individual effects 0, marked as significant"
+                    self.logger.info(log_text)
+
+                    with to_add_lock:
+                        shared_globals.significant_feature_pairs_log.append({"log_text": log_text})
                     return nc_feat
             return None
 
@@ -195,6 +201,8 @@ class PathShapleyModule:
                 if result is not None:
                     with to_add_lock:
                         to_add.add(result)
+
+        shared_globals.to_add=to_add
 
         if to_add:
             extended_causal = list(set(causal_features) | to_add)

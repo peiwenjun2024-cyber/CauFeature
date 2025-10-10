@@ -482,7 +482,7 @@ def build_causal_graph(features, corr_matrix, target_name, is_numeric,
         for i, feat in enumerate(filtered_features, 1):
             print(f"{i}. {feat}")
 
-    draw_causal_graph(best_paths, features, shared_globals.all_names, target_name)
+    #draw_causal_graph(best_paths, features, shared_globals.all_names, target_name)
     classify_paths(best_paths, shared_globals.all_names, target_name)
     shared_globals.valid_paths = best_paths
 
@@ -709,6 +709,7 @@ def prune_paths(dag, features, all_names, target_name, current_alpha, is_numeric
 
 
 def draw_causal_graph(valid_paths, features, all_names, target_name):
+    plt.clf()
     G = nx.DiGraph()
     target_node = target_name[0]
     G.add_nodes_from(all_names)

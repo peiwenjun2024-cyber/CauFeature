@@ -47,7 +47,7 @@
       <paths name="root@connect.nmb1.seetacloud.com:46059 password">
         <serverdata>
           <mappings>
-            <mapping deploy="/tmp/causalFeatureX_LSTM_0915" local="$PROJECT_DIR$" />
+            <mapping deploy="/tmp/CauFeature" local="$PROJECT_DIR$" />
           </mappings>
         </serverdata>
       </paths>

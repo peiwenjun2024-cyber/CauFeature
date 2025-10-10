@@ -50,6 +50,11 @@ perturbation_instance=None
 causal_graph_builder=None
 high_contrib_features=[]
 all_target_categories=None
+significant_feature_pairs_log = []
+to_add = []
+
+originalreport={}
+afterreport={}
 
 
 def init():
@@ -64,6 +69,7 @@ def init():
     global redundant_features,redundant_set,corr_matrix,sample_num,features,critical_interaction_sets,causal_graph_builder
     global perturbation_instance,high_contrib_features
     global class_weights,num_classes,all_target_categories
+    global significant_feature_pairs_log,to_add,originalreport,afterreport
 
     model = None
     feature_data = None
@@ -114,3 +120,8 @@ def init():
     num_classes=0
 
     all_target_categories=None
+
+    significant_feature_pairs_log = []
+    to_add=[]
+    originalreport={}
+    afterreport={}

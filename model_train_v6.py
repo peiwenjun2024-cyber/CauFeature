@@ -491,7 +491,11 @@ def evaluate_model(model, x_test, y_test, history):
 
     )
 
+
+
     if shared_globals.filtered_features is not None:
+
+        shared_globals.afterreport = report_dict
 
         tmp = shared_globals.accuracy
         print(f"original accurancy:{tmp}")
@@ -506,6 +510,8 @@ def evaluate_model(model, x_test, y_test, history):
 
 
     else:
+        shared_globals.originalreport = report_dict
+
         shared_globals.accuracy = report_dict['accuracy']
         shared_globals.f_score = report_dict['macro avg']['f1-score']
 
