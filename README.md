@@ -32,10 +32,22 @@ python a_demonstration.py
 2. **Select Dataset and Model**: Choose a dataset from the available options (loaded from `/root/tmp/causalFeatureX_LSTM_1003/dataset1`) and select the model (currently supports CNN).
 3. **Start Feature Selection**: Click "Start Feature Selection" to initiate the process:
    * **Step 1**: Initial model training (adaptive CNN model based on data characteristics).
+
+     ![originalmodel.png](assets/originalmodel.png)
    * **Step 2**: Adaptive feature perturbation to calculate feature contributions.
-   * **Step 3**: Visualization of feature contribution scores.
-   * **Step 4**: Construction and display of causal graph (retaining only causal relationships).
-   * **Step 5**: Identification and recovery of redundant features, output of the final feature set.
+
+     ![featurecontri.png](assets/featurecontri.png)
+   * **Step 3**: Construction and display of causal graph (retaining only causal relationships).
+
+     ![causalgraph.png](assets/causalgraph.png)
+   * **Step 4**:Identification and recovery of redundant features.
+
+     ![recovery.png](assets/recovery.png)
+   * **Step 5**: Output of the final feature set.
+
+     ![aftermodel.png](assets/aftermodel.png)
+
+     ![image.png](assets/image.png?t=1760087534741)
 
 ## Key Components
 
