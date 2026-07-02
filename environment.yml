@@ -1,0 +1,21 @@
+name: caufeature
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.12
+  - pip
+  - numpy
+  - pandas
+  - scipy
+  - scikit-learn
+  - imbalanced-learn
+  - matplotlib
+  - networkx
+  - tqdm
+  - seaborn
+  - pip:
+      - tensorflow
+      - keras
+      - lime
+      - shap
