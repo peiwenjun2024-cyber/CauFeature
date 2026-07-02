@@ -1,11 +1,19 @@
 import random
 import time
+import os
+
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
+os.environ.setdefault("MKL_NUM_THREADS", "1")
+os.environ.setdefault("NUMEXPR_NUM_THREADS", "1")
+os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
+os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
+os.environ.setdefault("TF_ENABLE_ONEDNN_OPTS", "0")
 
 from imblearn.combine import SMOTEENN
 from imblearn.pipeline import Pipeline
 from imblearn.under_sampling import EditedNearestNeighbours
 from tensorflow.keras.callbacks import ReduceLROnPlateau, EarlyStopping
-import os
 
 import shared_globals
 
@@ -24,7 +32,10 @@ plt.rcParams["font.family"] = ["DejaVu Sans", "sans-serif"]
 plt.title("Training History")
 plt.xlabel("Epoch")
 plt.ylabel("Accuracy")
-import seaborn as sns
+try:
+    import seaborn as sns
+except ModuleNotFoundError:
+    sns = None
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder, LabelEncoder
 from sklearn.metrics import classification_report, confusion_matrix
@@ -56,6 +67,19 @@ def data_pre_process(datapath):
     shared_globals.feature_names = x.columns.tolist()  # 特征名称
     shared_globals.target_name = [df.columns[-1]]  # 保持列表格式，与全局变量定义一致
     shared_globals.all_names = shared_globals.feature_names + shared_globals.target_name
+
+def _encode_target(y):
+    """Return a numeric Series for labels, including bool labels for SciPy/imblearn compatibility."""
+    if pd.api.types.is_bool_dtype(y):
+        return pd.Series(y.astype(np.int64), index=y.index, name=y.name)
+    if not pd.api.types.is_numeric_dtype(y):
+        y_le = LabelEncoder()
+        return pd.Series(
+            y_le.fit_transform(y),
+            index=y.index,
+            name=y.name
+        )
+    return y
 
 def load_and_preprocess_data(datapath, filtered_features=None):
     """加载数据并进行预处理（支持特征筛选）"""
@@ -102,16 +126,7 @@ def load_and_preprocess_data(datapath, filtered_features=None):
             # 对数值型特征用均值填充，非数值型用众数（此处已编码为数值，直接用均值）
             x = x.fillna(x.mean())
 
-        # 处理目标变量（若为非数值型则编码，关键：保持为Series）
-        if not pd.api.types.is_numeric_dtype(y):
-            # print(f"目标变量为非数值型，进行编码")
-            y_le = LabelEncoder()
-            # 用 Series 包裹编码结果，保留索引和名称
-            y = pd.Series(
-                y_le.fit_transform(y),
-                index=y.index,
-                name=y.name
-            )
+        y = _encode_target(y)
 
         # 合并特征与编码后的目标变量
         df = pd.concat([x, y], axis=1)
@@ -157,16 +172,7 @@ def load_and_preprocess_data(datapath, filtered_features=None):
             # print(f"检测到缺失值，使用均值填充...")
             x = x.fillna(x.mean())
 
-        # 处理目标变量（若为非数值型则编码，关键：保持为Series）
-        if not pd.api.types.is_numeric_dtype(y):
-            # print(f"目标变量为非数值型，进行编码")
-            y_le = LabelEncoder()
-            # 用 Series 包裹编码结果，保留索引和名称
-            y = pd.Series(
-                y_le.fit_transform(y),
-                index=y.index,
-                name=y.name
-            )
+        y = _encode_target(y)
 
         # 合并特征与编码后的目标变量
         df = pd.concat([x, y], axis=1)
@@ -521,7 +527,14 @@ def evaluate_model(model, x_test, y_test, history):
     # 绘制混淆矩阵
     plt.figure(figsize=(8, 6))
     cm = confusion_matrix(y_test_true, y_pred)
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+    if sns is not None:
+        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+    else:
+        plt.imshow(cm, interpolation='nearest', cmap='Blues')
+        plt.colorbar()
+        for i in range(cm.shape[0]):
+            for j in range(cm.shape[1]):
+                plt.text(j, i, str(cm[i, j]), ha='center', va='center')
     plt.xlabel('预测标签')
     plt.ylabel('真实标签')
     plt.title('混淆矩阵')

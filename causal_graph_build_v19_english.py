@@ -11,6 +11,7 @@ from tqdm import tqdm
 import shared_globals
 from multiprocessing import Pool, Lock
 import threading
+from matplotlib import font_manager
 
 
 def get_and_print_high_contrib_features(features, print_lock):
@@ -396,8 +397,18 @@ def _build_with_alpha(features, corr_matrix, target_name, alpha, is_numeric, ski
         target_idx = shared_globals.all_names.index(target_name[0])
         valid_paths = _find_paths(dag, target_idx, max_length=max_path_length)
     else:
-        valid_paths = prune_paths(dag, features, shared_globals.all_names, target_name,
-                                  alpha, is_numeric, max_path_length=max_path_length)
+        valid_paths = prune_paths(
+            dag,
+            features,
+            shared_globals.all_names,
+            target_name,
+            alpha,
+            is_numeric,
+            max_path_length=max_path_length,
+            n_bootstrap=config.n_bootstrap,
+            con_percentile=config.con_percentile,
+            noise_percentile=config.noise_percentile,
+        )
 
     return valid_paths, dag
 
@@ -482,7 +493,7 @@ def build_causal_graph(features, corr_matrix, target_name, is_numeric,
         for i, feat in enumerate(filtered_features, 1):
             print(f"{i}. {feat}")
 
-    #draw_causal_graph(best_paths, features, shared_globals.all_names, target_name)
+    draw_causal_graph(best_paths, features, shared_globals.all_names, target_name)
     classify_paths(best_paths, shared_globals.all_names, target_name)
     shared_globals.valid_paths = best_paths
 
@@ -708,7 +719,140 @@ def prune_paths(dag, features, all_names, target_name, current_alpha, is_numeric
     return valid
 
 
-def draw_causal_graph(valid_paths, features, all_names, target_name):
+# def draw_causal_graph(valid_paths, features, all_names, target_name):
+#     plt.clf()
+#     G = nx.DiGraph()
+#     target_node = target_name[0]
+#     G.add_nodes_from(all_names)
+#
+#     for path in valid_paths:
+#         for i in range(len(path) - 1):
+#             G.add_edge(all_names[path[i]], all_names[path[i + 1]])
+#
+#     pos = {target_node: (0, 0)}
+#     others = [n for n in all_names if n != target_node]
+#     angle = 2 * np.pi / len(others) if others else 0
+#     pos.update({others[i]: (2 * np.cos(i * angle), 2 * np.sin(i * angle))
+#                 for i in range(len(others))})
+#
+#     all_con = [f.con_i for f in features]
+#     max_con = max(all_con) if all_con and max(all_con) != 0 else 1.0
+#     node_size = [f.con_i / max_con * 2000 for f in features]
+#     node_colors = ['lightgreen' if f.is_high_contrib else 'lightblue' for f in features]
+#
+#     edges = G.edges()
+#     edge_colors = [(features[all_names.index(u)].noise + features[all_names.index(v)].noise) / 2
+#                    for u, v in edges]
+#     edge_colors = [plt.cm.RdYlGn(1 - min(n, 0.6) / 0.6) for n in edge_colors]
+#
+#     nx.draw_networkx_nodes(G, pos, node_size=node_size, node_color=node_colors, alpha=0.8)
+#     nx.draw_networkx_edges(G, pos, edgelist=edges, edge_color=edge_colors,
+#                            arrowstyle='->', width=1.5, alpha=0.7)
+#     nx.draw_networkx_labels(G, pos,
+#                             labels={n: f"{n}\n{features[i].con_i:.5f}"
+#                                     for i, n in enumerate(all_names)},
+#                             font_size=9)
+#
+#     #plt.title(
+#     #    "Causal Feature Graph (Green Nodes = High Contribution Features, Node Size = Contribution Value, Edge Color = Noise)")
+#
+#     plt.axis('equal')
+#     plt.tight_layout()
+#     plt.show()
+
+
+# def draw_causal_graph(valid_paths, features, all_names, target_name):
+#     # -------------------------- 1. 强制指定Times New Roman字体文件（优先级最高） --------------------------
+#     # 确认的字体文件路径
+#     shared_globals.tnr_font_path = '/usr/share/fonts/truetype/msttcorefonts/Times_New_Roman.ttf'
+#     # 加载字体文件（忽略名称，直接用文件）
+#     shared_globals.tnr_font = font_manager.FontProperties(fname=shared_globals.tnr_font_path, size=8)
+#
+#     # -------------------------- 2. 全局字体配置（兜底+处理中文字符） --------------------------
+#     plt.rcParams.update({
+#         'font.family': ['Times New Roman', 'DejaVu Sans', 'SimHei'],  # 优先Times New Roman，中文 fallback 黑体
+#         'font.size': 8,
+#         'axes.unicode_minus': False,  # 解决负号显示
+#         'font.sans-serif': ['Times New Roman', 'SimHei'],  # 中文渲染兜底
+#         'mathtext.fontset': 'custom',
+#         'mathtext.rm': 'Times New Roman',
+#         'mathtext.it': 'Times New Roman:italic',
+#         'mathtext.bf': 'Times New Roman:bold'
+#     })
+#
+#     # -------------------------- 3. 原绘图逻辑（仅调整文本渲染） --------------------------
+#     plt.clf()
+#     G = nx.DiGraph()
+#     target_node = target_name[0]
+#     G.add_nodes_from(all_names)
+#
+#     for path in valid_paths:
+#         for i in range(len(path) - 1):
+#             G.add_edge(all_names[path[i]], all_names[path[i + 1]])
+#
+#     pos = {target_node: (0, 0)}
+#     others = [n for n in all_names if n != target_node]
+#     angle = 2 * np.pi / len(others) if others else 0
+#     pos.update({others[i]: (2 * np.cos(i * angle), 2 * np.sin(i * angle))
+#                 for i in range(len(others))})
+#
+#     all_con = [f.con_i for f in features]
+#     max_con = max(all_con) if all_con and max(all_con) != 0 else 1.0
+#     node_size = [f.con_i / max_con * 2000 for f in features]
+#     node_colors = ['lightgreen' if f.is_high_contrib else 'lightblue' for f in features]
+#
+#     edges = G.edges()
+#     edge_colors = [(features[all_names.index(u)].noise + features[all_names.index(v)].noise) / 2
+#                    for u, v in edges]
+#     edge_colors = [plt.cm.RdYlGn(1 - min(n, 0.6) / 0.6) for n in edge_colors]
+#
+#     # 绘制节点/边
+#     nx.draw_networkx_nodes(G, pos, node_size=node_size, node_color=node_colors, alpha=0.8)
+#     nx.draw_networkx_edges(G, pos, edgelist=edges, edge_color=edge_colors,
+#                            arrowstyle='->', width=1.5, alpha=0.7)
+#
+#     # 绘制标签：手动指定字体文件（绕过名称识别）
+#     labels = {n: f"{n}\n{features[i].con_i:.5f}" for i, n in enumerate(all_names)}
+#     for node, (x, y) in pos.items():
+#         plt.text(x, y, labels[node],
+#                  fontproperties=shared_globals.tnr_font,  # 强制用指定字体文件
+#                  ha='center', va='center', fontsize=8)
+#
+#     plt.axis('equal')
+#     plt.tight_layout()
+#     plt.show()
+
+import networkx as nx
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib import font_manager
+
+def draw_causal_graph(valid_paths, features, all_names, target_name, fig_width="column"):
+    """
+    生成符合IEEE规范的因果图
+    :param fig_width: "column"（列宽3.5英寸）/ "page"（页宽7.16英寸），适配IEEE排版要求
+    """
+    # -------------------------- 1. IEEE标准尺寸配置（核心） --------------------------
+    # 严格匹配IEEE指定尺寸：列宽3.5英寸/页宽7.16英寸，高度按视觉比例适配
+    if fig_width == "column":
+        fig = plt.figure(figsize=(3.5, 2.8))  # 列宽3.5英寸（88mm/21picas）
+    else:
+        fig = plt.figure(figsize=(7.16, 5.5)) # 页宽7.16英寸（181mm/43picas）
+
+    # # -------------------------- 2. 字体配置（8pt Times New Roman，IEEE要求） --------------------------
+    # shared_globals.tnr_font_path = '/usr/share/fonts/truetype/msttcorefonts/Times_New_Roman.ttf'
+    # shared_globals.tnr_font = font_manager.FontProperties(fname=shared_globals.tnr_font_path, size=8)
+    # plt.rcParams.update({
+    #     'font.size': 8,
+    #     'axes.unicode_minus': False,
+    #     'font.sans-serif': ['Times New Roman', 'DejaVu Sans', 'SimHei'],
+    #     'mathtext.fontset': 'custom',
+    #     'mathtext.rm': 'Times New Roman',
+    #     'mathtext.it': 'Times New Roman:italic',
+    #     'mathtext.bf': 'Times New Roman:bold'
+    # })
+
+    # -------------------------- 3. 绘图逻辑（线条艺术优化，避免模糊） --------------------------
     plt.clf()
     G = nx.DiGraph()
     target_node = target_name[0]
@@ -726,7 +870,8 @@ def draw_causal_graph(valid_paths, features, all_names, target_name):
 
     all_con = [f.con_i for f in features]
     max_con = max(all_con) if all_con and max(all_con) != 0 else 1.0
-    node_size = [f.con_i / max_con * 2000 for f in features]
+    # 适配小尺寸图表的节点大小，避免挤压/模糊
+    node_size = [f.con_i / max_con * 1500 for f in features]
     node_colors = ['lightgreen' if f.is_high_contrib else 'lightblue' for f in features]
 
     edges = G.edges()
@@ -734,21 +879,26 @@ def draw_causal_graph(valid_paths, features, all_names, target_name):
                    for u, v in edges]
     edge_colors = [plt.cm.RdYlGn(1 - min(n, 0.6) / 0.6) for n in edge_colors]
 
+    # 线条艺术优化：宽度≥1pt（IEEE要求线条清晰），矢量渲染无模糊
     nx.draw_networkx_nodes(G, pos, node_size=node_size, node_color=node_colors, alpha=0.8)
     nx.draw_networkx_edges(G, pos, edgelist=edges, edge_color=edge_colors,
-                           arrowstyle='->', width=1.5, alpha=0.7)
-    nx.draw_networkx_labels(G, pos,
-                            labels={n: f"{n}\n{features[i].con_i:.5f}"
-                                    for i, n in enumerate(all_names)},
-                            font_size=9)
+                           arrowstyle='->', width=1.2, alpha=0.7) # 线条宽度1.2pt，确保清晰
 
-    plt.title(
-        "Causal Feature Graph (Green Nodes = High Contribution Features, Node Size = Contribution Value, Edge Color = Noise)")
+    # 绘制标签：强制绑定字体，避免小尺寸模糊
+    labels = {n: f"{n}\n{features[i].con_i:.5f}" for i, n in enumerate(all_names)}
+    for node, (x, y) in pos.items():
+        plt.text(x, y, labels[node],
+                 fontproperties=shared_globals.tnr_font,
+                 ha='center', va='center', fontsize=8)
 
+    # -------------------------- 4. 保存（600dpi+矢量格式，IEEE核心要求） --------------------------
     plt.axis('equal')
-    plt.tight_layout()
+    plt.tight_layout(pad=0.2) # 紧凑布局，适配小尺寸
+    # 优先保存PDF（矢量格式，无限放大无模糊），其次PNG（600dpi位图）
+    save_name = f"causal_graph_ieee_{fig_width}.pdf"
+    plt.savefig(save_name, dpi=600, bbox_inches='tight', format='pdf') # 矢量+600dpi
+    plt.savefig(save_name.replace('.pdf', '.png'), dpi=600, bbox_inches='tight', format='png') # 位图兜底
     plt.show()
-
 
 def classify_paths(valid_paths, all_names, target_name):
     direct, indirect = [], []

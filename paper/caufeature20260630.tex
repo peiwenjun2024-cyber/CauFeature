@@ -1,0 +1,948 @@
+\documentclass[journal]{IEEEtran}
+\usepackage{amsmath,amsfonts}
+\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage{array}
+\usepackage[caption=false,font=normalsize,labelfont=sf,textfont=sf]{subfig}
+\usepackage{textcomp}
+\usepackage{stfloats}
+\usepackage{url}
+\usepackage{verbatim}
+\usepackage{graphicx}
+\usepackage{cite}
+\hyphenation{op-tical net-works semi-conduc-tor IEEE-Xplore}
+% updated with editorial comments 8/9/2021
+
+\usepackage{booktabs}   % IEEE三线表核心
+\usepackage{multirow}   % 多行合并
+\usepackage{makecell} 
+\usepackage{dcolumn}    % 小数点对齐
+\newcolumntype{d}[1]{D{.}{.}{#1}}  % 定义小数点对齐列类型
+
+
+\usepackage{amssymb}
+\usepackage[T1]{fontenc} % 改善西文字体编码，增强粗体支持
+\usepackage{bm}          % 如果需要在公式里加粗
+
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}} % BibTeX样式定义
+\usepackage{balance} % 双栏平衡（避免最后一页单栏）
+\hbadness=10000
+\vbadness=10000
+
+\begin{document}
+
+\title{CauFeature: Contribution-Guided Target-Local Directed Feature Selection for Deep Neural Models}
+
+\author{
+    \IEEEauthorblockN{Wenjun Pei, Zhilai Zhang, Lingrui Zhu, Yongjie Jiang, Yang Zhang}   
+    \thanks{      
+        W. Pei, Y. Jiang, and Y. Zhang are with the School of Information Science and Engineering, Hebei University of Science and Technology, Shijiazhuang, China (e-mails: 2024114035@stu.hebust.edu.cn, 2025114053@stu.hebust.edu.cn, zhangyang@hebust.edu.cn).               
+    }
+    \thanks{Z.Zhang (Corresponding author) is with the School of Information Engineering, Handan University, Handan, China (zhangzl@hdc.edu.cn).}
+    \thanks{
+        L. Zhu is with the University of Nottingham Ningbo China, Ningbo, China (sclyz11@nottingham.edu.cn). 
+    }
+}
+
+\markboth{IEEE Latin America Transactions, 2026}{Pei \MakeLowercase{\textit{et al.}}: CauFeature: A Causality-Informed Framework for Robust and Interpretable Feature Selection}
+\maketitle
+
+\begin{abstract}
+Feature selection is crucial for enhancing the interpretability and performance of deep learning models. However, traditional approaches may suffer from instability, reliance on spurious correlations, and limited capacity for causality-informed feature analysis. To address these issues, this paper proposes CauFeature, a causality-informed framework for robust and interpretable feature selection. The framework integrates causal-structure-inspired dependency analysis and counterfactual perturbation to identify compact and interpretable feature subsets for deep neural models. It employs an adaptive, data distribution-aware feature perturbation strategy and quantifies feature contributions via Jensen-Shannon (JS) divergence. High-contribution features are identified using kernel density estimation or quantile thresholds. Furthermore, CauFeature refines target-local dependency analysis by incorporating feature-contribution, noise, and sample-size factors into conditional-independence-style tests, and evaluates the stability of directed paths through Bootstrap-based frequency screening. Finally, high-contribution features outside the stable directed subset are reconsidered through dual-feature counterfactual perturbation when they show strong interaction with selected target-local directed features (TLDFs).
+Extensive experiments on 17 public datasets show that CauFeature removes a large proportion of input features, achieving a global absolute dimensionality reduction (DR) of 69.72\%. Furthermore, it maintains or improves both classification accuracy and the F-measure on most evaluated datasets under a unified adaptive configuration. The method does not claim to recover the true causal structure from observational data; instead, it uses causality-informed structural constraints to select compact TLDFs. Repeated-seed comparisons indicate that CauFeature offers strong adaptive compression and competitive same-budget predictive utility across representative datasets.
+\end{abstract}
+
+\begin{IEEEkeywords}
+feature selection, causality-informed dependency analysis, interpretability, counterfactual intervention, feature perturbation 
+\end{IEEEkeywords}
+
+\section{INTRODUCTION}
+\IEEEPARstart{W}{hile} deep learning has driven performance breakthroughs in fields like computer vision \cite{matei2020deep} by leveraging its powerful feature extraction and nonlinear fitting capabilities, its decision-making process remains opaque \cite{sahin2025unlocking}. As models grow increasingly high-dimensional and complex, tracing the rationale behind their predictions becomes daunting and hinders practical adoption in scenarios requiring transparency, such as healthcare and finance \cite{rudin2019stop}. Feature selection \cite{saarela2021comparison}, a pivotal preprocessing step for deep learning, addresses this challenge by identifying optimal feature subsets. Existing research has confirmed that deep learning models can achieve comparable or even superior predictive performance using partial features instead of the full set \cite{dunn2021comparing}. Beyond dimensionality reduction (DR), feature selection simplifies model structures, enhances generalization, and lays the foundation for interpretability, making it a core technology to bridge the gap between performance and transparency.
+%\cite{demijolla2021humaninterpretablemodelexplainabilityhighdimensional}.
+
+Traditional feature selection methods are generally categorized into filter \cite{chandrashekar2014survey}, wrapper \cite{bolon2014review}, and embedded \cite{tang2014feature} approaches. Representative filter methods include variance threshold (VT), mutual information (MI), and chi-square test (CHI) \cite{matei2020deep}. Model-independent and efficient, they rely on statistical or information-theoretic metrics for selection \cite{brunato2016x}. However, they may provide limited process-level interpretability for non-expert users, especially when the selection logic depends on abstract statistical scores \cite{sahin2025unlocking}. In addition, many filter methods do not explicitly model feature interactions or nonlinear dependencies in deep learning data \cite{tsang2021interpretable}. Wrapper methods, exemplified by recursive feature elimination (RFE) \cite{chandrashekar2014survey}, formulate feature selection as a subset search problem optimized for specific learning algorithms \cite{sheikhpour2016particle}. Wrapper methods are computationally expensive when compared against filter methods, but are known to outperform the latter in some settings \cite{lee2020markov}. Embedded methods, such as random forest classifier (RFC), integrate feature selection with model training processes \cite{zhang2015embedded}, but they directly rely on the selected model, whose results are affected by model choice and may not provide model-agnostic explanations \cite{ang2015supervised}.
+
+To enhance the explainability of deep learning, mainstream explainable artificial intelligence (XAI) techniques have been integrated with feature selection strategies \cite{cohen2007feature}. For instance, SHAP \cite{lundberg2017unified} can incur high computational costs for large-scale datasets, whereas the surrogate models of LIME \cite{ribeiro2016why} may only approximate the behavior of complex deep learning architectures locally. Methods such as FeatureX \cite{liang2025featurex}, which combine perturbation-driven importance analysis and statistical correlation detection, provide useful attribution information but do not explicitly verify stable target-local directed feature (TLDF) dependencies or synergistic feature recovery.
+
+Causal learning serves to identify and mitigate data biases and spurious associations \cite{wang-etal-2021-enhancing}, thereby enhancing the robustness of models. Mixed-MB \cite{lee2020markov} realizes causal feature selection and screens the minimal feature set explaining the target variable, but lacks feature importance ranking. Counterfactual reasoning and fairness constraints \cite{kusner2017counterfactual} are integrated into the feature selection process, balancing model accuracy and fairness while preserving causality-informed selected features and eliminating spurious correlations. Integrating the distribution-free conditional independence tests (CIT) \cite{cai2022cit}, leveraging kernel density estimation (KDE) \cite{wei2025kde} into the Peter-Clark (PC) \cite{spirtes2000causation} algorithm has also effectively enhanced the reliability of causal graph structure learning. While these studies validate the value of causal reasoning in feature selection, they lack integration of quantitative feature contribution assessment and synergistic feature mining, making them less adaptable to complex deep learning scenarios.
+
+%\IEEEpubid{0000--0000/00\$00.00~\copyright~2026 IEEE} % 年份替换为投稿年份
+% 若使用IEEEpubid，需在第二列开头调用此命令（保证排版不重叠）
+%\IEEEpubidadjcol 
+
+Despite progress in feature selection research, two core bottlenecks remain unaddressed. First, most methods sacrifice either performance for interpretability or vice versa, failing to balance the two in deep learning scenarios. Second, existing methods are often tied to specific model architectures such as linear or tree-based models and cannot effectively adapt to complex deep learning frameworks.
+
+%, a causal-aware framework for robust and interpretable feature selection. 
+Drawing on causal discovery principles without claiming full causal identification, this paper proposes CauFeature, which integrates causal-structure-inspired dependency analysis and counterfactual perturbation. The main contributions of this work are summarized as follows:
+% to address the limitations of traditional and existing methods. Its key designs involve:
+
+%\begin{itemize}
+% \item An adaptive, data distribution-aware feature perturbation strategy to quantify feature contributions;
+% \item KDE or quantile thresholds for high-contribution feature screening;
+% \item Enhanced causality-informed dependency analysis via weighted conditional-independence-style tests and Bootstrap-based stability screening;
+% \item Incorporation of high-potential synergistic features through dual-feature counterfactual perturbation.
+%\end{itemize}
+
+
+
+%This paper proposes CauFeature, a causal-aware framework for robust and interpretable feature selection. The framework integrates causal-aware strategies \cite{pearl2009causality} to identify compact feature subsets. It employs an adaptive feature perturbation strategy based on data distribution and uses Jensen-Shannon (JS) divergence to quantify feature contributions \cite{jiang2024ultra}. High-contribution features are identified using Kernel Density Estimation (KDE) \cite{weglarczyk2018kernel} or quantile thresholds. Furthermore, CauFeature refines dependency analysis by incorporating weights into conditional-independence-style tests and validates directed paths using Bootstrap-based stability screening. Finally, high-potential synergistic features are incorporated through counterfactual perturbation of dual features.
+
+%CauFeature simplifies model structures by removing redundant features and clarifies the logical basis for feature selection, thereby balancing performance, interpretability, and generalizability. 
+
+%CauFeature bridges the gap between model performance and practical applicability by simplifying model structures through removing redundant features and, crucially, by clarifying the logical basis for feature selection. The main contributions can be summarized as follows. 
+
+\begin{itemize}
+    %\item We propose a causal-aware framework for robust and interpretable feature selection called CauFeature that captures feature contributions and causal correlations, employs counterfactual intervention for strong synergistic feature incorporation.    
+    \item We propose CauFeature, a causality-informed feature selection framework that unifies quantitative feature contribution assessment, target-local directed association capture, and counterfactual-driven synergistic feature mining. It addresses the trade-off between performance and interpretability in deep learning.
+    \item We conduct extensive evaluations on 17 datasets with varying feature dimensions and sample sizes, comparing CauFeature against representative feature selection methods to assess its compression behavior, predictive utility, and generalizability.
+    %\item We evaluate CauFeature on 17 datasets with different feature dimensions and sample sizes. Furthermore, it is compared against other feature selection methods.
+    
+\end{itemize}    
+
+The remainder of this paper is structured as follows. Section \ref{Design} details the design of CauFeature and its key components. Section \ref{Evaluation} presents the experimental setup, results and analysis. Section \ref{Conclusions} concludes the work.
+% and discusses future directions.
+
+%This paper is structured as follows. Section \ref{Related work} reviews the related work. Section \ref{} presents the methods and their key components. The experimental evaluation and conclusions are illustrated in Sections \ref{Evaluation} and Section \ref{Conclusions}.
+
+%\section{Related works}
+%\label{Related work}
+
+
+
+
+%\section{Motivation}
+%Feature selection is critical for tasks like high-energy particle classification (e.g., the MagicGamma dataset, which aims to distinguish gamma rays from cosmic rays). However, current explainable feature selection methods predominantly rely on statistical correlation rather than stable target-local dependency relationships \cite{dai2023scale}. These correlation-based methods often suffer from poor stability under distribution shifts and fail to reveal how multiple features jointly affect classification results.
+
+%To address these gaps, this study proposes a causal-aware feature selection framework: (1) optimizing the feature contribution quantification metric to accurately identify high-impact features, laying a foundation for subsequent dependency analysis; (2) introducing causality-informed dependency metrics to distinguish weakly supported associations from stable target-local directed paths; (3) integrating counterfactual perturbation to assess interactive feature effects, thereby facilitating human-interpretable feature selection.
+
+
+\section{DESIGN}
+\label{Design}
+%\subsection{Overview}
+
+\begin{figure*}
+  \centering
+  \includegraphics[width=0.88\textwidth]{figure/overview20260702.pdf}
+  \caption{Overview of CauFeature. TLDF = target-local directed feature; DDG = directed dependency graph; SIF = synergistic interactive feature; CF = the TLDF subset selected by DDG screening; RF = residual features, i.e., $F-CF$; NF = high-contribution residual candidates, i.e., $RF\cap F_H$; FS = final selected subset, i.e., $CF\cup S$; $F_H$ = high-contribution features; $\text{Con}_i$ = contribution score; $J(c,n)$ = joint perturbation score for a candidate pair.}
+  \label{fig:CauFeature_overview}
+\end{figure*}
+
+CauFeature centers on feature contribution quantification and causality-informed association analysis, and selects compact feature subsets through TLDF screening and SIF recovery. An overview of CauFeature is depicted in Fig.~\ref{fig:CauFeature_overview}. The framework systematically operates in three core phases. First, a baseline feature vector is fed into a dynamic Convolutional Neural Network (CNN) to obtain the baseline prediction distribution, after which controlled perturbations are applied to quantify feature contributions via Jensen-Shannon (JS) divergence. Second, contribution-, noise-, and sample-size-dependent weights are integrated to construct a directed dependency graph (DDG), determine edge directions, and verify stable target-local paths. Finally, joint perturbations are employed to capture synergistic effects, combining TLDFs and synergistic interactive features (SIFs) into the final selected subset.
+
+The DDG produced by the second phase is used as an interpretable feature-selection device, not as proof of the true data-generating causal graph. Throughout this paper, TLDFs denote features selected because they participate in stable directed dependency paths toward the target under the implemented conditional-dependence and Bootstrap screening procedure.
+
+For consistency between Fig.~\ref{fig:CauFeature_overview} and the following method description, the main symbols in the figure are mapped to the formal notation as follows: $F$ denotes the original feature set, $F'$ denotes the perturbed feature set, $\text{Con}_i$ denotes the contribution score of feature $f_i$, and $F_H$ denotes the high-contribution subset. The DDG module identifies target-local directed features, denoted as $CF$ in the implementation and referred to as TLDFs in the text. The remaining features are denoted as $RF=F-CF$, and the high-contribution residual candidates are denoted as $NF=RF\cap F_H$. Phase 3 recovers synergistic interactive features, denoted as $S$, and constructs the final selected subset $FS=CF\cup S$. The DDG paths in Fig.~\ref{fig:CauFeature_overview} are used as feature-selection evidence and should not be interpreted as a claim that the true data-generating causal graph has been recovered.
+
+\begin{table}[!t]
+  \setlength{\abovecaptionskip}{0cm}
+  \setlength{\belowcaptionskip}{0.1cm}
+  \centering
+  \scriptsize
+  \caption{Key Symbols Used in the CauFeature Method}
+  \label{tab:key_symbols}
+  \begin{tabular}{@{}p{0.25\columnwidth}p{0.60\columnwidth}@{}}
+    \toprule
+    \textbf{Symbol} & \textbf{Meaning} \\
+    \midrule
+    $F=\{f_1,\ldots,f_n\}$ & original feature set with $n$ features \\
+    $X_{\text{org}},Y$ & original feature matrix and class labels \\
+    $\mathcal{M}$ & baseline 1D-CNN used for prediction and perturbation scoring \\
+    $P_{f_i}$ & perturbation value set for feature $f_i$ \\
+    $\text{Con}_{f_i}$ & JS-divergence-based contribution score of $f_i$ \\
+    $F_H$ or $F_{\text{high-Con}}$ & high-contribution feature subset \\
+    $\mathcal{G}_{\text{undir}}$ & undirected dependency skeleton \\
+    $\mathcal{G}_{\text{dir}}$ & DDG used for feature screening \\
+    $B_{num}$ & number of Bootstrap resamples \\
+    $CF$ & selected TLDF subset \\
+    $RF$ & remaining feature subset after directed screening, $RF=F-CF$ \\
+    $NF$ & high-contribution residual candidate subset, $NF=RF\cap F_H$ \\
+    $S$ & SIF subset recovered by joint perturbation \\
+    $FS$ & final selected feature subset \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Feature Contribution Quantification}
+This initial phase establishes a predictive baseline, introduces controlled data perturbations, and estimates the contribution of each feature by measuring the resulting distributional shifts in predictions.
+
+\subsubsection{Dynamic Baseline Convolutional Neural Network}
+\label{sec:cnn_baseline}
+Within the \textit{CauFeature} framework, the classification model serves two roles: it provides the prediction distributions used for perturbation-based contribution scoring, and it is reused to evaluate the original and selected feature sets under the same downstream learner. To avoid severe underfitting or overfitting across datasets ranging from 4 to 241 dimensions, we use a dynamically adaptive 1D Convolutional Neural Network (1D-CNN). Its convolutional depth, kernel size, number of filters, pooling strategy, optimizer, and early-stopping behavior are scaled according to feature dimensionality and sample size. This dimension-aware evaluator generates the baseline and perturbed prediction distributions ($y_{\text{base}}$ and $y_{\text{new}}$) required by the subsequent contribution and dependency-analysis modules.
+
+\subsubsection{Feature Perturbation}
+Feature perturbation introduces controlled replacement values for each feature and observes the resulting change in the model prediction distribution. Let $F=\{f_1,\ldots,f_n\}$ be the original feature set. For feature $f_i$, we denote its maximum, minimum, mean, number of unique values, numerical range, sample size, and observed values as \(\max_{f_i}\), \(\min_{f_i}\), \(\bar{f}_i\), \(\text{unique}_{f_i}\), \(\text{diff}_{f_i}\), \(S_{f_i}\), and \(\text{Value}_{f_i}\), respectively. The perturbation value set is denoted by \(P_{f_i}\), and \(P=\{P_{f_1},P_{f_2},\ldots,P_{f_n}\}\).
+
+In general, integer values ranging from $\min_{f_i}$ to $\max_{f_i}$ are assigned to ${f_i}$ in sequence.
+\begin{equation}
+\text{P}_{f_i}=\{a\in\mathbb{Z}\mid \min_{f_i}\leqslant a\leqslant \max_{f_i}\} 
+\end{equation}
+
+To balance computational performance, special cases of numerical features must be taken into account. 
+
+Case 1, if the feature range varies significantly and the distribution is diverse. 
+\begin{equation}
+\max_{f_i} \gg \min_{f_i} \land \frac{|\text{unique}_{f_i}|}{S_{f_i}} \to 1
+\end{equation}
+
+where we define $\max_{f_i} \gg \min_{f_i}$ if the $\text{diff}_{f_i}$ is more than 4 orders of magnitude ($\geq$10000). The ratio of the number of unique samples to the sample size reflects the diversity of the feature data.
+
+Case 2, if the feature is extremely sparse or discretely distributed. 
+\begin{equation}
+\max_{f_i} \gg \min_{f_i} \land \frac{|\text{unique}_{f_i}|}{S_{f_i}} \to 0
+\end{equation}
+
+Case 3, if the feature range is extremely small with non-integer values. 
+\begin{equation}
+\max_{f_i} \approx \min_{f_i} \land  \exists v \in \text{Value}_{f_i}, v \notin \mathbb{Z} 
+\end{equation}
+
+where we define $\max_{f_i} \approx \min_{f_i}$ is used if the $\text{diff}_{f_i}$ is no greater than 1 and $f_i$ contain decimals.
+
+\begin{equation}
+\text{P}_{f_i} =
+\begin{cases}
+\min_{f_i} + k \cdot \frac{\text{diff}_{f_i}}{S_{f_i}}, & \text{case 1} \\
+\text{Value}_{f_i}, & \text{case 2} \\
+\min_{f_i} + k \cdot \frac{\text{diff}_{f_i}}{\text{unique}_{f_i}}, & \text{case 3}
+\end{cases}
+\label{eq:perturbation_set}
+\end{equation}
+
+where $k =
+\begin{cases}
+0, 1, 2, \dots, S_{f_i}-1, & \text{for case 1} \\
+0, 1, \dots, \text{unique}_{f_i}-1, & \text{for case 3}
+\end{cases}$
+
+Denote the original feature matrix as $X_{\text{org}} \in \mathbb{R}^{S_{f_i} \times n}$ , then the vector of a single sample as \(x \in \mathbb{R}^{n}\). 
+
+For $f_i$, a baseline feature vector is set as $\bar{x}$$(\bar{f}_1, \bar{f}_2, \dots, \bar{f}_n)$. Then the perturbed feature vector $x'$ is defined as:\begin{equation} x'[k] =\begin{cases}p & \text{if } f_k = f_i  \quad (p \in \text{P}_{f_i}\text{)} \\\bar{x}[k] & \text{if } f_k \neq {f_i}\end{cases}\end{equation}
+
+where \(\bar{x}[k]\) represents the value of $f_k$ in the $\bar{x}$, and $p$ is a value selected sequentially from \(\text{P}_{f_i}\).
+
+\subsubsection{Contribution via JS Divergence and Thresholding}
+\label{FeatureContributionQuantification}
+Feature contribution quantification is a core component of explainable machine learning. It quantifies individual impact on model decisions to distinguish high- and low-contribution ones. 
+
+\(\bar{x}\) is fed to CNN to derive the baseline classification prediction distribution \(y_{\text{base}}\).
+\begin{equation}
+\label{ybase}
+    y_{\text{base}}=model(\bar{x})
+\end{equation}
+
+$x'[k]$ is fed into the model to obtain the new prediction probability distribution $y_{\text{new}}^{f_i,k}$, and the JS divergence \cite{fuglede2004jsd,jiang2024ultra}, a statistical measure of similarity between two probability distributions, is used to quantify the discrepancy between $y_{\text{new}}^{f_i,k}$ and $y_{\text{base}}$.
+
+\begin{equation}
+\Delta y^{{f_i},k}=\text{JS}({y_{\text{base}}} \parallel {y_{\text{new}}^{{f_i},k}})
+\end{equation}
+
+The maximum JS divergence is selected to quantify feature contribution ($\text{Con}_{f_i}$), as it captures the most significant prediction distributional shift from feature manipulation, avoids average-obscured critical impacts, and leverages JS\textquotesingle s boundedness and relative stability \cite{englesson2021jsd}.
+\begin{equation}
+\text{Con}_{f_i} = \max(\Delta y^{{f_i},1}, \Delta y^{{f_i},2}, \dots, \Delta y^{{f_i},k})
+\end{equation}
+
+We set a threshold (T) for high-contribution features to facilitate subsequent causality-informed dependency analysis and feature synergy.
+
+\begin{equation}
+T =
+\begin{cases}
+\min\left(x^{*},0.9 \cdot \max(\text{Con}_{f_i})\right), & \text{if } n \text{ is medium or high} \\
+\operatorname{quantile}(\text{Con}_{f_i}, 0.9), & \text{if } n \text{ is low}
+\end{cases}
+\label{eq:threshold_T}
+\end{equation}
+
+Here, when the dimensionality is high, \(x^{*}\) denotes the significant inflection point in the right region of the contribution distribution identified by Kernel Density Estimation (KDE) \cite{weglarczyk2018kernel}, and the upper threshold limit is set to avoid extreme value interference. Using the quantile threshold balances stability and sensitivity in low-dimensional scenarios and small-sample scenarios. 
+
+Denote high-contribution features as $F_{\text{high-Con}} = \{ f_i \mid \text{Con}_{f_i} \geq \text{T} \}$.
+
+\subsection{DDG-Based TLDF Screening and Path Verification}
+CauFeature refines a conditional-independence-style test to construct a dependency skeleton, determines edge directions via a PC-style orientation procedure \cite{spirtes2000causation}, and then performs path stability verification to identify stable target-local dependency paths.
+
+It should be noted that CauFeature does not claim to recover a complete causal graph from observational data without assumptions. Instead, the graph construction module is used as a target-local, causality-informed dependency filter. Following the spirit of constraint-based causal discovery, the method assumes that the observed variables contain sufficient information for useful conditional-dependence screening and that stable directed paths toward the target can provide interpretable evidence for feature selection. Therefore, the resulting graph should be interpreted as a DDG for feature selection rather than as a definitive causal model of the data-generating process.
+
+\subsubsection{Directed Dependency Skeleton Construction}
+By incorporating feature contribution values as partial penalty terms into the conditional-independence-style tests, weakly supported edges are pruned from the fully connected initial graph.
+
+Initialize the dependency skeleton as a fully connected undirected matrix ($\mathcal{G}_{\text{undir}}$). A predefined list of candidate significance levels ($\alpha=\{\alpha_1,\alpha_2,\dots,\alpha_m\}$) ranges from strict to loose values. Initialize the optimal significance level $\alpha_{\text{opt}}$ as the strictest value $\alpha_1$ and the maximum path count $\max_{\text{paths}}$ as 0, then update these two parameters iteratively during the pruning process. Ultimately, we obtain $\alpha_{\text{opt}}$ that yields the maximum number of paths.
+
+For each edge \((f_i, f_j)\) with neighbor set $N(f_i, f_j)$, we incrementally increase the conditional depth $l$ starting from 0. When $|\text{N}(f_i, f_j)| \geq l$, candidate separating sets $\text{C}$ are generated from \(\text{N}(f_i, f_j)\) with size $l$. 
+
+To avoid singularity and enhance numerical stability, the partial correlation coefficient ($\rho$)\cite{kendall1948corr} between $f_i$ and $f_j$ given the separating set $\text{C}$ is computed using a regularized covariance matrix.
+
+To adjust test sensitivity, three factors including contribution difference ($\omega_{\text{con}}$), noise level ($\omega_{\text{noise}}$) and sample size ($\omega_{\text{size}}$) are integrated into a comprehensive weight ($\omega$), which modulates the partial correlation coefficient to derive a t-statistic.
+\begin{equation}
+    \omega = \omega_{\text{con}} * \omega_{\text{noise}} * \omega_{\text{size}} 
+\end{equation}
+
+\(\omega_{\text{con}}\) is designed to quantify the contribution similarity of features \(f_i\) and \(f_j\), assigning higher weights to similar contributions and suppressing dissimilar ones.
+\begin{equation}
+\omega_{\text{con}} = \exp\left( -\frac{(\text{Con}_{f_i} - \text{Con}_{f_j})^2}{2\sigma_{\text{con}}^2} \right) \label{eq:weight_con} 
+\end{equation}
+
+where  \(\sigma_{con}\) denotes the standard deviation of all feature contribution.
+\(\omega_{\text{noise}}\) aims to penalize high-noise feature pairs, reducing weight distortion from noise and enhancing robustness.
+\begin{equation}
+\omega_{\text{noise}} = \exp \left( -0.5(\text{noise}_{f_i} + \text{noise}_{f_j}) \right) \label{eq:weight_noise}
+\end{equation}
+
+\begin{equation}
+\text{noise}_{f_i} = \frac{\sigma_{con}}{|\bar{f}_i| + \epsilon}
+\end{equation}
+
+where $|\bar{f}_i|$ denotes the absolute value of the mean of the i-th feature \(f_i\).
+
+$\omega_{\text{size}}$ balances the impact of feature sample size, granting full weight for sufficient samples, suppressing insufficient ones, and limiting excessive weight expansion.
+\begin{equation}
+\omega_{\text{size}} = \min\left( 1, \frac{S_{f_i}}{1000} \right)
+\end{equation}
+
+The t-statistic quantifies the strength of conditional dependence between \(f_i\) and \(f_j\). A corresponding p-value is calculated to assess the statistical significance of the dependence \cite{biau2010tp}. If the p-value exceeds the selected significance level \(\alpha\),  \((f_i, f_j)\) is deemed conditionally independent and removed from the skeleton. $\text{N}(f_i, f_j)$ is then updated, and new candidate separating sets are generated. This iterative pruning process continues to obtain $\mathcal{G}_{\text{undir}}$ until the skeleton stabilizes or the conditional depth $l$ reaches the feature dimension $n$. 
+
+This weighted test is intended to bias the feature selection process toward stable and predictive target-local dependencies. It is not a replacement for a formal causal identification procedure under arbitrary observational settings.
+
+\subsubsection{Directed Edge Determination}
+Directions are assigned to the pruned dependency skeleton using the PC orientation procedure \cite{spirtes2000causation}. Specifically, V-structures are identified from unshielded triples, and Meek's rules are then applied to orient additional edges when the orientation is implied by the current partially directed graph. The resulting graph is denoted as \(\mathcal{G}_{\text{dir}}\) and is used only as a DDG for feature screening.
+
+\subsubsection{Path Screening and Stability Verification}
+Stable target-local paths are extracted from the DDG \(\mathcal{G}_{\text{dir}}\) through Bootstrap-based resampling. For each candidate path, CauFeature records how frequently the same path reappears across Bootstrap samples.
+
+Let $B_{num}$ denote the number of Bootstrap samples, $c_{num}$ denote the occurrence count of the $k-th$ path ($Path_k$) in sampling, and the empirical stability frequency is defined as:
+
+\begin{equation}
+\text{freq}(Path_k) = \frac{c_{num}}{B_{num}}
+\label{eq:stability_freq}
+\end{equation}
+
+Candidate paths are sorted by stability frequency. A frequency-derived screening score is then used to select stable paths under an adaptive control level, while a minimum stability threshold prevents highly unstable paths from being selected:
+\begin{equation}
+\text{Score}(Path_k) = \frac{freq(Path_k) \cdot m}{k}
+\label{eq:freq_score_k}
+\end{equation}
+
+where $m$ denotes the number of all paths and $k$ denotes the rank of $Path_k$ after sorting by stability frequency. This mechanism is designed as a practical stability filter inspired by multiple-testing control rather than a formal causal-identification guarantee.
+
+To balance miss detection and false detection rates, we adjust $\alpha_{\text{stab}}$ with sample size, while $\tau_{\min}$ enhances robustness to noisy data.
+
+\begin{align}
+\alpha_{\text{stab}} &= \max\left(0.05, \min\left(0.3, 0.2 \cdot \left(1 + \log_{10}\frac{n}{10}\right)\right)\right) \label{eq:alpha_stab} \\
+\tau_{\min} &= \max\left(0.1, \min\left(0.3, 0.2 \cdot (1-\overline{\text{noise}})\right)\right) \label{eq:tau_min}
+\end{align}
+
+where $\overline{\text{noise}}$ denotes the average noise level of all features. $\alpha_{\text{stab}}$ is confined to the interval $[0.05, 0.3]$, and $\tau_{\min}$ to $[0.1, 0.3]$.
+
+Ultimately, paths whose Bootstrap frequency exceeds the selected stability cutoff are selected. In addition, high-contribution paths may be selected under a slightly relaxed cutoff if their frequency remains above the adaptive minimum stability threshold. We thus arrive at the final DDG used for feature selection.
+
+\subsection{SIF Recovery and Final Subset Construction}
+Taking TLDFs as the foundation, we investigate the synergistic effects of high-contribution yet non-selected features with selected features.
+
+Define the subset selected from the DDG as $CF$, the others as $RF=F-CF$, and the set of non-selected but high-contribution features as $NF = RF\cap F_{\text{high-Con}}$. The final features ($FS$) are initialized as $CF$. We iterate over heuristically high-potential feature pairs $(f_c \in CF,f_n \in NF)$, and the corresponding value in the perturbed matrix is defined as:
+\begin{equation}
+   X^{pert}_{c,n}[i,k] = 
+\begin{cases} 
+\bar{f}_k & \text{if } f_k = f_c \text{ or } f_k = f_n \\
+X[i,k] & \text{if } f_k \notin \{f_c,f_n\}
+\end{cases} 
+\end{equation}
+
+where $X[i,k]$ represents the value of the $k_{th}$ feature in the $i_{th}$ sample of the original feature matrix $X_{\text{org}}$. 
+
+The counterfactual prediction distribution is denoted as $Y_{c,n} = \text{Model}(X^{pert}_{c,n})$. The joint feature effect quantifies the synergistic impact of the simultaneous intervention on $c$ and $n$: 
+\begin{equation}
+    \text{Joint}(c,n) = \text{JS}(Y_{base} \parallel Y_{c,n})
+\end{equation}
+
+Node efficiency is defined to distinguish high- and low-efficiency features and avoid numerical singularities.
+\begin{equation}
+    e(f) = \frac{\text{Con}_f}{\text{noise}_f + \epsilon}
+\end{equation}
+
+$r(f_c,f_n)$ quantifies the dual-feature efficiency similarity, which is denoted as:
+\begin{equation}
+    r(f_c,f_n) = \frac{e(f_c) + e(f_n)}{2 \cdot \max(e(f_c),e(f_n))}
+\end{equation}
+
+The dynamic threshold is denoted as:
+\begin{equation}
+    t(f_c,f_n) = 1 - 0.4 \cdot r(f_c,f_n)
+\end{equation}
+
+Here, $t$ decreases as the two features have more similar contribution-to-noise efficiency, making it easier to recover balanced interactive pairs, while raising the acceptance threshold for highly imbalanced pairs. This heuristic prevents the recovery stage from adding many weak interactions and helps balance interaction recall with subset compactness.
+
+
+If $\text{Joint}(c,n)\geq t(f_c,f_n)\cdot(  \text{Con}_{f_c}+\text{Con}_{f_n})$, then $f_n$ is regarded as a high-potential SIF to incorporate into the final features ($FS$).
+
+Algorithm~\ref{alg:caufeature} summarizes the three phases of \textit{CauFeature}: contribution scoring, TLDF screening, and SIF recovery. The inputs and outputs follow the notation summarized in Table~\ref{tab:key_symbols}.
+
+\begin{algorithm}[!t]
+\caption{The CauFeature Framework}
+\label{alg:caufeature}
+\begin{algorithmic}[1]
+\REQUIRE Dataset $\mathcal{D} = \{X_{\text{org}}, Y\}$, original feature set $F = \{f_1, f_2, \dots, f_n\}$, trained baseline model $\mathcal{M}$, Bootstrap budget $B_{num}$, candidate significance levels $\{\alpha_1,\ldots,\alpha_m\}$
+\ENSURE Final selected feature subset $FS$ and DDG $\mathcal{G}_{\text{dir}}$ used for selection
+
+\STATE \textbf{Phase 1: Feature Contribution Quantification}
+\STATE $y_{\text{base}} \leftarrow \mathcal{M}(\bar{x})$
+\FOR{$\forall f_i \in F$}
+    \STATE Obtain perturbation set $P_{f_i}$ via Eq.~(\ref{eq:perturbation_set})
+    \FOR{$\forall p \in P_{f_i}$}
+        \STATE $x'[k] \leftarrow \begin{cases} p, & \text{if } f_k = f_i \\ \bar{x}[k], & \text{if } f_k \neq f_i \end{cases}, \quad \forall k \in \{1, \dots, n\}$
+        \STATE $y_{\text{new}}^{f_i,p} \leftarrow \mathcal{M}(x')$
+        \STATE $\Delta y^{f_i,p} \leftarrow \text{JS}(y_{\text{base}} \parallel y_{\text{new}}^{f_i,p})$
+    \ENDFOR
+    \STATE $\text{Con}_{f_i} \leftarrow \max_{p}(\Delta y^{f_i,p})$
+\ENDFOR
+\STATE Calculate threshold $T$ via Eq.~(\ref{eq:threshold_T})
+\STATE $F_{\text{high-Con}} \leftarrow \{ f_i \in F \mid \text{Con}_{f_i} \geq T \}$
+
+\STATE \textbf{Phase 2: DDG-Based TLDF Screening and Path Verification}
+\STATE Initialize fully connected skeleton $\mathcal{G}_{\text{undir}}$ over $F \cup \{Y\}$
+\FOR{$\forall (f_i, f_j) \in \mathcal{G}_{\text{undir}}$}
+    \STATE $\omega \leftarrow \omega_{\text{con}} \cdot \omega_{\text{noise}} \cdot \omega_{\text{size}}$
+    \STATE Compute $p\text{-value}$ of a conditional-independence-style test adjusted by $\omega$
+    \IF{$p\text{-value} > \alpha$}
+        \STATE $\mathcal{G}_{\text{undir}} \leftarrow \mathcal{G}_{\text{undir}} \setminus \{(f_i, f_j)\}$
+    \ENDIF
+\ENDFOR
+\STATE $\mathcal{G}_{\text{dir}} \leftarrow \text{OrientEdges}(\mathcal{G}_{\text{undir}})$
+\STATE $\{Path_k, freq(Path_k)\} \leftarrow \text{Bootstrap}(\mathcal{G}_{\text{dir}}, B_{num})$
+\STATE $CF \leftarrow \Big\{ f_i \in \mathcal{G}_{\text{dir}} \mid freq(Path_{f_i \to Y}) \geq \tau_{\min} $
+\STATE \qquad \qquad $\text{or passes the adaptive stability cutoff} \Big\}$
+
+\STATE \textbf{Phase 3: SIF Recovery and Final Subset Construction}
+\STATE $FS \leftarrow CF$
+\STATE $RF \leftarrow F \setminus CF$
+\STATE $NF \leftarrow RF \cap F_{\text{high-Con}}$
+\FOR{$\forall (f_c, f_n) \in CF \times NF$}
+    \STATE $X^{pert}_{c,n}[i,k] \leftarrow \begin{cases} \bar{f}_k, & \text{if } f_k \in \{f_c, f_n\} \\ X_{\text{org}}[i,k], & \text{otherwise} \end{cases}$
+    \STATE $Y_{c,n} \leftarrow \mathcal{M}(X^{pert}_{c,n})$
+    \STATE $\text{Joint}(c,n) \leftarrow \text{JS}(y_{\text{base}} \parallel Y_{c,n})$
+    \IF{$\text{Joint}(c,n) \geq t(f_c,f_n) \cdot (\text{Con}_{f_c} + \text{Con}_{f_n})$}
+        \STATE $FS \leftarrow FS \cup \{f_n\}$ 
+    \ENDIF
+\ENDFOR
+\STATE \textbf{return} $FS$
+\end{algorithmic}
+\end{algorithm}
+
+\section{EVALUATION}
+\label{Evaluation}
+\subsection{Research Questions}
+The effectiveness of CauFeature is evaluated by answering the following research questions (RQs):
+
+\textbf{RQ1:} How effective is CauFeature in feature selection across diverse dataset characteristics without relying on dataset-specific manual tuning?
+
+\textbf{RQ2:} How effective is CauFeature compared with representative feature selection baselines?
+
+\textbf{RQ3:} How does each phase of CauFeature contribute to the final DR and predictive performance?
+
+\textbf{RQ4:} How does CauFeature provide visual and process-level interpretability to make the feature selection logic accessible to non-expert users?
+
+\textbf{RQ5:} What is the theoretical computational complexity of CauFeature, and how is its computational overhead justified by its DR and causality-informed process-level interpretability?
+
+\subsection{Experimental Setup}
+All experiments are conducted on a server equipped with 16 Intel Xeon Gold 6430 CPUs, an NVIDIA RTX 3090 GPU, and 120-GB RAM running Ubuntu 20.04 with Python 3.8, CUDA 11.8, and PyTorch 2.0.0 installed. The released scripts record the random seed, dataset, feature-budget rule, and output metrics for reproducibility. We have prototyped CauFeature and open-sourced it at https://github.com/peiwenjun2024-cyber/CauFeature.
+\subsection{Datasets}
+\begin{table}
+  \setlength{\abovecaptionskip}{0cm}    
+  \setlength{\belowcaptionskip}{0.1cm}  
+  \centering
+  \tiny
+  \setlength{\tabcolsep}{2pt}  
+  \caption{Basic Information of Datasets}
+  \label{tab:dataset_info} 
+  \begin{tabular*}{\linewidth}{l @{\extracolsep{\fill}} r r r r}
+    \toprule
+    \textbf{Dataset} & \textbf{Samples} & \textbf{Dim} & \textbf{Sample Size} & \textbf{Dim Category} \\
+    \midrule
+    % Low类别（Small→Medium）
+    Iris              & 150    & 4   & Small  & Low    \\
+    Rice              & 3810   & 7   & Small  & Low    \\
+    MagicGamma$^\dagger$  & 19020  & 10  & Medium & Low    \\
+    % Medium类别（Small→Medium→Large）
+    HeartDisease      & 1025   & 13  & Small  & Medium \\
+    ThyroidDiff       & 383    & 16  & Small  & Medium \\
+    MentalStress      & 1101   & 20  & Small  & Medium \\
+    StudentsAcademic  & 4424   & 36  & Small  & Medium \\
+    CustomerChurn     & 5227   & 14  & Medium & Medium \\
+    DriedBean         & 13611  & 16  & Medium & Medium \\
+    OnlineShoppers    & 12330  & 17  & Medium & Medium \\
+    SmokeAlarm        & 62630  & 13  & Large  & Medium \\
+    Income            & 45218  & 14  & Large  & Medium \\
+    BankFull          & 45211  & 16  & Large  & Medium \\
+    DiabetesHealth    & 25368  & 21  & Large  & Medium \\
+    BrainMethod$^\dagger$ & 79403  & 21  & Large  & Medium \\
+    % High类别（Small→Medium）
+    SoftwareQuality$^\dagger$ & 4464  & 241 & Small  & High   \\
+    PrecisionFog      & 7651   & 56  & Medium & High   \\    
+    \midrule
+    \multicolumn{5}{l}{\footnotesize $^\dagger$: Representative datasets for comparison.} \\
+    \bottomrule
+  \end{tabular*}
+\end{table}
+As shown in Table~\ref{tab:dataset_info}, 17 publicly available datasets from the UCI Machine Learning Repository are selected to evaluate the effectiveness of CauFeature. %Three representative datasets, including MagicGamma, BrainMethod, and SoftwareQuality, are selected for comparative experiments with SHAP, LIME, and FeatureX. 
+Feature dimensions are stratified into three relative groups within this benchmark suite: low-dimensional datasets ($d \leq 10$), medium-dimensional datasets ($10 < d \leq 50$), and high-dimensional datasets ($d > 50$), where $d$ denotes the number of input features. Sample sizes are categorized as small ($n < 5{,}000$), medium ($5{,}000 \leq n \leq 20{,}000$), and large ($n > 20{,}000$), where $n$ denotes the number of samples. These thresholds are empirical grouping rules used to organize heterogeneous tabular benchmarks rather than universal dimensionality definitions or theoretical boundaries for causal discovery.
+To provide a focused representative analysis, we selected \textit{MagicGamma}, \textit{BrainMethod}, and \textit{SoftwareQuality} as case studies. The three datasets are selected to cover distinct regions of the dimension-sample space rather than to favor a single dataset type: \textit{MagicGamma} represents a low-dimensional medium-sample case, \textit{BrainMethod} represents a medium-dimensional large-sample case, and \textit{SoftwareQuality} represents a relatively high-dimensional small-sample case within the evaluated benchmark suite. This design allows the comparison to examine different challenges faced by the feature selection frameworks:
+\begin{itemize}
+    \item \textbf{MagicGamma (Low Dim, Medium Sample):} Representing standard classification tasks, it tests the framework's baseline capability to efficiently isolate core target-relevant predictive factors from fundamental background noise without overfitting.
+\item \textbf{BrainMethod (Medium Dim, Large Sample):} With nearly 80,000 instances, this dataset examines the scalability, stability, and execution efficiency of the causality-informed dependency analysis under a large sample size.
+    \item \textbf{SoftwareQuality (High Dim, Small Sample):} Featuring 241 dimensions but limited samples, it represents a high-dimensional small-sample setting within the evaluated benchmark suite. This case tests whether the framework can reduce dimensionality under stronger sparsity and overfitting pressure.
+\end{itemize}
+
+By evaluating the methods across these three distinct data scenarios, we examine whether \textit{CauFeature}'s behavior remains consistent beyond a single favorable dataset structure and under different compression pressures and sample-size regimes.
+
+%We select MagicGamma, BrainMethod, and SoftwareQuality as representative datasets to cover the diversified combinations of feature dimensions and sample sizes, enabling a comprehensive comparison across diverse data characteristic scenarios, and ensuring the generalizability of CauFeature\textquotesingle s effectiveness is validated.
+
+\subsection{Unified Implementation Pipeline for Diverse Datasets}
+A key challenge in evaluating the proposed \textit{CauFeature} framework across highly diverse datasets---varying substantially in feature dimensions, sample sizes, and domains---is reducing dataset-specific implementation bias. To avoid manual feature-threshold tuning for individual datasets and support a consistent evaluation, the proposed model is implemented via a unified adaptive pipeline with fixed default hyperparameters:
+
+\begin{itemize}
+    \item \textbf{Automated Preprocessing and Balancing:} Regardless of the dataset's origin, a standardized preprocessing module automatically detects and encodes non-numeric categorical features using label encoding and imputes missing values using feature means. To handle varying degrees of class imbalance, an adaptive hybrid SMOTEENN resampling technique is universally applied, which dynamically calculates class ratios to balance both binary and multi-class distributions.
+
+    \item \textbf{Dynamic Baseline Network Architecture:} Rather than manually tuning a specific neural network for each dataset, the pipeline deploys the dynamically adaptive 1D-CNN (as detailed in Section~\ref{sec:cnn_baseline}). Model capacity and optimization strategies are scaled based on the intrinsic properties of the input data to support fair evaluation without dataset-specific manual retuning.
+
+    \item \textbf{Data-Driven Dependency Analysis:} The core \textit{CauFeature} mechanism operates without domain-specific prior knowledge. The critical parameters governing DDG construction are adapted by the algorithm based on the data's intrinsic properties. For instance, the stability control level, maximum directed path length, and stability thresholds are scaled based on the total number of features and the calculated average noise of the dataset.
+\end{itemize}
+
+All datasets are processed using the same implementation and the same default evaluation pipeline. Several internal parameters, including model capacity, optimizer choice, maximum path length, and stability thresholds, are adapted according to sample size, feature dimensionality, or estimated noise. No dataset-specific manual feature threshold is introduced for \textit{CauFeature} in the reported experiments, so the selected subset size is determined by the proposed contribution, dependency, and interaction mechanisms rather than by a hand-tuned reduction ratio.
+
+\subsection{Evaluation Protocol and Reproducibility}
+For each dataset, the original data are split into training and testing subsets using an 80/20 holdout protocol. To avoid test-set leakage, class rebalancing with SMOTEENN is applied only to the training subset after the split. The same split seed and preprocessing pipeline are used when retraining the baseline 1D-CNN on the full feature set and on the selected subset, so the reported pre- and post-selection metrics are directly comparable within each dataset.
+
+The results reported in Table~\ref{tab:dataset_results} correspond to the fixed-seed configuration used in the released implementation. Because neural training, resampling, and path screening may introduce stochastic variation, the traditional-baseline comparisons in Table~\ref{tab:repeated_seed_comparison} and Table~\ref{tab:matched_dimension_comparison} are repeated over five random seeds and reported as mean $\pm$ standard deviation. To support reproducibility, the implementation includes unified experiment entry points for both \textit{CauFeature} and traditional baselines. These scripts record dataset name, method, seed, feature-budget rule, selected feature count, DR, accuracy, F-measure, and execution time for each run.
+
+The complete per-seed raw results are kept as supplementary material to support auditability and robustness inspection. These raw records include the selected feature subset and all pre- and post-selection metrics for every dataset, method, and random seed, allowing the aggregated mean $\pm$ standard deviation values in the repeated-seed tables and Table~\ref{tab:execution_time} to be independently reproduced.
+
+\subsection{Evaluation Metrics}
+To comprehensively evaluate CauFeature's performance, especially on imbalanced datasets, we utilize \textbf{Accuracy} and \textbf{F-measure}. Here, F-measure is the harmonic mean of Precision and Recall and corresponds to the commonly used F1-score; for consistency, the remainder of this paper uses the term F-measure. Specifically, these metrics are derived from the confusion matrix elements: True Positive ($TP$), False Positive ($FP$), True Negative ($TN$), and False Negative ($FN$). The definitions are as follows:
+
+\begin{equation}
+    Accuracy = \frac{TP + TN}{TP + TN + FP + FN}
+\end{equation}
+\begin{equation}
+    Precision = \frac{TP}{TP + FP}
+\end{equation}
+\begin{equation}
+    Recall = \frac{TP}{TP + FN}
+\end{equation}
+\begin{equation}
+    F\text{-measure} = 2 \times \frac{Precision \times Recall}{Precision + Recall}
+\end{equation}
+
+where TP (True Positive) represents the number of samples correctly predicted as positive, TN (True Negative) the number of samples correctly predicted as negative, FP (False Positive) the number of samples incorrectly predicted as positive, and FN (False Negative) the number of samples incorrectly predicted as negative.
+
+\subsection{Baseline Methods}
+To comprehensively evaluate the effectiveness of \textit{CauFeature}, we compare it against representative feature selection methods, categorized into traditional and explainable approaches. 
+
+For traditional methods, we select representative techniques across three categories: filter methods (variance thresholding (VT), mutual information (MI), and chi-square test (CHI), which measure feature-label importance directly), wrapper methods (Recursive Feature Elimination (RFE)), and embedded methods (Random Forest Classifier (RFC)). A key challenge with traditional methods is that user-specified thresholds or parameters often lead to varying performance. For comparability, we first evaluate each baseline under a fixed and explicitly recorded feature-budget rule, which corresponds to approximately 25\% DR, and the selected feature subset is retrained using the same downstream 1D-CNN evaluation pipeline as \textit{CauFeature}. Because a fixed-budget (FB) protocol does not fully control for the adaptive subset size produced by \textit{CauFeature}, we further conduct a matched-dimension (MD) comparison in which each baseline selects the same number of features as \textit{CauFeature} for the corresponding dataset and random seed. The released baseline runner records these rules together with the resulting selected feature set, which makes the comparison auditable and reproducible. This design isolates the effect of the feature-selection stage while keeping the classifier architecture, split seed, and evaluation metrics consistent.
+
+The released implementation also contains entry points for explainable feature attribution methods such as SHAP, LIME, and FeatureX. We therefore report two complementary comparison levels. First, Table~\ref{tab:method_comparison_combined} compares traditional and explainable baselines under a broad single-configuration protocol. SHAP, LIME, and FeatureX are included in this broad comparison to provide an additional reference against attribution-based selectors. Because their computational cost and feature-budget mechanisms differ from the traditional baselines, the repeated-seed FB and MD protocols are reported for traditional selectors with explicit and auditable feature-budget rules. Second, Table~\ref{tab:repeated_seed_comparison} and Table~\ref{tab:matched_dimension_comparison} provide repeated-seed stability checks for traditional baselines under the same downstream 1D-CNN retraining protocol.
+
+\subsection{Experimental Results}
+\subsubsection{Results for RQ1: Effectiveness of Feature Selection}
+To answer RQ1, \textit{CauFeature} is evaluated on all 17 datasets. It is important to note that the primary objective of this phase is not comparative benchmarking, which is addressed in RQ2 using representative boundary cases, but rather a broad self-validation across heterogeneous datasets. Specifically, RQ1 examines whether \textit{CauFeature} can substantially compress the original feature space across a wide variety of domains while monitoring the predictive changes relative to the unreduced dataset. The experimental results comparing the original full feature set against the \textit{CauFeature} subset are illustrated in Table~\ref{tab:dataset_results}.
+
+Although CauFeature removes a large proportion of original features on several datasets, this does not necessarily imply a proportional loss of predictive information. In many tabular datasets, some features are redundant, weakly predictive, or unstable under target-local dependency screening.
+
+CauFeature addresses this issue through a three-stage mechanism. First, feature contribution is quantified via JS divergence, encouraging features with large predictive impact to be selected. Second, causality-informed dependency analysis further filters weakly supported associations by identifying features with stable target-local directed paths to the target. Third, synergistic feature analysis reconsiders non-selected but strongly interactive features that jointly contribute to model performance.
+
+As a result, the removed features are intended to be low-contribution or weakly supported features, although some statistically useful features may also be removed in difficult cases. This is empirically supported in Table~\ref{tab:dataset_results}, where \textit{CauFeature} achieves DR values ranging from 23.08\% to 89.63\%. When aggregated across all varied feature spaces, the proposed method eliminates 69.72\% (373 out of 535) of total initial features while maintaining or improving classification performance on most datasets. A higher DR means stronger feature-space compression and fewer selected features, but it is not automatically better: it should be interpreted together with Accuracy and F-measure changes. These results indicate that the selected subsets generally preserve sufficient predictive information, but they also show that aggressive compression can introduce dataset-dependent performance trade-offs.
+%CauFeature compresses dimensions by 55.53\% and improves accuracy by 1.47\% and F-measure by 1.86\% on average. 
+Specifically, 8 out of 17 datasets show an accuracy improvement of at least 1\%, indicating that the screened features can provide stronger target-local predictive support in some cases. 5 out of 17 datasets show a very slight improvement (0\%\textasciitilde0.29\%) in accuracy, suggesting that CauFeature can reduce dimensions without a clear performance loss on these datasets. The performance on 3 datasets decreases slightly ($\leq\!1\%$). A possible reason is that some eliminated features remain useful for prediction even if they have weak contribution or weak target-local directed support under the implemented screening criteria.%, leading to the omission of strong synergistic features.
+
+Notably, the Income dataset shows a larger accuracy drop (-2.00\%), as the eliminated features may include statistically correlated features that remain useful for prediction but do not form stable target-local directed paths, while the smaller F-measure decrease (-0.66\%) suggests that the selected subset still offers relatively balanced support for predicting all classes.
+
+Based on the grouped performance across the above benchmark-relative dimension categories and sample-size categories, CauFeature exhibits scenario-specific behavior. For dimension categories, low-dimensional datasets achieve a total DR of 57.14\% (reducing 21 total features to 9), with average accuracy and F-measure changes of +2.03\% and +2.83\%, respectively. Medium-dimensional data achieves an absolute DR of 55.30\% (reducing 217 total features to 97), with average accuracy and F-measure changes of +1.48\% and +1.80\%. High-dimensional data realizes the largest absolute DR at 81.14\% (compressing 297 features to 56), while the average predictive improvements are smaller (+0.56\% accuracy and +0.76\% F-measure), indicating that stronger compression does not necessarily translate into larger performance gains.
+
+Regarding sample sizes, small-scale datasets yield the largest aggregate DR of 80.71\% (337 to 65 features), partly because this group includes the high-dimensional \textit{SoftwareQuality} dataset. Medium-scale datasets eliminate 45.13\% of total features (113 to 62) and show the largest average predictive gains among the three sample-size groups. Large-scale datasets reduce 58.82\% of total features (85 to 35), with smaller average metric changes. Overall, CauFeature\textquotesingle s behavior depends on the dimension-sample combination: it consistently provides compact subsets, but the predictive benefit is not uniform across data regimes.
+
+These results were obtained under a unified adaptive pipeline with fixed default hyperparameters, directly answering RQ1 by supporting the framework's adaptability to diverse data characteristics while also revealing scenario-dependent trade-offs.
+
+\begin{table*}[!t]
+  \setlength{\abovecaptionskip}{0cm}    
+  \setlength{\belowcaptionskip}{0.1cm}  
+  \centering
+  \tiny
+  \setlength{\tabcolsep}{4pt}           
+  \caption{Results of CauFeature on Different Datasets}
+  \label{tab:dataset_results}
+  \begin{tabular*}{\textwidth}{l @{\extracolsep{\fill}} ccccccccc}
+    \toprule  
+    \multirow{2}{*}{\textbf{Dataset}} & 
+    \multicolumn{3}{c}{\textbf{Dimension}} & 
+    \multicolumn{3}{c}{\textbf{Accuracy (\%)}} & 
+    \multicolumn{3}{c}{\textbf{F-measure (\%)}} \\
+    \cmidrule(lr){2-4} \cmidrule(lr){5-7} \cmidrule(lr){8-10}  
+    & \textbf{Original} & \textbf{Final} & \textbf{DR (\%)} & 
+    \textbf{Original} & \textbf{Final} & \textbf{$\Delta$Acc. (\%)} & 
+    \textbf{Original} & \textbf{Final} & \textbf{$\Delta$F-measure (\%)} \\
+    \midrule  
+    Iris              & 4  & 2  & 50.00 & 86.67 & 86.67 & \textbf{0.00} & 85.79 & 85.79 & \textbf{0.00} \\
+    Rice              & 7  & 2  & 71.43 & 77.56 & 77.56 & \textbf{0.00} & 77.51 & 77.53 & \textbf{0.02} \\ 
+    MagicGamma        & 10 & 5  & 50.00 & 76.26 & 82.36 & \textbf{6.10} & 73.12 & 81.60 & \textbf{8.48} \\
+    HeartDisease      & 13 & 10 & 23.08 & 72.68 & 75.12 & \textbf{2.44} & 72.45 & 75.12 & \textbf{2.67} \\
+    ThyroidDiff       & 16 & 5  & 68.75 & 89.61 & 90.91 & \textbf{1.30} & 88.56 & 90.99 & \textbf{2.43} \\
+    MentalStress      & 20 & 9  & 55.00 & 90.00 & 94.09 & \textbf{4.09} & 89.01 & 93.36 & \textbf{4.35} \\
+    StudentsAcademic  & 36 & 12 & 66.67 & 67.12 & 67.01 & -0.11 & 68.04 & 68.57 & \textbf{0.53} \\
+    CustomerChurn     & 14 & 6  & 57.14 & 73.42 & 73.71 & \textbf{0.29} & 73.88 & 74.22 & \textbf{0.34} \\
+    DriedBean         & 16 & 10 & 37.50 & 78.08 & 83.58 & \textbf{5.50} & 76.36 & 83.24 & \textbf{6.88} \\
+    OnlineShoppers    & 17 & 10 & 41.18 & 87.47 & 87.67 & \textbf{0.20} & 88.02 & 88.27 & \textbf{0.25} \\ 
+    SmokeAlarm        & 13 & 8  & 38.46 & 99.12 & 98.91 & -0.21 & 99.12 & 98.91 & -0.21 \\
+    Income            & 14 & 5  & 64.29 & 78.31 & 76.31 & -2.00 & 73.52 & 72.86 & -0.66 \\  
+    BankFull          & 16 & 6  & 62.50 & 83.94 & 84.13 & \textbf{0.19} & 85.74 & 85.68 & -0.06 \\ 
+    DiabetesHealth    & 21 & 7  & 66.67 & 80.55 & 84.21 & \textbf{3.66} & 80.96 & 83.89 & \textbf{2.93} \\
+    BrainMethod       & 21 & 9  & 57.14 & 91.35 & 93.71 & \textbf{2.36} & 91.89 & 94.01 & \textbf{2.12} \\ 
+    SoftwareQuality   & 241& 25 & 89.63 & 97.76 & 96.87 & -0.89 & 97.80 & 96.88 & -0.92 \\
+    PrecisionFog      & 56 & 31 & 44.64 & 91.25 & 93.27 & \textbf{2.02} & 91.21 & 93.64 & \textbf{2.43} \\    
+    \midrule  
+    \textbf{Overall}  & 535 & 162 & \textbf{69.72} & - & - & - & - & - & - \\ 
+    \bottomrule  
+  \end{tabular*}
+\end{table*}
+
+\begin{figure*}[!t]
+  \centering
+  \includegraphics[width=\textwidth]{figure/rq1_dataset_compression_map.pdf}
+  \caption{Dataset-wise compression-performance distribution of CauFeature across 17 datasets.}
+  \label{fig:rq1_dataset_compression_map}
+\end{figure*}
+Fig.~\ref{fig:rq1_dataset_compression_map} provides a compact view of the results in Table~\ref{tab:dataset_results}. Both panels use DR as the x-axis; the left panel reports Accuracy change and the right panel reports F-measure change after feature selection. Marker color denotes the original dimensionality group, marker size reflects the original feature dimension, and numbered markers correspond to the dataset index shown on the right. Most datasets are located above or close to the zero-change line in at least one metric, indicating that substantial DR is generally achieved without severe predictive degradation, although the two metrics do not always move identically.
+
+\begin{figure*}[!p]
+  \centering
+  \includegraphics[width=\textwidth]{figure/rq1_grouped_summary.pdf}
+  \caption{Grouped RQ1 summary by feature dimensionality and sample size. Bars show aggregate DR, while line markers show mean Accuracy and F-measure changes within each group.}
+  \label{fig:rq1_grouped_summary}
+\end{figure*}
+
+Overall, RQ1 is analyzed from three complementary levels. Table~\ref{tab:dataset_results} provides exact per-dataset values, Fig.~\ref{fig:rq1_dataset_compression_map} shows the dataset-level compression-performance distribution, and Fig.~\ref{fig:rq1_grouped_summary} summarizes how the behavior changes across dimensionality and sample-size groups. This presentation separates exact numerical reporting from visual trend analysis, making it clearer that the method generally compresses strongly while its predictive effect varies across data regimes.
+
+
+\subsubsection{Results for RQ2}
+RQ2 is evaluated at two levels because the comparison goals are different. The first level includes both traditional selectors and explainable feature attribution methods in a broad single-configuration comparison. The second level uses repeated seeds for traditional baselines to examine stability under auditable feature-budget rules. This separation avoids mixing a broad comparison that includes SHAP, LIME, and FeatureX with stricter repeated-seed protocols that are computationally expensive for model-explanation methods.
+
+Table~\ref{tab:method_comparison_combined} reports the broad comparison with traditional and explainable methods, while Fig.~\ref{fig:rq2_broad_method_tradeoff} visualizes the corresponding compression-performance trade-off using DR on the x-axis. Table~\ref{tab:repeated_seed_comparison} reports an FB repeated-seed comparison on the datasets for which all traditional baselines were rerun under the same repeated-seed protocol, where traditional baselines reduce approximately 25\% of the input features. Table~\ref{tab:matched_dimension_comparison} further reports an MD comparison, where each baseline selects the same number of features as \textit{CauFeature} for the corresponding dataset and random seed. Together, these results answer whether \textit{CauFeature} is competitive against existing selectors, whether it provides stronger adaptive compression than FB baselines, and whether its selected subset remains competitive when the feature count is controlled.
+
+For consistency across tables and figures, DR is used as the primary compression measure throughout the evaluation. It is computed as \((d_{\mathrm{orig}}-d_{\mathrm{sel}})/d_{\mathrm{orig}}\), where larger values indicate stronger compression and smaller selected subsets. However, DR is a compression indicator rather than a standalone performance objective; a useful selector should achieve an appropriate balance between high DR and stable predictive metrics.
+
+\begin{table*}[!p]
+  \setlength{\abovecaptionskip}{0cm}    
+  \setlength{\belowcaptionskip}{0.1cm}  
+  \centering
+  \tiny
+  \setlength{\tabcolsep}{4pt}
+  \caption{Comparison with Traditional and Explainable Methods on Original Feature Spaces}
+  \label{tab:method_comparison_combined}
+  \begin{tabular*}{\textwidth}{l @{\extracolsep{\fill}} l r r r r r r}
+    \toprule
+    \multirow{2}{*}{\textbf{Dataset}} & 
+    \multirow{2}{*}{\textbf{Method}} & 
+    \multicolumn{2}{c}{\textbf{Dimension}} & 
+    \multicolumn{2}{c}{\textbf{Accuracy (\%)}} & 
+    \multicolumn{2}{c}{\textbf{F-measure (\%)}} \\
+    \cmidrule(lr){3-4} \cmidrule(lr){5-6} \cmidrule(lr){7-8}
+    & & \textbf{Original} & \textbf{Final} & \textbf{Original} & \textbf{Final} & \textbf{Original} & \textbf{Final} \\
+    \midrule
+    \multirow{9}{*}{\makecell{Magic\\Gamma\\(10,19020)}} &
+    VT & \multirow{9}{*}{10} & 9 & \multirow{9}{*}{76.26} & 81.10 & \multirow{9}{*}{73.12} & 79.47 \\
+    & MI & & 7 & & 79.05 & & 76.54 \\
+    & CHI & & 7 & & 78.29 & & 75.30 \\
+    & RFE & & 7 & & \textbf{83.02} & & \textbf{82.54} \\
+    & RFC & & 9 & & 79.84 & & 77.64 \\
+    & SHAP & & 6 & & 79.40 & & 79.39 \\
+    & LIME & & 8 & & 79.01 & & 79.01 \\
+    & FeatureX & & 8 & & 81.29 & & 81.15 \\
+    & \textbf{CauFeature} & & \textbf{5} & & 82.36 & & 81.60 \\
+    \midrule
+    \multirow{9}{*}{\makecell{Brain\\Method\\(21,79403)}} &
+    VT & \multirow{9}{*}{21} & 20 & \multirow{9}{*}{91.35} & 91.17 & \multirow{9}{*}{91.89} & 91.74 \\
+    & MI & & 15 & & 91.78 & & 92.18 \\
+    & CHI & & 15 & & 92.02 & & 92.36 \\
+    & RFE & & 15 & & 91.59 & & 92.10 \\
+    & RFC & & \textbf{9} & & 92.52 & & 92.81 \\
+    & SHAP & & 19 & & 93.16 & & 93.15 \\
+    & LIME & & 18 & & 93.03 & & 93.02 \\
+    & FeatureX & & 12 & & 93.06 & & 93.05 \\
+    & \textbf{CauFeature} & & \textbf{9} & & \textbf{93.71} & & \textbf{94.01} \\
+    \midrule
+    \multirow{9}{*}{\makecell{Software\\Quality\\(241,4464)}} &
+    VT & \multirow{9}{*}{241} & 199 & \multirow{9}{*}{97.76} & 97.87 & \multirow{9}{*}{97.80} & 97.90 \\
+    & MI & & 180 & & 98.32 & & 98.34 \\
+    & CHI & & 180 & & 97.98 & & 98.01 \\
+    & RFE & & 180 & & 98.43 & & 98.44 \\
+    & RFC & & 54 & & 98.21 & & 98.23 \\
+    & SHAP & & 89 & & 98.58 & & 98.58 \\
+    & LIME & & 137 & & 98.51 & & 98.44 \\
+    & FeatureX & & 97 & & \textbf{98.88} & & \textbf{98.88} \\
+    & \textbf{CauFeature} & & \textbf{25} & & 96.87 & & 96.88 \\
+    \bottomrule
+  \end{tabular*}
+\end{table*}
+
+The broad comparison in Table~\ref{tab:method_comparison_combined} and Fig.~\ref{fig:rq2_broad_method_tradeoff} shows a nuanced pattern. On \textit{MagicGamma}, \textit{CauFeature} selects 5 of 10 features and obtains 82.36\% Accuracy and 81.60\% F-measure, which is close to the strongest traditional result from RFE and stronger than SHAP and LIME under this single-configuration protocol. On \textit{BrainMethod}, it selects 9 of 21 features and achieves the highest Accuracy and F-measure among the compared methods in this table. On \textit{SoftwareQuality}, FeatureX, SHAP, LIME, and several traditional selectors obtain higher predictive scores than \textit{CauFeature}, while \textit{CauFeature} achieves higher DR than these explainable baselines. The figure makes this trade-off explicit: CauFeature tends to occupy the high-DR region, but the best predictive point is dataset-dependent. Thus, the comparison should be interpreted as a compression-performance trade-off rather than as a uniform predictive-performance win.
+
+\begin{figure*}[!t]
+  \centering
+  \includegraphics[width=\textwidth]{figure/rq2_broad_method_tradeoff.pdf}
+  \caption{Broad single-configuration comparison between DR and final F-measure. The dashed line denotes the original full-feature model for each dataset.}
+  \label{fig:rq2_broad_method_tradeoff}
+\end{figure*}
+
+\begin{table*}[!p]
+  \setlength{\abovecaptionskip}{0cm}
+  \setlength{\belowcaptionskip}{0.1cm}
+  \centering
+  \tiny
+  \setlength{\tabcolsep}{2.4pt}
+  \caption{Repeated-Seed FB Comparison with Traditional Baselines}
+  \label{tab:repeated_seed_comparison}
+  \begin{tabular*}{\textwidth}{l @{\extracolsep{\fill}} l c c c c c c}
+    \toprule
+    \textbf{Dataset} & \textbf{Method} & \textbf{Final Dim.} & \textbf{DR (\%)} & \textbf{Accuracy (\%)} & \textbf{F-measure (\%)} & \textbf{$\Delta$Acc. (\%)} & \textbf{$\Delta$F-measure (\%)} \\
+    \midrule
+    \multirow{6}{*}{\makecell{Magic\\Gamma\\(10,19020)}} 
+    & VT & $8.00 \pm 0.00$ & $20.00 \pm 0.00$ & $78.26 \pm 3.95$ & $71.17 \pm 8.01$ & $1.23 \pm 4.61$ & $2.01 \pm 9.33$ \\
+    & MI & $8.00 \pm 0.00$ & $20.00 \pm 0.00$ & $71.37 \pm 1.96$ & $57.05 \pm 4.39$ & $-5.66 \pm 3.45$ & $-12.11 \pm 7.45$ \\
+    & CHI & $8.00 \pm 0.00$ & $20.00 \pm 0.00$ & $78.66 \pm 2.85$ & $72.04 \pm 6.17$ & $1.62 \pm 5.86$ & $2.88 \pm 11.55$ \\
+    & RFE & $8.00 \pm 0.00$ & $20.00 \pm 0.00$ & $77.71 \pm 3.83$ & $70.22 \pm 7.41$ & $0.68 \pm 3.59$ & $1.06 \pm 6.99$ \\
+    & RFC & $8.00 \pm 0.00$ & $20.00 \pm 0.00$ & $78.39 \pm 4.52$ & $71.54 \pm 9.13$ & $1.35 \pm 4.77$ & $2.38 \pm 9.57$ \\
+    & \textbf{CauFeature} & $\mathbf{4.20} \pm \mathbf{0.45}$ & $\mathbf{58.00} \pm \mathbf{4.47}$ & $\mathbf{79.52} \pm \mathbf{1.38}$ & $\mathbf{74.00} \pm \mathbf{2.58}$ & $\mathbf{2.48} \pm \mathbf{4.46}$ & $\mathbf{4.84} \pm \mathbf{8.82}$ \\
+    \midrule
+    \multirow{6}{*}{\makecell{Brain\\Method\\(21,79403)}} 
+    & VT & $16.00 \pm 0.00$ & $23.81 \pm 0.00$ & $91.09 \pm 0.36$ & $85.69 \pm 0.35$ & $-1.86 \pm 0.94$ & $-3.20 \pm 1.19$ \\
+    & MI & $16.00 \pm 0.00$ & $23.81 \pm 0.00$ & $92.48 \pm 0.43$ & $87.83 \pm 0.68$ & $-0.47 \pm 0.71$ & $-1.06 \pm 0.96$ \\
+    & CHI & $16.00 \pm 0.00$ & $23.81 \pm 0.00$ & $92.42 \pm 0.39$ & $87.76 \pm 0.44$ & $-0.53 \pm 0.92$ & $-1.13 \pm 1.26$ \\
+    & RFE & $16.00 \pm 0.00$ & $23.81 \pm 0.00$ & $92.60 \pm 0.77$ & $88.39 \pm 0.95$ & $-0.35 \pm 1.19$ & $-0.50 \pm 1.62$ \\
+    & RFC & $16.00 \pm 0.00$ & $23.81 \pm 0.00$ & $92.80 \pm 0.79$ & $88.65 \pm 1.00$ & $-0.15 \pm 1.21$ & $-0.25 \pm 1.68$ \\
+    & \textbf{CauFeature} & $\mathbf{9.00} \pm \mathbf{1.00}$ & $\mathbf{57.14} \pm \mathbf{4.76}$ & $\mathbf{93.58} \pm \mathbf{0.33}$ & $\mathbf{89.71} \pm \mathbf{0.37}$ & $\mathbf{0.63} \pm \mathbf{0.88}$ & $\mathbf{0.81} \pm \mathbf{1.27}$ \\
+    \midrule
+    \multirow{6}{*}{\makecell{Software\\Quality\\(241,4464)}} 
+    & VT & $181.00 \pm 0.00$ & $24.90 \pm 0.00$ & $98.01 \pm 0.67$ & $96.91 \pm 1.02$ & $0.29 \pm 0.74$ & $0.39 \pm 1.08$ \\
+    & MI & $181.00 \pm 0.00$ & $24.90 \pm 0.00$ & $97.98 \pm 0.65$ & $96.88 \pm 0.97$ & $0.27 \pm 0.68$ & $0.35 \pm 0.99$ \\
+    & CHI & $181.00 \pm 0.00$ & $24.90 \pm 0.00$ & $97.94 \pm 0.56$ & $96.80 \pm 0.86$ & $0.22 \pm 0.93$ & $0.27 \pm 1.35$ \\
+    & RFE & $181.00 \pm 0.00$ & $24.90 \pm 0.00$ & $\mathbf{98.10} \pm \mathbf{0.61}$ & $\mathbf{97.03} \pm \mathbf{0.91}$ & $\mathbf{0.38} \pm \mathbf{0.66}$ & $\mathbf{0.51} \pm \mathbf{0.96}$ \\
+    & RFC & $181.00 \pm 0.00$ & $24.90 \pm 0.00$ & $97.98 \pm 0.69$ & $96.86 \pm 1.06$ & $0.27 \pm 0.74$ & $0.34 \pm 1.09$ \\
+    & \textbf{CauFeature} & $\mathbf{17.60} \pm \mathbf{1.14}$ & $\mathbf{92.70} \pm \mathbf{0.47}$ & $96.30 \pm 0.39$ & $94.37 \pm 0.52$ & $-1.41 \pm 0.78$ & $-2.16 \pm 1.18$ \\
+    \bottomrule
+  \end{tabular*}
+\end{table*}
+
+The repeated-seed FB results in Table~\ref{tab:repeated_seed_comparison} further examine sensitivity to random splits and model training variation. On \textit{MagicGamma}, \textit{CauFeature} reduces the feature dimension from 10 to $4.20 \pm 0.45$ on average, corresponding to $58.00 \pm 4.47\%$ DR, while improving accuracy by $2.48 \pm 4.46\%$ and F-measure by $4.84 \pm 8.82\%$. On \textit{BrainMethod}, it selects $9.00 \pm 1.00$ features and improves both metrics on average. On \textit{SoftwareQuality}, \textit{CauFeature} selects $17.60 \pm 1.14$ features and achieves $92.70 \pm 0.47\%$ DR, while the FB baselines select $181$ features and obtain higher predictive scores. These results show that \textit{CauFeature} provides much stronger adaptive compression, but the trade-off is dataset-dependent rather than uniformly performance-improving.
+
+\begin{table*}[!p]
+  \setlength{\abovecaptionskip}{0cm}
+  \setlength{\belowcaptionskip}{0.1cm}
+  \centering
+  \tiny
+  \setlength{\tabcolsep}{2.4pt}
+  \caption{MD Comparison with Traditional Baselines}
+  \label{tab:matched_dimension_comparison}
+  \begin{tabular*}{\textwidth}{l @{\extracolsep{\fill}} l c c c c c c}
+    \toprule
+    \textbf{Dataset} & \textbf{Method} & \textbf{Final Dim.} & \textbf{DR (\%)} & \textbf{Accuracy (\%)} & \textbf{F-measure (\%)} & \textbf{$\Delta$Acc. (\%)} & \textbf{$\Delta$F-measure (\%)} \\
+    \midrule
+    \multirow{6}{*}{\makecell{Magic\\Gamma}}
+    & VT & $4.20 \pm 0.45$ & $58.00 \pm 4.47$ & $72.45 \pm 1.88$ & $61.33 \pm 3.02$ & $-4.58 \pm 5.38$ & $-7.83 \pm 10.16$ \\
+    & MI & $4.20 \pm 0.45$ & $58.00 \pm 4.47$ & $75.75 \pm 3.05$ & $66.55 \pm 6.23$ & $-1.28 \pm 3.19$ & $-2.61 \pm 6.57$ \\
+    & CHI & $4.20 \pm 0.45$ & $58.00 \pm 4.47$ & $\mathbf{79.52} \pm \mathbf{1.38}$ & $\mathbf{74.00} \pm \mathbf{2.58}$ & $\mathbf{2.48} \pm \mathbf{4.46}$ & $\mathbf{4.84} \pm \mathbf{8.82}$ \\
+    & RFE & $4.20 \pm 0.45$ & $58.00 \pm 4.47$ & $\mathbf{79.52} \pm \mathbf{1.38}$ & $\mathbf{74.00} \pm \mathbf{2.58}$ & $\mathbf{2.48} \pm \mathbf{4.46}$ & $\mathbf{4.84} \pm \mathbf{8.82}$ \\
+    & RFC & $4.20 \pm 0.45$ & $58.00 \pm 4.47$ & $\mathbf{79.52} \pm \mathbf{1.38}$ & $\mathbf{74.00} \pm \mathbf{2.58}$ & $\mathbf{2.48} \pm \mathbf{4.46}$ & $\mathbf{4.84} \pm \mathbf{8.82}$ \\
+    & \textbf{CauFeature} & $\mathbf{4.20} \pm \mathbf{0.45}$ & $\mathbf{58.00} \pm \mathbf{4.47}$ & $\mathbf{79.52} \pm \mathbf{1.38}$ & $\mathbf{74.00} \pm \mathbf{2.58}$ & $\mathbf{2.48} \pm \mathbf{4.46}$ & $\mathbf{4.84} \pm \mathbf{8.82}$ \\
+    \midrule
+    \multirow{6}{*}{\makecell{Brain\\Method}}
+    & VT & $9.00 \pm 1.00$ & $57.14 \pm 4.76$ & $90.71 \pm 0.27$ & $85.34 \pm 0.18$ & $-2.24 \pm 0.79$ & $-3.55 \pm 1.09$ \\
+    & MI & $9.00 \pm 1.00$ & $57.14 \pm 4.76$ & $92.45 \pm 1.03$ & $87.80 \pm 1.33$ & $-0.51 \pm 1.31$ & $-1.09 \pm 1.83$ \\
+    & CHI & $9.00 \pm 1.00$ & $57.14 \pm 4.76$ & $\mathbf{93.76} \pm \mathbf{0.49}$ & $89.55 \pm 0.64$ & $\mathbf{0.80} \pm \mathbf{1.09}$ & $0.66 \pm 1.57$ \\
+    & RFE & $9.00 \pm 1.00$ & $57.14 \pm 4.76$ & $93.57 \pm 0.50$ & $89.65 \pm 0.58$ & $0.61 \pm 1.02$ & $0.75 \pm 1.44$ \\
+    & RFC & $9.00 \pm 1.00$ & $57.14 \pm 4.76$ & $93.28 \pm 0.39$ & $88.94 \pm 0.53$ & $0.33 \pm 0.86$ & $0.05 \pm 1.24$ \\
+    & \textbf{CauFeature} & $\mathbf{9.00} \pm \mathbf{1.00}$ & $\mathbf{57.14} \pm \mathbf{4.76}$ & $93.58 \pm 0.33$ & $\mathbf{89.71} \pm \mathbf{0.37}$ & $0.63 \pm 0.88$ & $\mathbf{0.81} \pm \mathbf{1.27}$ \\
+    \midrule
+    \multirow{6}{*}{\makecell{Software\\Quality}}
+    & VT & $17.60 \pm 1.14$ & $92.70 \pm 0.47$ & $95.88 \pm 0.37$ & $93.68 \pm 0.73$ & $-1.84 \pm 1.17$ & $-2.85 \pm 1.79$ \\
+    & MI & $17.60 \pm 1.14$ & $92.70 \pm 0.47$ & $96.95 \pm 0.57$ & $95.37 \pm 0.84$ & $-0.76 \pm 0.95$ & $-1.16 \pm 1.43$ \\
+    & CHI & $17.60 \pm 1.14$ & $92.70 \pm 0.47$ & $96.73 \pm 0.59$ & $94.99 \pm 0.84$ & $-0.99 \pm 0.93$ & $-1.54 \pm 1.39$ \\
+    & RFE & $17.60 \pm 1.14$ & $92.70 \pm 0.47$ & $\mathbf{97.72} \pm \mathbf{0.75}$ & $\mathbf{96.47} \pm \mathbf{1.13}$ & $\mathbf{0.00} \pm \mathbf{0.90}$ & $\mathbf{-0.06} \pm \mathbf{1.31}$ \\
+    & RFC & $17.60 \pm 1.14$ & $92.70 \pm 0.47$ & $97.40 \pm 0.56$ & $96.01 \pm 0.82$ & $-0.31 \pm 0.85$ & $-0.52 \pm 1.26$ \\
+    & \textbf{CauFeature} & $\mathbf{17.60} \pm \mathbf{1.14}$ & $\mathbf{92.70} \pm \mathbf{0.47}$ & $96.30 \pm 0.39$ & $94.37 \pm 0.52$ & $-1.41 \pm 0.78$ & $-2.16 \pm 1.18$ \\
+    \bottomrule
+  \end{tabular*}
+\end{table*}
+
+The MD comparison in Table~\ref{tab:matched_dimension_comparison} provides a stricter assessment of subset quality by controlling the feature budget. Under this protocol, \textit{CauFeature} is tied with CHI, RFE, and RFC on \textit{MagicGamma} and obtains the largest mean F-measure improvement on \textit{BrainMethod}, although CHI has the highest mean Accuracy on \textit{BrainMethod}. On \textit{SoftwareQuality}, however, RFE and RFC preserve higher F-measure under the same feature budget. Fig.~\ref{fig:rq2_baseline_fmeasure_heatmaps} and Fig.~\ref{fig:rq2_matched_subset_quality} summarize this contrast visually, while Fig.~\ref{fig:compression_performance_tradeoff} shows that \textit{CauFeature}'s main advantage is its adaptive compression-performance balance rather than universal predictive dominance. The large F-measure intervals on \textit{MagicGamma} should be interpreted as seed-sensitive behavior: some splits yield negative or marginal changes, whereas others yield much larger gains because the original-model F-measure is comparatively low on those seeds.
+
+\begin{figure*}[!p]
+  \centering
+  \includegraphics[width=\textwidth]{figure/rq2_baseline_fmeasure_heatmaps.pdf}
+  \caption{F-measure changes under FB and MD baseline protocols.}
+  \label{fig:rq2_baseline_fmeasure_heatmaps}
+\end{figure*}
+
+\begin{figure*}[!p]
+  \centering
+  \includegraphics[width=\textwidth]{figure/rq2_matched_subset_quality.pdf}
+  \caption{Selected-subset F-measure under the MD protocol.}
+  \label{fig:rq2_matched_subset_quality}
+\end{figure*}
+
+\begin{figure*}[!p]
+  \centering
+  \includegraphics[width=\textwidth]{figure/compression_performance_tradeoff.pdf}
+  \caption{Compression-performance trade-off under FB and MD protocols. Bars report DR, while markers and error bars report mean performance changes and standard deviations over five random seeds. The performance-change axis uses a symmetric nonlinear scale so that changes within $\pm 10\%$ remain visually distinguishable while larger MagicGamma intervals are still shown.}
+  \label{fig:compression_performance_tradeoff}
+\end{figure*}
+
+\subsubsection{Results for RQ3: Ablation Study of Framework Components}
+To explicitly address how each phase of \textit{CauFeature} contributes to the final DR and predictive performance, we conducted a repeated-seed ablation study on the three representative datasets. We designed four architecture variants:
+\begin{itemize}
+    \item \textbf{original feature set:} The CNN model trained on the original, unreduced feature set $F$.
+    \item \textbf{after Phase 1 only:} The model trained exclusively on high-contribution features $F_{\text{high-Con}}$ selected via JS divergence, omitting directed dependency and synergistic analysis.
+    \item \textbf{after Phase 1+2:} The model trained on the strict TLDF subset $CF$ derived from the PC-style algorithm and Bootstrap-based stability verification, omitting synergistic incorporation.
+    \item \textbf{after CauFeature:} The proposed complete framework, training on the final subset $FS$ which includes both TLDFs and SIFs.
+\end{itemize}
+
+\begin{table*}[!t]
+  \setlength{\abovecaptionskip}{0cm}    
+  \setlength{\belowcaptionskip}{0.1cm}  
+  \centering
+  \tiny
+  \setlength{\tabcolsep}{3pt}
+  \caption{Repeated-Seed Ablation Study on Representative Datasets}
+  \label{tab:ablation_study}
+  \begin{tabular*}{\textwidth}{l @{\extracolsep{\fill}} l c c c c c c}
+    \toprule
+    \textbf{Dataset} & \textbf{Variant} & \textbf{Dim} & \textbf{DR (\%)} & \textbf{Accuracy (\%)} & \textbf{$\Delta$Acc. (\%)} & \textbf{F-measure (\%)} & \textbf{$\Delta$F-measure (\%)} \\
+    \midrule
+    \multirow{4}{*}{\makecell[l]{MagicGamma}} 
+    & Original & $10.00 \pm 0.00$ & $0.00 \pm 0.00$ & $77.03 \pm 4.39$ & $0.00 \pm 0.00$ & $69.16 \pm 8.14$ & $0.00 \pm 0.00$ \\
+    & Phase 1 & $3.00 \pm 0.00$ & $70.00 \pm 0.00$ & $\mathbf{81.27 \pm 0.31}$ & $\mathbf{4.24 \pm 4.21}$ & $\mathbf{77.35 \pm 0.79}$ & $\mathbf{8.19 \pm 7.98}$ \\
+    & Phase 1+2 & $4.00 \pm 0.00$ & $60.00 \pm 0.00$ & $79.61 \pm 1.49$ & $2.58 \pm 4.62$ & $74.12 \pm 2.73$ & $4.96 \pm 9.03$ \\
+    & \textbf{Full} & $\mathbf{4.20 \pm 0.45}$ & $\mathbf{58.00 \pm 4.47}$ & $79.52 \pm 1.38$ & $2.48 \pm 4.46$ & $74.00 \pm 2.58$ & $4.84 \pm 8.82$ \\
+    \midrule
+    \multirow{4}{*}{\makecell[l]{BrainMethod}} 
+    & Original & $21.00 \pm 0.00$ & $0.00 \pm 0.00$ & $92.95 \pm 0.65$ & $0.00 \pm 0.00$ & $88.89 \pm 1.03$ & $0.00 \pm 0.00$ \\
+    & Phase 1 & $6.00 \pm 1.00$ & $71.43 \pm 4.76$ & $92.08 \pm 0.28$ & $-0.87 \pm 0.71$ & $87.38 \pm 0.59$ & $-1.51 \pm 0.98$ \\
+    & Phase 1+2 & $4.00 \pm 0.00$ & $\mathbf{80.95 \pm 0.00}$ & $86.66 \pm 0.45$ & $-6.29 \pm 1.05$ & $73.76 \pm 0.30$ & $-15.13 \pm 1.07$ \\
+    & \textbf{Full} & $\mathbf{9.00 \pm 1.00}$ & $57.14 \pm 4.76$ & $\mathbf{93.58 \pm 0.33}$ & $\mathbf{0.63 \pm 0.88}$ & $\mathbf{89.71 \pm 0.37}$ & $\mathbf{0.81 \pm 1.27}$ \\
+    \midrule
+    \multirow{4}{*}{\makecell[l]{SoftwareQuality}} 
+    & Original & $241.00 \pm 0.00$ & $0.00 \pm 0.00$ & $\mathbf{97.72 \pm 1.14}$ & $0.00 \pm 0.00$ & $\mathbf{96.53 \pm 1.64}$ & $0.00 \pm 0.00$ \\
+    & Phase 1 & $4.40 \pm 1.14$ & $\mathbf{98.17 \pm 0.47}$ & $94.22 \pm 1.76$ & $-3.49 \pm 1.70$ & $90.91 \pm 3.61$ & $-5.62 \pm 3.24$ \\
+    & Phase 1+2 & $16.00 \pm 0.00$ & $93.36 \pm 0.00$ & $96.57 \pm 0.62$ & $-1.14 \pm 0.77$ & $94.78 \pm 0.93$ & $-1.75 \pm 1.20$ \\
+    & \textbf{Full} & $\mathbf{17.60 \pm 1.14}$ & $92.70 \pm 0.47$ & $96.30 \pm 0.39$ & $-1.41 \pm 0.78$ & $94.37 \pm 0.52$ & $-2.16 \pm 1.18$ \\
+    \bottomrule
+  \end{tabular*}
+\end{table*}
+
+\begin{figure*}[!t]
+  \centering
+  \includegraphics[width=\textwidth]{figure/rq3_ablation_trajectory.pdf}
+  \caption{Ablation trajectory of selected dimensionality and predictive performance across framework phases.}
+  \label{fig:rq3_ablation_trajectory}
+\end{figure*}
+
+Table~\ref{tab:ablation_study} reports the stage-wise ablation results over five random seeds, including the selected dimensionality, DR, predictive metrics, and metric changes relative to the original feature set.
+
+As shown in Table~\ref{tab:ablation_study} and Fig.~\ref{fig:rq3_ablation_trajectory}, the sequential application of the three phases reveals a clear but dataset-dependent optimization trajectory. Phase 1 produces strong compression by selecting high-contribution features identified through JS divergence. On \textit{MagicGamma}, this phase also gives the best mean predictive score, suggesting that contribution-based filtering is already sufficient for this low-dimensional dataset. On \textit{BrainMethod} and \textit{SoftwareQuality}, however, Phase 1 alone removes too many useful features and leads to lower mean performance.
+
+Phase 2 further enforces the TLDF criterion and therefore increases compression in some cases, but it may be too strict when useful features have weak direct path support. This is most visible on \textit{BrainMethod}, where Phase 1+2 obtains the highest DR but the lowest predictive performance among the ablated variants. The complete framework mitigates this issue through Phase 3, which reconsiders SIFs by counterfactual perturbation. As a result, the full model improves over Phase 1+2 on \textit{BrainMethod} and maintains a compact subset on \textit{SoftwareQuality}, although it does not always outperform the original full-feature model. These results support the practical role of the three-phase design while also showing that each phase contributes differently across data regimes.
+
+The ablation results do not imply that every phase monotonically improves both compression and prediction on every dataset. Instead, they show why the complete framework is designed as a balance between contribution-based screening, TLDF filtering, and SIF recovery.
+
+\subsubsection{Results for RQ4: Visual Interpretability for Non-Expert Users}
+While the internal mathematical mechanisms of \textit{CauFeature} (e.g., Jensen-Shannon divergence, PC-style dependency screening, and counterfactual perturbation) are inherently complex, the framework improves accessibility for non-expert users by translating these processes into an intuitive visual format. 
+
+To substantiate this, we present a representative generated DDG in Fig.~\ref{fig:causal_graph}. This visualization is intended to explain the selection process rather than to prove the true causal graph. Through this visualization, non-expert users can observe the logical process of how features are filtered or selected:
+\begin{itemize}
+    \item \textbf{Visualizing Contribution:} The nodes representing features are annotated with their quantitative JS divergence contributions. This allows users to immediately recognize which features exert the highest impact without needing to understand the underlying probability distributions.
+    \item \textbf{Tracing the Filtering Logic:} The directed edges visually map the stable target-local dependency paths used by the selection procedure. Users can identify which features are selected because they participate in stable directed paths toward the target, and which high-contribution features are excluded or reconsidered during the SIF-recovery stage.
+    \item \textbf{Understanding Link Evidence:} The framework uses edge color to record the noise-related evidence associated with directed links derived from Bootstrap-based screening. This visual cue helps users inspect the reliability of the selected subset without treating the graph as a recovered ground-truth causal structure.
+\end{itemize}
+
+By providing this visual mapping, \textit{CauFeature} offers process-level evidence for why features are selected or removed, thereby helping non-experts inspect the feature selection logic.
+
+\begin{figure}[!t]
+  \centering
+  \includegraphics[width=\columnwidth]{figure/causalgraph (1).png}  
+  \caption{Representative visualization of the generated DDG, showing how the implemented procedure records target-local directed dependency paths and feature-selection decisions.}
+  \label{fig:causal_graph}  
+\end{figure}
+
+\subsubsection{Results for RQ5: Computational Complexity Analysis}
+
+To provide empirical support for RQ5, Table~\ref{tab:execution_time} isolates the execution times of all compared methods under the aligned repeated-seed protocol. Runtime values are reported as mean $\pm$ standard deviation over five random seeds and measured under the same hardware and software environment used for the reported experiments. They should be interpreted as implementation-level measurements rather than architecture-independent constants. To answer RQ5 formally, we analyze the computational overhead of \textit{CauFeature}, which is inherently distributed across its three algorithmic phases. Let $n$ be the number of features, $S$ be the sample size, and $C_{\mathcal{M}}$ denote the inference cost of the baseline 1D-CNN. 
+
+\begin{figure*}[!t]
+  \centering
+  \includegraphics[width=\textwidth]{figure/rq5_runtime_comparison.pdf}
+  \caption{Runtime comparison under the repeated-seed FB protocol.}
+  \label{fig:rq5_runtime_comparison}
+\end{figure*}
+
+\begin{table*}[!t]
+  \setlength{\abovecaptionskip}{0cm}    
+  \setlength{\belowcaptionskip}{0.1cm}  
+  \centering
+  \scriptsize
+  \caption{Execution Time Comparison (Seconds, Mean $\pm$ Std)}
+  \label{tab:execution_time}
+  \begin{tabular*}{\textwidth}{l @{\extracolsep{\fill}} c c c}
+    \toprule
+    \textbf{Method} & \textbf{MagicGamma} & \textbf{BrainMethod} & \textbf{SoftwareQuality} \\
+    \midrule
+    VT & $88.37 \pm 13.34$ & $103.23 \pm 5.04$ & $103.50 \pm 16.84$ \\
+    MI & $35.89 \pm 11.78$ & $154.41 \pm 30.58$ & $105.90 \pm 11.26$ \\
+    CHI & $44.17 \pm 10.60$ & $170.20 \pm 26.58$ & $94.35 \pm 14.99$ \\
+    RFE & $50.96 \pm 15.70$ & $199.90 \pm 37.51$ & $103.64 \pm 13.16$ \\
+    RFC & $47.93 \pm 18.12$ & $174.13 \pm 29.30$ & $99.34 \pm 12.52$ \\
+    \midrule
+    \textbf{CauFeature} & $\mathbf{98.71 \pm 15.62}$ & $\mathbf{507.99 \pm 41.93}$ & $\mathbf{796.28 \pm 44.81}$ \\
+    \bottomrule
+  \end{tabular*}
+\end{table*}
+
+In Phase 1, quantifying feature contributions via perturbation requires $\mathcal{O}(n \cdot |P| \cdot C_{\mathcal{M}})$ operations, where $|P|$ is the average size of the perturbation sets. Phase 2 constitutes the primary computational bottleneck. The PC-style algorithm for directed dependency skeleton construction has a worst-case complexity of $\mathcal{O}(n^k)$, where $k$ is the maximum degree of the graph. Generating robust paths via $B_{num}$ Bootstrap iterations scales this to $\mathcal{O}(B_{num} \cdot n^k)$. Finally, Phase 3 evaluates dual-feature synergy, requiring $\mathcal{O}(|CF| \cdot |NF| \cdot C_{\mathcal{M}})$ inferences. 
+
+Consequently, the overall worst-case theoretical time complexity is $\mathcal{O}(n \cdot |P| \cdot C_{\mathcal{M}} + B_{num} \cdot n^k)$. While this cost is higher than simple filter methods, it reflects the additional expense of moving from direct feature ranking to stability-verified, causality-informed dependency analysis. As empirically shown in Table~\ref{tab:execution_time} and Fig.~\ref{fig:rq5_runtime_comparison}, \textit{CauFeature} is slower than most traditional baselines, especially on datasets with more features or more candidate dependency paths. The runtime values are implementation-level measurements under the released evaluation pipeline and should not be interpreted as a direct theoretical complexity ranking among all methods.
+
+\section{CONCLUSION}
+\label{Conclusions}
+
+In this paper, we proposed \textit{CauFeature}, a causality-informed feature selection framework that combines adaptive feature perturbation, Jensen-Shannon divergence, TLDF analysis, and dual-feature interaction verification. Rather than claiming complete causal recovery from observational data, CauFeature uses causality-informed structural constraints and counterfactual perturbation signals to construct compact and interpretable feature subsets for deep neural models. Empirical evaluations across 17 heterogeneous datasets show that \textit{CauFeature} achieves a global absolute DR of 69.72\% (eliminating 373 out of 535 total features) while preserving or improving classification performance on most evaluated datasets. Repeated-seed FB and MD comparisons further indicate that the method's main advantage lies in combining adaptive compactness with competitive same-budget predictive utility on some representative datasets, rather than uniformly dominating every traditional feature-ranking method.
+
+Despite its effectiveness, this study presents certain limitations. First, the computational complexity of the conditional-independence-style tests and dual-feature counterfactual interventions scales non-linearly with the number of features. Consequently, the framework incurs higher execution times than simple filter methods, especially when the dependency graph contains many candidate paths. Broader sensitivity analyses over Bootstrap budgets, stability thresholds, and maximum path lengths would further clarify this efficiency-performance trade-off, but they are left for future work because of the additional computational cost. Second, the initial feature contribution quantification inherently relies on the predictive quality of the baseline 1D-CNN. While our dynamic architecture mitigates this, an inherently under-optimized baseline on extremely noisy data could theoretically propagate biases into the subsequent dependency analysis phase. 
+
+To address these limitations and expand the framework's utility, our future research will focus on four key directions. First, we aim to integrate meta-learning and heuristic pruning strategies to accelerate the dependency analysis module, reducing the computational overhead for high-dimensional applications and enabling broader parameter sensitivity studies. Second, we plan to explore model-agnostic perturbation proxies to better decouple the contribution quantification from the baseline classifier, thereby reducing potential bias propagation. Third, we will evaluate \textit{CauFeature} on synthetic or semi-synthetic datasets with known causal structure, which would allow a direct assessment of whether the generated directed dependency paths align with ground-truth causal relationships. Finally, we will extend \textit{CauFeature} to accommodate unstructured multimodal data and adapt its intervention mechanisms for Graph Neural Networks (GNNs).
+
+\section{ACKNOWLEDGMENTS}
+The authors would like to thank the insightful comments and suggestions of those anonymous reviewers, which have improved the presentation.
+This work is partially supported by Hebei Natural Science Foundation under Grant No.F2023208001, and Hebei Overseas High-level Talent Foundation under Grant No.C20230358.
+
+%The authors would like to express sincere gratitude to Prof. Yang Zhang for his valuable guidance and insightful suggestions throughout the research process. This research did not utilize any artificial intelligence (AI) tools or systems to generate any content presented in this paper.
+% IEEEtran专属参考文献样式（适配IEEE期刊格式）
+\bibliographystyle{IEEEtran}
+% 调用同一目录下的myrefs.bib文件（无需写.bib后缀）
+\bibliography{ref}
+\vspace{-25pt} 
+\begin{IEEEbiographynophoto}{Wenjun Pei}
+received her B.S. degree in Educational Technology from Hunan Normal University. She is currently pursuing an M.S. degree in Computer Science and Technology from Hebei University of Science and Technology. Her research interests include feature selection, causal learning, and interpretability.
+\end{IEEEbiographynophoto}
+\vspace{-25pt} 
+\begin{IEEEbiographynophoto}{Zhilai Zhang}
+received his M.S. degree in Software Engineering from Sichuan University, Chengdu, China, in 2014. He is currently an associate professor with the School of Information Engineering, Handan University, Handan, China. His research interests include embedded instrumentation, image processing, and pattern recognition.
+\end{IEEEbiographynophoto}
+\vspace{-25pt} 
+\begin{IEEEbiographynophoto}{Lingrui Zhu}
+is currently pursuing a B.S. degree in Computer Science at the University of Nottingham Ningbo China. He interned at Zhongtian Technology Group, assisting Hebei Bank in developing operational documentation for financial systems and gaining experience in Java and IoT platform management. He has also excelled in the Laioffer project training. His research interest focuses on algorithm design and optimization.
+\end{IEEEbiographynophoto}
+\vspace{-25pt} 
+\begin{IEEEbiographynophoto}{Yongjie Jiang}
+received his B.S. degree in Data Science and Big Data Technology from Beijing University of Chemical Technology. He is currently pursuing an M.S. degree in Computer Science and Technology from Hebei University of Science and Technology. His research interests include code refactoring, performance prediction, and model interpretability.
+\end{IEEEbiographynophoto}
+\vspace{-25pt} 
+\begin{IEEEbiographynophoto}{Yang Zhang}
+received his Ph.D. degree in computer software and theory from Beijing Institute of Technology, Beijing, China. He is a professor and Muxing Scholar at the School of Information Science and Engineering, Hebei University of Science and Technology, Shijiazhuang, China. His research interests include software refactoring and intelligent software engineering.
+%{Yang Zhang} holds a Ph.D. in Computer Software and Theory from Beijing Institute of Technology. His research interests include intelligent software engineering, artificial intelligence, high-performance computing, and high-reliability software. He is the author of more than 100 publications in core journals and important international conferences both domestically and internationally. 
+\end{IEEEbiographynophoto}
+\vspace{-25pt} 
+
+\end{document}

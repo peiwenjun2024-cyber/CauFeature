@@ -8,9 +8,6 @@ import os
 
 import shared_globals
 
-plt.rcParams['font.sans-serif'] = ['SimHei']  # Keep Chinese font support
-plt.rcParams['axes.unicode_minus'] = False
-
 import time
 from typing import List, Tuple
 from tensorflow.keras.models import load_model
@@ -266,8 +263,74 @@ class CausalFeaturePerturbation:
 
         return max_abs_values
 
+    # def feature_important(self, con_list: List[float]):
+    #     """Feature importance analysis (using JS divergence results)"""
+    #     total_con = sum(con_list)
+    #     if total_con == 0:
+    #         return
+    #
+    #     con_list = [max(0.0, con) for con in con_list]
+    #     total_con = sum(con_list)
+    #
+    #     top_indices = np.argsort(con_list)[-5:][::-1]
+    #     merged_con = [con_list[i] for i in top_indices]
+    #     merged_names = [shared_globals.feature_names[i] for i in top_indices]
+    #     other_con = total_con - sum(merged_con)
+    #     other_con = max(0.0, other_con)
+    #
+    #     merged_con.append(other_con)
+    #     merged_names.append("others")
+    #
+    #     fig, axs = plt.subplots(1, 2, figsize=(10, 4))
+    #     axs[0].bar(merged_names, merged_con, alpha=0.6)
+    #     axs[0].tick_params(axis='x', rotation=70)
+    #     axs[1].pie(merged_con, labels=merged_names, autopct='%1.1f%%')
+    #     plt.tight_layout()
+    #     plt.show()
+
+    # def feature_important(self, con_list: List[float]):
+    #     """Feature importance analysis (only bar chart, IEEE compliant)"""
+    #     total_con = sum(con_list)
+    #     if total_con == 0:
+    #         return
+    #
+    #     con_list = [max(0.0, con) for con in con_list]
+    #     total_con = sum(con_list)
+    #
+    #     # 取前5个重要特征
+    #     top_indices = np.argsort(con_list)[-5:][::-1]
+    #     merged_con = [con_list[i] for i in top_indices]
+    #     merged_names = [shared_globals.feature_names[i] for i in top_indices]
+    #     other_con = total_con - sum(merged_con)
+    #     other_con = max(0.0, other_con)
+    #
+    #     merged_con.append(other_con)
+    #     merged_names.append("others")
+    #
+    #     # IEEE 列宽尺寸：3.5英寸（88mm），高度适配
+    #     fig, ax = plt.subplots(figsize=(3.5, 2.8))
+    #
+    #     # 绘制柱状图（线条艺术：宽度≥1pt，矢量渲染）
+    #     bars = ax.bar(merged_names, merged_con, alpha=0.6, linewidth=1.2)
+    #
+    #     from matplotlib import font_manager
+    #     # 强制所有文本使用8号 Times New Roman
+    #     shared_globals.tnr_font_path = '/usr/share/fonts/truetype/msttcorefonts/Times_New_Roman.ttf'
+    #     shared_globals.tnr_font = font_manager.FontProperties(fname=shared_globals.tnr_font_path, size=8)
+    #     ax.tick_params(axis='x', rotation=70, labelsize=8)
+    #     ax.set_xticklabels(merged_names, fontproperties=shared_globals.tnr_font)
+    #     ax.set_yticklabels(ax.get_yticks(), fontproperties=shared_globals.tnr_font)
+    #
+    #     # 紧凑布局，适配小尺寸
+    #     plt.tight_layout(pad=0.2)
+    #
+    #     # 保存为600dpi矢量图（PDF）+ 位图兜底，满足IEEE分辨率要求
+    #     plt.savefig('feature_importance_bar_ieee.pdf', dpi=600, bbox_inches='tight', format='pdf')
+    #     plt.savefig('feature_importance_bar_ieee.png', dpi=600, bbox_inches='tight', format='png')
+    #     plt.show()
+
     def feature_important(self, con_list: List[float]):
-        """Feature importance analysis (using JS divergence results)"""
+        import matplotlib.ticker as mticker
         total_con = sum(con_list)
         if total_con == 0:
             return
@@ -275,21 +338,47 @@ class CausalFeaturePerturbation:
         con_list = [max(0.0, con) for con in con_list]
         total_con = sum(con_list)
 
-        top_indices = np.argsort(con_list)[-10:][::-1]
+        # 取前5个重要特征
+        top_indices = np.argsort(con_list)[-5:][::-1]
         merged_con = [con_list[i] for i in top_indices]
         merged_names = [shared_globals.feature_names[i] for i in top_indices]
         other_con = total_con - sum(merged_con)
-        other_con = max(0.0, other_con)
-
         merged_con.append(other_con)
         merged_names.append("others")
 
-        fig, axs = plt.subplots(1, 2, figsize=(10, 4))
-        axs[0].bar(merged_names, merged_con, alpha=0.6)
-        axs[0].tick_params(axis='x', rotation=70)
-        axs[1].pie(merged_con, labels=merged_names, autopct='%1.1f%%')
-        plt.tight_layout()
+        # IEEE列宽尺寸（3.5英寸），调高高度避免标签超出
+        fig, ax = plt.subplots(figsize=(3.5, 3.0))
+        ax.bar(merged_names, merged_con, alpha=0.6, linewidth=1.2)
+
+        # -------------------------- 坐标轴核心设置（兼容Matplotlib 3.8） --------------------------
+        # 1. 横轴：Feature + 45度旋转（移除labelproperties，改用遍历标签设字体）
+        ax.set_xlabel('Feature', fontproperties=shared_globals.tnr_font, fontsize=8)
+        ax.tick_params(axis='x', rotation=45, labelsize=8)  # 仅控制旋转和字号，移除不兼容参数
+        # 低版本兼容：逐个设置横轴刻度标签字体
+        for label in ax.get_xticklabels():
+            label.set_fontproperties(shared_globals.tnr_font)
+
+        # 2. 纵轴：Importance + 关闭科学计数法 + 格式化小数
+        ax.set_ylabel('Importance', fontproperties=shared_globals.tnr_font, fontsize=8)
+        ax.tick_params(axis='y', labelsize=8)  # 仅控制字号，移除不兼容参数
+        # 低版本兼容：逐个设置纵轴刻度标签字体
+        for label in ax.get_yticklabels():
+            label.set_fontproperties(shared_globals.tnr_font)
+
+        # 关闭科学计数法 + 控制刻度数量/格式
+        ax.ticklabel_format(style='plain', axis='y')
+        ax.yaxis.set_major_locator(mticker.MaxNLocator(nbins=5))  # 控制刻度数量
+        ax.yaxis.set_major_formatter(mticker.FormatStrFormatter('%.2f'))  # 保留2位小数
+
+        # 3. 调整Y轴范围，避免刻度空荡
+        ax.set_ylim(0, max(merged_con) * 1.2)
+
+        # -------------------------- 布局优化（避免标签超出） --------------------------
+        plt.tight_layout(pad=0.8)  # 增大内边距，防止标签超出画布
+        # 保存600dpi矢量图（满足IEEE分辨率要求）
+        plt.savefig('feature_importance_bar_ieee.pdf', dpi=600, bbox_inches='tight')
         plt.show()
+
 
     def run_perturbation(self):
         """Integrate all steps"""

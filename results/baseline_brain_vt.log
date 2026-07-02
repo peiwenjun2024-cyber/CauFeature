@@ -1,0 +1,799 @@
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1782729294.427745  698919 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 22336 MB memory:  -> device: 0, name: NVIDIA GeForce RTX 3090, pci bus id: 0000:4f:00.0, compute capability: 8.6
+/root/miniconda3/lib/python3.12/site-packages/keras/src/layers/activations/leaky_relu.py:41: UserWarning: Argument `alpha` is deprecated. Use `negative_slope` instead.
+  warnings.warn(
+2026-06-29 18:34:55.664028: E tensorflow/core/framework/node_def_util.cc:680] NodeDef mentions attribute use_unbounded_threadpool which is not in the op definition: Op<name=MapDataset; signature=input_dataset:variant, other_arguments: -> handle:variant; attr=f:func; attr=Targuments:list(type),min=0; attr=output_types:list(type),min=1; attr=output_shapes:list(shape),min=1; attr=use_inter_op_parallelism:bool,default=true; attr=preserve_cardinality:bool,default=false; attr=force_synchronous:bool,default=false; attr=metadata:string,default=""> This may be expected if your graph generating binary is newer  than this binary. Unknown attributes will be ignored. NodeDef: {{node ParallelMapDatasetV2/_15}}
+2026-06-29 18:35:06.849145: E tensorflow/core/framework/node_def_util.cc:680] NodeDef mentions attribute use_unbounded_threadpool which is not in the op definition: Op<name=MapDataset; signature=input_dataset:variant, other_arguments: -> handle:variant; attr=f:func; attr=Targuments:list(type),min=0; attr=output_types:list(type),min=1; attr=output_shapes:list(shape),min=1; attr=use_inter_op_parallelism:bool,default=true; attr=preserve_cardinality:bool,default=false; attr=force_synchronous:bool,default=false; attr=metadata:string,default=""> This may be expected if your graph generating binary is newer  than this binary. Unknown attributes will be ignored. NodeDef: {{node ParallelMapDatasetV2/_15}}
+Running baseline: dataset=BrainMethod.csv, method=VT, seed=0
+Basic Information of Data：
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 79403 entries, 0 to 79402
+Data columns (total 22 columns):
+ #   Column       Non-Null Count  Dtype  
+---  ------       --------------  -----  
+ 0   ALD          79403 non-null  int64  
+ 1   ATFD         79403 non-null  int64  
+ 2   CALIN        79403 non-null  int64  
+ 3   CC           79403 non-null  int64  
+ 4   CCL          79403 non-null  int64  
+ 5   CDISP        79403 non-null  float64
+ 6   CEXT         79403 non-null  int64  
+ 7   CINT         79403 non-null  int64  
+ 8   CM           79403 non-null  int64  
+ 9   CYCLO        79403 non-null  int64  
+ 10  FANIN        79403 non-null  int64  
+ 11  FANOUT       79403 non-null  int64  
+ 12  FANOUTCLASS  79403 non-null  int64  
+ 13  FDP          79403 non-null  float64
+ 14  LAA          79403 non-null  float64
+ 15  LOC          79403 non-null  int64  
+ 16  MAXNESTING   79403 non-null  int64  
+ 17  NOAV         79403 non-null  int64  
+ 18  NOEU         79403 non-null  int64  
+ 19  NOLV         79403 non-null  int64  
+ 20  NOP          79403 non-null  int64  
+ 21  is_brain     79403 non-null  bool   
+dtypes: bool(1), float64(3), int64(18)
+memory usage: 12.8 MB
+In data preprocessing...
+Original data shape：(79403, 21)
+Original data shape：(79403, 22)
+Warning: The order of filtered features has been adjusted to be consistent with the original data
+In data precessing...
+data shape after CauFeature：(79403, 16)
+Features after CauFeature：['ALD', 'ATFD', 'CALIN', 'CC', 'CCL', 'CINT', 'CM', 'CYCLO', 'FANIN', 'FANOUT', 'FANOUTCLASS', 'LAA', 'LOC', 'NOAV', 'NOEU', 'NOLV']
+Class distribution of the training set before sampling：
+is_brain
+0    0.829492
+1    0.170508
+Name: proportion, dtype: float64
+
+Apply SMOTE ENN hybrid sampling...
+Shape of the training set after oversampling: (104115, 16)
+Class distribution after oversampling:
+is_brain
+0    52691
+1    51424
+Name: count, dtype: int64
+Adjust the model parameters according to dimension 16 and sample size 79403 ...
+
+Epoch 5: ReduceLROnPlateau reducing learning rate to 0.0003000000142492354.
+
+Epoch 7: ReduceLROnPlateau reducing learning rate to 9.000000427477062e-05.
+
+Epoch 9: ReduceLROnPlateau reducing learning rate to 2.700000040931627e-05.
+
+Epoch 11: ReduceLROnPlateau reducing learning rate to 8.100000013655517e-06.
+
+Epoch 13: ReduceLROnPlateau reducing learning rate to 2.429999949526973e-06.
+Epoch 13: early stopping
+Restoring model weights from the end of the best epoch: 3.
+2026-06-29 18:36:17.072517: E tensorflow/core/framework/node_def_util.cc:680] NodeDef mentions attribute use_unbounded_threadpool which is not in the op definition: Op<name=MapDataset; signature=input_dataset:variant, other_arguments: -> handle:variant; attr=f:func; attr=Targuments:list(type),min=0; attr=output_types:list(type),min=1; attr=output_shapes:list(shape),min=1; attr=use_inter_op_parallelism:bool,default=true; attr=preserve_cardinality:bool,default=false; attr=force_synchronous:bool,default=false; attr=metadata:string,default=""> This may be expected if your graph generating binary is newer  than this binary. Unknown attributes will be ignored. NodeDef: {{node ParallelMapDatasetV2/_15}}
+[1m  1/497[0m [37m━━━━━━━━━━━━━━━━━━━━[0m [1m1:14[0m 150ms/step[1m 30/497[0m [32m━[0m[37m━━━━━━━━━━━━━━━━━━━[0m [1m0s[0m 2ms/step    [1m 53/497[0m [32m━━[0m[37m━━━━━━━━━━━━━━━━━━[0m [1m0s[0m 2ms/step[1m 76/497[0m [32m━━━[0m[37m━━━━━━━━━━━━━━━━━[0m [1m0s[0m 2ms/step[1m 95/497[0m [32m━━━[0m[37m━━━━━━━━━━━━━━━━━[0m [1m0s[0m 2ms/step[1m111/497[0m [32m━━━━[0m[37m━━━━━━━━━━━━━━━━[0m [1m0s[0m 2ms/step[1m129/497[0m [32m━━━━━[0m[37m━━━━━━━━━━━━━━━[0m [1m0s[0m 2ms/step[1m147/497[0m [32m━━━━━[0m[37m━━━━━━━━━━━━━━━[0m [1m0s[0m 2ms/step[1m165/497[0m [32m━━━━━━[0m[37m━━━━━━━━━━━━━━[0m [1m0s[0m 2ms/step[1m183/497[0m [32m━━━━━━━[0m[37m━━━━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m201/497[0m [32m━━━━━━━━[0m[37m━━━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m219/497[0m [32m━━━━━━━━[0m[37m━━━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m237/497[0m [32m━━━━━━━━━[0m[37m━━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m254/497[0m [32m━━━━━━━━━━[0m[37m━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m272/497[0m [32m━━━━━━━━━━[0m[37m━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m290/497[0m [32m━━━━━━━━━━━[0m[37m━━━━━━━━━[0m [1m0s[0m 3ms/step[1m308/497[0m [32m━━━━━━━━━━━━[0m[37m━━━━━━━━[0m [1m0s[0m 3ms/step[1m326/497[0m [32m━━━━━━━━━━━━━[0m[37m━━━━━━━[0m [1m0s[0m 3ms/step[1m344/497[0m [32m━━━━━━━━━━━━━[0m[37m━━━━━━━[0m [1m0s[0m 3ms/step[1m362/497[0m [32m━━━━━━━━━━━━━━[0m[37m━━━━━━[0m [1m0s[0m 3ms/step[1m380/497[0m [32m━━━━━━━━━━━━━━━[0m[37m━━━━━[0m [1m0s[0m 3ms/step[1m397/497[0m [32m━━━━━━━━━━━━━━━[0m[37m━━━━━[0m [1m0s[0m 3ms/step[1m415/497[0m [32m━━━━━━━━━━━━━━━━[0m[37m━━━━[0m [1m0s[0m 3ms/step[1m433/497[0m [32m━━━━━━━━━━━━━━━━━[0m[37m━━━[0m [1m0s[0m 3ms/step[1m451/497[0m [32m━━━━━━━━━━━━━━━━━━[0m[37m━━[0m [1m0s[0m 3ms/step[1m469/497[0m [32m━━━━━━━━━━━━━━━━━━[0m[37m━━[0m [1m0s[0m 3ms/step[1m491/497[0m [32m━━━━━━━━━━━━━━━━━━━[0m[37m━[0m [1m0s[0m 3ms/step[1m497/497[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 3ms/step[1m497/497[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m2s[0m 3ms/step
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 39044 (\N{CJK UNIFIED IDEOGRAPH-9884}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 27979 (\N{CJK UNIFIED IDEOGRAPH-6D4B}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 26631 (\N{CJK UNIFIED IDEOGRAPH-6807}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 31614 (\N{CJK UNIFIED IDEOGRAPH-7B7E}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 30495 (\N{CJK UNIFIED IDEOGRAPH-771F}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 23454 (\N{CJK UNIFIED IDEOGRAPH-5B9E}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 28151 (\N{CJK UNIFIED IDEOGRAPH-6DF7}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 28102 (\N{CJK UNIFIED IDEOGRAPH-6DC6}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 30697 (\N{CJK UNIFIED IDEOGRAPH-77E9}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 38453 (\N{CJK UNIFIED IDEOGRAPH-9635}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 39044 (\N{CJK UNIFIED IDEOGRAPH-9884}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 27979 (\N{CJK UNIFIED IDEOGRAPH-6D4B}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 26631 (\N{CJK UNIFIED IDEOGRAPH-6807}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 31614 (\N{CJK UNIFIED IDEOGRAPH-7B7E}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 30495 (\N{CJK UNIFIED IDEOGRAPH-771F}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 23454 (\N{CJK UNIFIED IDEOGRAPH-5B9E}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 28151 (\N{CJK UNIFIED IDEOGRAPH-6DF7}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 28102 (\N{CJK UNIFIED IDEOGRAPH-6DC6}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 30697 (\N{CJK UNIFIED IDEOGRAPH-77E9}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 38453 (\N{CJK UNIFIED IDEOGRAPH-9635}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 20934 (\N{CJK UNIFIED IDEOGRAPH-51C6}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 30830 (\N{CJK UNIFIED IDEOGRAPH-786E}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 29575 (\N{CJK UNIFIED IDEOGRAPH-7387}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 35757 (\N{CJK UNIFIED IDEOGRAPH-8BAD}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 32451 (\N{CJK UNIFIED IDEOGRAPH-7EC3}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 39564 (\N{CJK UNIFIED IDEOGRAPH-9A8C}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 35777 (\N{CJK UNIFIED IDEOGRAPH-8BC1}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 25439 (\N{CJK UNIFIED IDEOGRAPH-635F}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 22833 (\N{CJK UNIFIED IDEOGRAPH-5931}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 20934 (\N{CJK UNIFIED IDEOGRAPH-51C6}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 30830 (\N{CJK UNIFIED IDEOGRAPH-786E}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 29575 (\N{CJK UNIFIED IDEOGRAPH-7387}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 35757 (\N{CJK UNIFIED IDEOGRAPH-8BAD}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 32451 (\N{CJK UNIFIED IDEOGRAPH-7EC3}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 39564 (\N{CJK UNIFIED IDEOGRAPH-9A8C}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 35777 (\N{CJK UNIFIED IDEOGRAPH-8BC1}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 25439 (\N{CJK UNIFIED IDEOGRAPH-635F}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 22833 (\N{CJK UNIFIED IDEOGRAPH-5931}) missing from current font.
+  plt.savefig('training_history.png')
+/root/miniconda3/lib/python3.12/site-packages/keras/src/layers/activations/leaky_relu.py:41: UserWarning: Argument `alpha` is deprecated. Use `negative_slope` instead.
+  warnings.warn(
+2026-06-29 18:36:44.584648: E tensorflow/core/framework/node_def_util.cc:680] NodeDef mentions attribute use_unbounded_threadpool which is not in the op definition: Op<name=MapDataset; signature=input_dataset:variant, other_arguments: -> handle:variant; attr=f:func; attr=Targuments:list(type),min=0; attr=output_types:list(type),min=1; attr=output_shapes:list(shape),min=1; attr=use_inter_op_parallelism:bool,default=true; attr=preserve_cardinality:bool,default=false; attr=force_synchronous:bool,default=false; attr=metadata:string,default=""> This may be expected if your graph generating binary is newer  than this binary. Unknown attributes will be ignored. NodeDef: {{node ParallelMapDatasetV2/_15}}
+2026-06-29 18:36:52.043142: E tensorflow/core/framework/node_def_util.cc:680] NodeDef mentions attribute use_unbounded_threadpool which is not in the op definition: Op<name=MapDataset; signature=input_dataset:variant, other_arguments: -> handle:variant; attr=f:func; attr=Targuments:list(type),min=0; attr=output_types:list(type),min=1; attr=output_shapes:list(shape),min=1; attr=use_inter_op_parallelism:bool,default=true; attr=preserve_cardinality:bool,default=false; attr=force_synchronous:bool,default=false; attr=metadata:string,default=""> This may be expected if your graph generating binary is newer  than this binary. Unknown attributes will be ignored. NodeDef: {{node ParallelMapDatasetV2/_15}}
+original accurancy:0.9323090485485801
+original F-measure:0.8929960982795682
+
+Classification Report:
+              precision    recall  f1-score   support
+
+           0    0.97534   0.90913   0.94107     13184
+           1    0.66648   0.88765   0.76133      2697
+
+    accuracy                        0.90548     15881
+   macro avg    0.82091   0.89839   0.85120     15881
+weighted avg    0.92289   0.90548   0.91055     15881
+
+Appended result row to results/baseline_brain_vt.csv
+Running baseline: dataset=BrainMethod.csv, method=VT, seed=1
+Basic Information of Data：
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 79403 entries, 0 to 79402
+Data columns (total 22 columns):
+ #   Column       Non-Null Count  Dtype  
+---  ------       --------------  -----  
+ 0   ALD          79403 non-null  int64  
+ 1   ATFD         79403 non-null  int64  
+ 2   CALIN        79403 non-null  int64  
+ 3   CC           79403 non-null  int64  
+ 4   CCL          79403 non-null  int64  
+ 5   CDISP        79403 non-null  float64
+ 6   CEXT         79403 non-null  int64  
+ 7   CINT         79403 non-null  int64  
+ 8   CM           79403 non-null  int64  
+ 9   CYCLO        79403 non-null  int64  
+ 10  FANIN        79403 non-null  int64  
+ 11  FANOUT       79403 non-null  int64  
+ 12  FANOUTCLASS  79403 non-null  int64  
+ 13  FDP          79403 non-null  float64
+ 14  LAA          79403 non-null  float64
+ 15  LOC          79403 non-null  int64  
+ 16  MAXNESTING   79403 non-null  int64  
+ 17  NOAV         79403 non-null  int64  
+ 18  NOEU         79403 non-null  int64  
+ 19  NOLV         79403 non-null  int64  
+ 20  NOP          79403 non-null  int64  
+ 21  is_brain     79403 non-null  bool   
+dtypes: bool(1), float64(3), int64(18)
+memory usage: 12.8 MB
+In data preprocessing...
+Original data shape：(79403, 21)
+Original data shape：(79403, 22)
+Warning: The order of filtered features has been adjusted to be consistent with the original data
+In data precessing...
+data shape after CauFeature：(79403, 16)
+Features after CauFeature：['ALD', 'ATFD', 'CALIN', 'CC', 'CCL', 'CINT', 'CM', 'CYCLO', 'FANIN', 'FANOUT', 'FANOUTCLASS', 'LAA', 'LOC', 'NOAV', 'NOEU', 'NOLV']
+Class distribution of the training set before sampling：
+is_brain
+0    0.830264
+1    0.169736
+Name: proportion, dtype: float64
+
+Apply SMOTE ENN hybrid sampling...
+Shape of the training set after oversampling: (103074, 16)
+Class distribution after oversampling:
+is_brain
+0    52740
+1    50334
+Name: count, dtype: int64
+Adjust the model parameters according to dimension 16 and sample size 79403 ...
+
+Epoch 5: ReduceLROnPlateau reducing learning rate to 0.0003000000142492354.
+
+Epoch 7: ReduceLROnPlateau reducing learning rate to 9.000000427477062e-05.
+
+Epoch 9: ReduceLROnPlateau reducing learning rate to 2.700000040931627e-05.
+
+Epoch 11: ReduceLROnPlateau reducing learning rate to 8.100000013655517e-06.
+Epoch 12: early stopping
+Restoring model weights from the end of the best epoch: 2.
+2026-06-29 18:37:57.318885: E tensorflow/core/framework/node_def_util.cc:680] NodeDef mentions attribute use_unbounded_threadpool which is not in the op definition: Op<name=MapDataset; signature=input_dataset:variant, other_arguments: -> handle:variant; attr=f:func; attr=Targuments:list(type),min=0; attr=output_types:list(type),min=1; attr=output_shapes:list(shape),min=1; attr=use_inter_op_parallelism:bool,default=true; attr=preserve_cardinality:bool,default=false; attr=force_synchronous:bool,default=false; attr=metadata:string,default=""> This may be expected if your graph generating binary is newer  than this binary. Unknown attributes will be ignored. NodeDef: {{node ParallelMapDatasetV2/_15}}
+[1m  1/497[0m [37m━━━━━━━━━━━━━━━━━━━━[0m [1m1:14[0m 149ms/step[1m 24/497[0m [37m━━━━━━━━━━━━━━━━━━━━[0m [1m1s[0m 2ms/step    [1m 45/497[0m [32m━[0m[37m━━━━━━━━━━━━━━━━━━━[0m [1m1s[0m 2ms/step[1m 63/497[0m [32m━━[0m[37m━━━━━━━━━━━━━━━━━━[0m [1m1s[0m 2ms/step[1m 81/497[0m [32m━━━[0m[37m━━━━━━━━━━━━━━━━━[0m [1m1s[0m 3ms/step[1m 99/497[0m [32m━━━[0m[37m━━━━━━━━━━━━━━━━━[0m [1m1s[0m 3ms/step[1m115/497[0m [32m━━━━[0m[37m━━━━━━━━━━━━━━━━[0m [1m1s[0m 3ms/step[1m133/497[0m [32m━━━━━[0m[37m━━━━━━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m151/497[0m [32m━━━━━━[0m[37m━━━━━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m169/497[0m [32m━━━━━━[0m[37m━━━━━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m187/497[0m [32m━━━━━━━[0m[37m━━━━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m205/497[0m [32m━━━━━━━━[0m[37m━━━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m224/497[0m [32m━━━━━━━━━[0m[37m━━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m242/497[0m [32m━━━━━━━━━[0m[37m━━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m260/497[0m [32m━━━━━━━━━━[0m[37m━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m279/497[0m [32m━━━━━━━━━━━[0m[37m━━━━━━━━━[0m [1m0s[0m 3ms/step[1m298/497[0m [32m━━━━━━━━━━━[0m[37m━━━━━━━━━[0m [1m0s[0m 3ms/step[1m316/497[0m [32m━━━━━━━━━━━━[0m[37m━━━━━━━━[0m [1m0s[0m 3ms/step[1m335/497[0m [32m━━━━━━━━━━━━━[0m[37m━━━━━━━[0m [1m0s[0m 3ms/step[1m354/497[0m [32m━━━━━━━━━━━━━━[0m[37m━━━━━━[0m [1m0s[0m 3ms/step[1m373/497[0m [32m━━━━━━━━━━━━━━━[0m[37m━━━━━[0m [1m0s[0m 3ms/step[1m392/497[0m [32m━━━━━━━━━━━━━━━[0m[37m━━━━━[0m [1m0s[0m 3ms/step[1m411/497[0m [32m━━━━━━━━━━━━━━━━[0m[37m━━━━[0m [1m0s[0m 3ms/step[1m430/497[0m [32m━━━━━━━━━━━━━━━━━[0m[37m━━━[0m [1m0s[0m 3ms/step[1m448/497[0m [32m━━━━━━━━━━━━━━━━━━[0m[37m━━[0m [1m0s[0m 3ms/step[1m467/497[0m [32m━━━━━━━━━━━━━━━━━━[0m[37m━━[0m [1m0s[0m 3ms/step[1m486/497[0m [32m━━━━━━━━━━━━━━━━━━━[0m[37m━[0m [1m0s[0m 3ms/step[1m497/497[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 3ms/step[1m497/497[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m2s[0m 3ms/step
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 39044 (\N{CJK UNIFIED IDEOGRAPH-9884}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 27979 (\N{CJK UNIFIED IDEOGRAPH-6D4B}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 26631 (\N{CJK UNIFIED IDEOGRAPH-6807}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 31614 (\N{CJK UNIFIED IDEOGRAPH-7B7E}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 30495 (\N{CJK UNIFIED IDEOGRAPH-771F}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 23454 (\N{CJK UNIFIED IDEOGRAPH-5B9E}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 28151 (\N{CJK UNIFIED IDEOGRAPH-6DF7}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 28102 (\N{CJK UNIFIED IDEOGRAPH-6DC6}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 30697 (\N{CJK UNIFIED IDEOGRAPH-77E9}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 38453 (\N{CJK UNIFIED IDEOGRAPH-9635}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 39044 (\N{CJK UNIFIED IDEOGRAPH-9884}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 27979 (\N{CJK UNIFIED IDEOGRAPH-6D4B}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 26631 (\N{CJK UNIFIED IDEOGRAPH-6807}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 31614 (\N{CJK UNIFIED IDEOGRAPH-7B7E}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 30495 (\N{CJK UNIFIED IDEOGRAPH-771F}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 23454 (\N{CJK UNIFIED IDEOGRAPH-5B9E}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 28151 (\N{CJK UNIFIED IDEOGRAPH-6DF7}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 28102 (\N{CJK UNIFIED IDEOGRAPH-6DC6}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 30697 (\N{CJK UNIFIED IDEOGRAPH-77E9}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 38453 (\N{CJK UNIFIED IDEOGRAPH-9635}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 20934 (\N{CJK UNIFIED IDEOGRAPH-51C6}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 30830 (\N{CJK UNIFIED IDEOGRAPH-786E}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 29575 (\N{CJK UNIFIED IDEOGRAPH-7387}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 35757 (\N{CJK UNIFIED IDEOGRAPH-8BAD}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 32451 (\N{CJK UNIFIED IDEOGRAPH-7EC3}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 39564 (\N{CJK UNIFIED IDEOGRAPH-9A8C}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 35777 (\N{CJK UNIFIED IDEOGRAPH-8BC1}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 25439 (\N{CJK UNIFIED IDEOGRAPH-635F}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 22833 (\N{CJK UNIFIED IDEOGRAPH-5931}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 20934 (\N{CJK UNIFIED IDEOGRAPH-51C6}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 30830 (\N{CJK UNIFIED IDEOGRAPH-786E}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 29575 (\N{CJK UNIFIED IDEOGRAPH-7387}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 35757 (\N{CJK UNIFIED IDEOGRAPH-8BAD}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 32451 (\N{CJK UNIFIED IDEOGRAPH-7EC3}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 39564 (\N{CJK UNIFIED IDEOGRAPH-9A8C}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 35777 (\N{CJK UNIFIED IDEOGRAPH-8BC1}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 25439 (\N{CJK UNIFIED IDEOGRAPH-635F}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 22833 (\N{CJK UNIFIED IDEOGRAPH-5931}) missing from current font.
+  plt.savefig('training_history.png')
+/root/miniconda3/lib/python3.12/site-packages/keras/src/layers/activations/leaky_relu.py:41: UserWarning: Argument `alpha` is deprecated. Use `negative_slope` instead.
+  warnings.warn(
+2026-06-29 18:38:25.182478: E tensorflow/core/framework/node_def_util.cc:680] NodeDef mentions attribute use_unbounded_threadpool which is not in the op definition: Op<name=MapDataset; signature=input_dataset:variant, other_arguments: -> handle:variant; attr=f:func; attr=Targuments:list(type),min=0; attr=output_types:list(type),min=1; attr=output_shapes:list(shape),min=1; attr=use_inter_op_parallelism:bool,default=true; attr=preserve_cardinality:bool,default=false; attr=force_synchronous:bool,default=false; attr=metadata:string,default=""> This may be expected if your graph generating binary is newer  than this binary. Unknown attributes will be ignored. NodeDef: {{node ParallelMapDatasetV2/_15}}
+2026-06-29 18:38:32.679649: E tensorflow/core/framework/node_def_util.cc:680] NodeDef mentions attribute use_unbounded_threadpool which is not in the op definition: Op<name=MapDataset; signature=input_dataset:variant, other_arguments: -> handle:variant; attr=f:func; attr=Targuments:list(type),min=0; attr=output_types:list(type),min=1; attr=output_shapes:list(shape),min=1; attr=use_inter_op_parallelism:bool,default=true; attr=preserve_cardinality:bool,default=false; attr=force_synchronous:bool,default=false; attr=metadata:string,default=""> This may be expected if your graph generating binary is newer  than this binary. Unknown attributes will be ignored. NodeDef: {{node ParallelMapDatasetV2/_15}}
+original accurancy:0.9341351300295951
+original F-measure:0.8971055763084639
+
+Classification Report:
+              precision    recall  f1-score   support
+
+           0    0.97313   0.91808   0.94480     13135
+           1    0.69160   0.87873   0.77402      2746
+
+    accuracy                        0.91128     15881
+   macro avg    0.83237   0.89841   0.85941     15881
+weighted avg    0.92445   0.91128   0.91527     15881
+
+Appended result row to results/baseline_brain_vt.csv
+Running baseline: dataset=BrainMethod.csv, method=VT, seed=2
+Basic Information of Data：
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 79403 entries, 0 to 79402
+Data columns (total 22 columns):
+ #   Column       Non-Null Count  Dtype  
+---  ------       --------------  -----  
+ 0   ALD          79403 non-null  int64  
+ 1   ATFD         79403 non-null  int64  
+ 2   CALIN        79403 non-null  int64  
+ 3   CC           79403 non-null  int64  
+ 4   CCL          79403 non-null  int64  
+ 5   CDISP        79403 non-null  float64
+ 6   CEXT         79403 non-null  int64  
+ 7   CINT         79403 non-null  int64  
+ 8   CM           79403 non-null  int64  
+ 9   CYCLO        79403 non-null  int64  
+ 10  FANIN        79403 non-null  int64  
+ 11  FANOUT       79403 non-null  int64  
+ 12  FANOUTCLASS  79403 non-null  int64  
+ 13  FDP          79403 non-null  float64
+ 14  LAA          79403 non-null  float64
+ 15  LOC          79403 non-null  int64  
+ 16  MAXNESTING   79403 non-null  int64  
+ 17  NOAV         79403 non-null  int64  
+ 18  NOEU         79403 non-null  int64  
+ 19  NOLV         79403 non-null  int64  
+ 20  NOP          79403 non-null  int64  
+ 21  is_brain     79403 non-null  bool   
+dtypes: bool(1), float64(3), int64(18)
+memory usage: 12.8 MB
+In data preprocessing...
+Original data shape：(79403, 21)
+Original data shape：(79403, 22)
+Warning: The order of filtered features has been adjusted to be consistent with the original data
+In data precessing...
+data shape after CauFeature：(79403, 16)
+Features after CauFeature：['ALD', 'ATFD', 'CALIN', 'CC', 'CCL', 'CINT', 'CM', 'CYCLO', 'FANIN', 'FANOUT', 'FANOUTCLASS', 'LAA', 'LOC', 'NOAV', 'NOEU', 'NOLV']
+Class distribution of the training set before sampling：
+is_brain
+0    0.828815
+1    0.171185
+Name: proportion, dtype: float64
+
+Apply SMOTE ENN hybrid sampling...
+Shape of the training set after oversampling: (104033, 16)
+Class distribution after oversampling:
+is_brain
+0    52648
+1    51385
+Name: count, dtype: int64
+Adjust the model parameters according to dimension 16 and sample size 79403 ...
+
+Epoch 4: ReduceLROnPlateau reducing learning rate to 0.0003000000142492354.
+
+Epoch 6: ReduceLROnPlateau reducing learning rate to 9.000000427477062e-05.
+
+Epoch 8: ReduceLROnPlateau reducing learning rate to 2.700000040931627e-05.
+
+Epoch 10: ReduceLROnPlateau reducing learning rate to 8.100000013655517e-06.
+
+Epoch 12: ReduceLROnPlateau reducing learning rate to 2.429999949526973e-06.
+Epoch 12: early stopping
+Restoring model weights from the end of the best epoch: 2.
+2026-06-29 18:39:37.666056: E tensorflow/core/framework/node_def_util.cc:680] NodeDef mentions attribute use_unbounded_threadpool which is not in the op definition: Op<name=MapDataset; signature=input_dataset:variant, other_arguments: -> handle:variant; attr=f:func; attr=Targuments:list(type),min=0; attr=output_types:list(type),min=1; attr=output_shapes:list(shape),min=1; attr=use_inter_op_parallelism:bool,default=true; attr=preserve_cardinality:bool,default=false; attr=force_synchronous:bool,default=false; attr=metadata:string,default=""> This may be expected if your graph generating binary is newer  than this binary. Unknown attributes will be ignored. NodeDef: {{node ParallelMapDatasetV2/_15}}
+[1m  1/497[0m [37m━━━━━━━━━━━━━━━━━━━━[0m [1m1:13[0m 149ms/step[1m 25/497[0m [32m━[0m[37m━━━━━━━━━━━━━━━━━━━[0m [1m1s[0m 2ms/step    [1m 46/497[0m [32m━[0m[37m━━━━━━━━━━━━━━━━━━━[0m [1m1s[0m 2ms/step[1m 65/497[0m [32m━━[0m[37m━━━━━━━━━━━━━━━━━━[0m [1m1s[0m 2ms/step[1m 83/497[0m [32m━━━[0m[37m━━━━━━━━━━━━━━━━━[0m [1m1s[0m 3ms/step[1m101/497[0m [32m━━━━[0m[37m━━━━━━━━━━━━━━━━[0m [1m1s[0m 3ms/step[1m119/497[0m [32m━━━━[0m[37m━━━━━━━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m137/497[0m [32m━━━━━[0m[37m━━━━━━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m155/497[0m [32m━━━━━━[0m[37m━━━━━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m173/497[0m [32m━━━━━━[0m[37m━━━━━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m191/497[0m [32m━━━━━━━[0m[37m━━━━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m209/497[0m [32m━━━━━━━━[0m[37m━━━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m227/497[0m [32m━━━━━━━━━[0m[37m━━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m245/497[0m [32m━━━━━━━━━[0m[37m━━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m263/497[0m [32m━━━━━━━━━━[0m[37m━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m281/497[0m [32m━━━━━━━━━━━[0m[37m━━━━━━━━━[0m [1m0s[0m 3ms/step[1m300/497[0m [32m━━━━━━━━━━━━[0m[37m━━━━━━━━[0m [1m0s[0m 3ms/step[1m318/497[0m [32m━━━━━━━━━━━━[0m[37m━━━━━━━━[0m [1m0s[0m 3ms/step[1m336/497[0m [32m━━━━━━━━━━━━━[0m[37m━━━━━━━[0m [1m0s[0m 3ms/step[1m354/497[0m [32m━━━━━━━━━━━━━━[0m[37m━━━━━━[0m [1m0s[0m 3ms/step[1m372/497[0m [32m━━━━━━━━━━━━━━[0m[37m━━━━━━[0m [1m0s[0m 3ms/step[1m390/497[0m [32m━━━━━━━━━━━━━━━[0m[37m━━━━━[0m [1m0s[0m 3ms/step[1m408/497[0m [32m━━━━━━━━━━━━━━━━[0m[37m━━━━[0m [1m0s[0m 3ms/step[1m426/497[0m [32m━━━━━━━━━━━━━━━━━[0m[37m━━━[0m [1m0s[0m 3ms/step[1m445/497[0m [32m━━━━━━━━━━━━━━━━━[0m[37m━━━[0m [1m0s[0m 3ms/step[1m463/497[0m [32m━━━━━━━━━━━━━━━━━━[0m[37m━━[0m [1m0s[0m 3ms/step[1m481/497[0m [32m━━━━━━━━━━━━━━━━━━━[0m[37m━[0m [1m0s[0m 3ms/step[1m497/497[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 3ms/step[1m497/497[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m2s[0m 3ms/step
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 39044 (\N{CJK UNIFIED IDEOGRAPH-9884}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 27979 (\N{CJK UNIFIED IDEOGRAPH-6D4B}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 26631 (\N{CJK UNIFIED IDEOGRAPH-6807}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 31614 (\N{CJK UNIFIED IDEOGRAPH-7B7E}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 30495 (\N{CJK UNIFIED IDEOGRAPH-771F}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 23454 (\N{CJK UNIFIED IDEOGRAPH-5B9E}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 28151 (\N{CJK UNIFIED IDEOGRAPH-6DF7}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 28102 (\N{CJK UNIFIED IDEOGRAPH-6DC6}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 30697 (\N{CJK UNIFIED IDEOGRAPH-77E9}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 38453 (\N{CJK UNIFIED IDEOGRAPH-9635}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 39044 (\N{CJK UNIFIED IDEOGRAPH-9884}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 27979 (\N{CJK UNIFIED IDEOGRAPH-6D4B}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 26631 (\N{CJK UNIFIED IDEOGRAPH-6807}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 31614 (\N{CJK UNIFIED IDEOGRAPH-7B7E}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 30495 (\N{CJK UNIFIED IDEOGRAPH-771F}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 23454 (\N{CJK UNIFIED IDEOGRAPH-5B9E}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 28151 (\N{CJK UNIFIED IDEOGRAPH-6DF7}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 28102 (\N{CJK UNIFIED IDEOGRAPH-6DC6}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 30697 (\N{CJK UNIFIED IDEOGRAPH-77E9}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 38453 (\N{CJK UNIFIED IDEOGRAPH-9635}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 20934 (\N{CJK UNIFIED IDEOGRAPH-51C6}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 30830 (\N{CJK UNIFIED IDEOGRAPH-786E}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 29575 (\N{CJK UNIFIED IDEOGRAPH-7387}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 35757 (\N{CJK UNIFIED IDEOGRAPH-8BAD}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 32451 (\N{CJK UNIFIED IDEOGRAPH-7EC3}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 39564 (\N{CJK UNIFIED IDEOGRAPH-9A8C}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 35777 (\N{CJK UNIFIED IDEOGRAPH-8BC1}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 25439 (\N{CJK UNIFIED IDEOGRAPH-635F}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 22833 (\N{CJK UNIFIED IDEOGRAPH-5931}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 20934 (\N{CJK UNIFIED IDEOGRAPH-51C6}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 30830 (\N{CJK UNIFIED IDEOGRAPH-786E}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 29575 (\N{CJK UNIFIED IDEOGRAPH-7387}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 35757 (\N{CJK UNIFIED IDEOGRAPH-8BAD}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 32451 (\N{CJK UNIFIED IDEOGRAPH-7EC3}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 39564 (\N{CJK UNIFIED IDEOGRAPH-9A8C}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 35777 (\N{CJK UNIFIED IDEOGRAPH-8BC1}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 25439 (\N{CJK UNIFIED IDEOGRAPH-635F}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 22833 (\N{CJK UNIFIED IDEOGRAPH-5931}) missing from current font.
+  plt.savefig('training_history.png')
+/root/miniconda3/lib/python3.12/site-packages/keras/src/layers/activations/leaky_relu.py:41: UserWarning: Argument `alpha` is deprecated. Use `negative_slope` instead.
+  warnings.warn(
+2026-06-29 18:40:05.484432: E tensorflow/core/framework/node_def_util.cc:680] NodeDef mentions attribute use_unbounded_threadpool which is not in the op definition: Op<name=MapDataset; signature=input_dataset:variant, other_arguments: -> handle:variant; attr=f:func; attr=Targuments:list(type),min=0; attr=output_types:list(type),min=1; attr=output_shapes:list(shape),min=1; attr=use_inter_op_parallelism:bool,default=true; attr=preserve_cardinality:bool,default=false; attr=force_synchronous:bool,default=false; attr=metadata:string,default=""> This may be expected if your graph generating binary is newer  than this binary. Unknown attributes will be ignored. NodeDef: {{node ParallelMapDatasetV2/_15}}
+2026-06-29 18:40:13.358438: E tensorflow/core/framework/node_def_util.cc:680] NodeDef mentions attribute use_unbounded_threadpool which is not in the op definition: Op<name=MapDataset; signature=input_dataset:variant, other_arguments: -> handle:variant; attr=f:func; attr=Targuments:list(type),min=0; attr=output_types:list(type),min=1; attr=output_shapes:list(shape),min=1; attr=use_inter_op_parallelism:bool,default=true; attr=preserve_cardinality:bool,default=false; attr=force_synchronous:bool,default=false; attr=metadata:string,default=""> This may be expected if your graph generating binary is newer  than this binary. Unknown attributes will be ignored. NodeDef: {{node ParallelMapDatasetV2/_15}}
+original accurancy:0.9265789307978087
+original F-measure:0.8836429218687021
+
+Classification Report:
+              precision    recall  f1-score   support
+
+           0    0.97266   0.91994   0.94556     13227
+           1    0.68585   0.87114   0.76747      2654
+
+    accuracy                        0.91178     15881
+   macro avg    0.82926   0.89554   0.85652     15881
+weighted avg    0.92473   0.91178   0.91580     15881
+
+Appended result row to results/baseline_brain_vt.csv
+Running baseline: dataset=BrainMethod.csv, method=VT, seed=3
+Basic Information of Data：
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 79403 entries, 0 to 79402
+Data columns (total 22 columns):
+ #   Column       Non-Null Count  Dtype  
+---  ------       --------------  -----  
+ 0   ALD          79403 non-null  int64  
+ 1   ATFD         79403 non-null  int64  
+ 2   CALIN        79403 non-null  int64  
+ 3   CC           79403 non-null  int64  
+ 4   CCL          79403 non-null  int64  
+ 5   CDISP        79403 non-null  float64
+ 6   CEXT         79403 non-null  int64  
+ 7   CINT         79403 non-null  int64  
+ 8   CM           79403 non-null  int64  
+ 9   CYCLO        79403 non-null  int64  
+ 10  FANIN        79403 non-null  int64  
+ 11  FANOUT       79403 non-null  int64  
+ 12  FANOUTCLASS  79403 non-null  int64  
+ 13  FDP          79403 non-null  float64
+ 14  LAA          79403 non-null  float64
+ 15  LOC          79403 non-null  int64  
+ 16  MAXNESTING   79403 non-null  int64  
+ 17  NOAV         79403 non-null  int64  
+ 18  NOEU         79403 non-null  int64  
+ 19  NOLV         79403 non-null  int64  
+ 20  NOP          79403 non-null  int64  
+ 21  is_brain     79403 non-null  bool   
+dtypes: bool(1), float64(3), int64(18)
+memory usage: 12.8 MB
+In data preprocessing...
+Original data shape：(79403, 21)
+Original data shape：(79403, 22)
+Warning: The order of filtered features has been adjusted to be consistent with the original data
+In data precessing...
+data shape after CauFeature：(79403, 16)
+Features after CauFeature：['ALD', 'ATFD', 'CALIN', 'CC', 'CCL', 'CINT', 'CM', 'CYCLO', 'FANIN', 'FANOUT', 'FANOUTCLASS', 'LAA', 'LOC', 'NOAV', 'NOEU', 'NOLV']
+Class distribution of the training set before sampling：
+is_brain
+0    0.828579
+1    0.171421
+Name: proportion, dtype: float64
+
+Apply SMOTE ENN hybrid sampling...
+Shape of the training set after oversampling: (103923, 16)
+Class distribution after oversampling:
+is_brain
+0    52633
+1    51290
+Name: count, dtype: int64
+Adjust the model parameters according to dimension 16 and sample size 79403 ...
+
+Epoch 6: ReduceLROnPlateau reducing learning rate to 0.0003000000142492354.
+
+Epoch 8: ReduceLROnPlateau reducing learning rate to 9.000000427477062e-05.
+
+Epoch 10: ReduceLROnPlateau reducing learning rate to 2.700000040931627e-05.
+
+Epoch 12: ReduceLROnPlateau reducing learning rate to 8.100000013655517e-06.
+Epoch 12: early stopping
+Restoring model weights from the end of the best epoch: 2.
+2026-06-29 18:41:16.426870: E tensorflow/core/framework/node_def_util.cc:680] NodeDef mentions attribute use_unbounded_threadpool which is not in the op definition: Op<name=MapDataset; signature=input_dataset:variant, other_arguments: -> handle:variant; attr=f:func; attr=Targuments:list(type),min=0; attr=output_types:list(type),min=1; attr=output_shapes:list(shape),min=1; attr=use_inter_op_parallelism:bool,default=true; attr=preserve_cardinality:bool,default=false; attr=force_synchronous:bool,default=false; attr=metadata:string,default=""> This may be expected if your graph generating binary is newer  than this binary. Unknown attributes will be ignored. NodeDef: {{node ParallelMapDatasetV2/_15}}
+[1m  1/497[0m [37m━━━━━━━━━━━━━━━━━━━━[0m [1m1:15[0m 151ms/step[1m 24/497[0m [37m━━━━━━━━━━━━━━━━━━━━[0m [1m1s[0m 2ms/step    [1m 46/497[0m [32m━[0m[37m━━━━━━━━━━━━━━━━━━━[0m [1m1s[0m 2ms/step[1m 66/497[0m [32m━━[0m[37m━━━━━━━━━━━━━━━━━━[0m [1m1s[0m 2ms/step[1m 85/497[0m [32m━━━[0m[37m━━━━━━━━━━━━━━━━━[0m [1m1s[0m 2ms/step[1m104/497[0m [32m━━━━[0m[37m━━━━━━━━━━━━━━━━[0m [1m0s[0m 2ms/step[1m122/497[0m [32m━━━━[0m[37m━━━━━━━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m140/497[0m [32m━━━━━[0m[37m━━━━━━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m158/497[0m [32m━━━━━━[0m[37m━━━━━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m177/497[0m [32m━━━━━━━[0m[37m━━━━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m196/497[0m [32m━━━━━━━[0m[37m━━━━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m214/497[0m [32m━━━━━━━━[0m[37m━━━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m232/497[0m [32m━━━━━━━━━[0m[37m━━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m250/497[0m [32m━━━━━━━━━━[0m[37m━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m267/497[0m [32m━━━━━━━━━━[0m[37m━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m285/497[0m [32m━━━━━━━━━━━[0m[37m━━━━━━━━━[0m [1m0s[0m 3ms/step[1m303/497[0m [32m━━━━━━━━━━━━[0m[37m━━━━━━━━[0m [1m0s[0m 3ms/step[1m321/497[0m [32m━━━━━━━━━━━━[0m[37m━━━━━━━━[0m [1m0s[0m 3ms/step[1m339/497[0m [32m━━━━━━━━━━━━━[0m[37m━━━━━━━[0m [1m0s[0m 3ms/step[1m357/497[0m [32m━━━━━━━━━━━━━━[0m[37m━━━━━━[0m [1m0s[0m 3ms/step[1m375/497[0m [32m━━━━━━━━━━━━━━━[0m[37m━━━━━[0m [1m0s[0m 3ms/step[1m393/497[0m [32m━━━━━━━━━━━━━━━[0m[37m━━━━━[0m [1m0s[0m 3ms/step[1m411/497[0m [32m━━━━━━━━━━━━━━━━[0m[37m━━━━[0m [1m0s[0m 3ms/step[1m429/497[0m [32m━━━━━━━━━━━━━━━━━[0m[37m━━━[0m [1m0s[0m 3ms/step[1m447/497[0m [32m━━━━━━━━━━━━━━━━━[0m[37m━━━[0m [1m0s[0m 3ms/step[1m465/497[0m [32m━━━━━━━━━━━━━━━━━━[0m[37m━━[0m [1m0s[0m 3ms/step[1m485/497[0m [32m━━━━━━━━━━━━━━━━━━━[0m[37m━[0m [1m0s[0m 3ms/step[1m497/497[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 3ms/step[1m497/497[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m2s[0m 3ms/step
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 39044 (\N{CJK UNIFIED IDEOGRAPH-9884}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 27979 (\N{CJK UNIFIED IDEOGRAPH-6D4B}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 26631 (\N{CJK UNIFIED IDEOGRAPH-6807}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 31614 (\N{CJK UNIFIED IDEOGRAPH-7B7E}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 30495 (\N{CJK UNIFIED IDEOGRAPH-771F}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 23454 (\N{CJK UNIFIED IDEOGRAPH-5B9E}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 28151 (\N{CJK UNIFIED IDEOGRAPH-6DF7}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 28102 (\N{CJK UNIFIED IDEOGRAPH-6DC6}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 30697 (\N{CJK UNIFIED IDEOGRAPH-77E9}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 38453 (\N{CJK UNIFIED IDEOGRAPH-9635}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 39044 (\N{CJK UNIFIED IDEOGRAPH-9884}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 27979 (\N{CJK UNIFIED IDEOGRAPH-6D4B}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 26631 (\N{CJK UNIFIED IDEOGRAPH-6807}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 31614 (\N{CJK UNIFIED IDEOGRAPH-7B7E}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 30495 (\N{CJK UNIFIED IDEOGRAPH-771F}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 23454 (\N{CJK UNIFIED IDEOGRAPH-5B9E}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 28151 (\N{CJK UNIFIED IDEOGRAPH-6DF7}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 28102 (\N{CJK UNIFIED IDEOGRAPH-6DC6}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 30697 (\N{CJK UNIFIED IDEOGRAPH-77E9}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 38453 (\N{CJK UNIFIED IDEOGRAPH-9635}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 20934 (\N{CJK UNIFIED IDEOGRAPH-51C6}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 30830 (\N{CJK UNIFIED IDEOGRAPH-786E}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 29575 (\N{CJK UNIFIED IDEOGRAPH-7387}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 35757 (\N{CJK UNIFIED IDEOGRAPH-8BAD}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 32451 (\N{CJK UNIFIED IDEOGRAPH-7EC3}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 39564 (\N{CJK UNIFIED IDEOGRAPH-9A8C}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 35777 (\N{CJK UNIFIED IDEOGRAPH-8BC1}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 25439 (\N{CJK UNIFIED IDEOGRAPH-635F}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 22833 (\N{CJK UNIFIED IDEOGRAPH-5931}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 20934 (\N{CJK UNIFIED IDEOGRAPH-51C6}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 30830 (\N{CJK UNIFIED IDEOGRAPH-786E}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 29575 (\N{CJK UNIFIED IDEOGRAPH-7387}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 35757 (\N{CJK UNIFIED IDEOGRAPH-8BAD}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 32451 (\N{CJK UNIFIED IDEOGRAPH-7EC3}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 39564 (\N{CJK UNIFIED IDEOGRAPH-9A8C}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 35777 (\N{CJK UNIFIED IDEOGRAPH-8BC1}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 25439 (\N{CJK UNIFIED IDEOGRAPH-635F}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 22833 (\N{CJK UNIFIED IDEOGRAPH-5931}) missing from current font.
+  plt.savefig('training_history.png')
+/root/miniconda3/lib/python3.12/site-packages/keras/src/layers/activations/leaky_relu.py:41: UserWarning: Argument `alpha` is deprecated. Use `negative_slope` instead.
+  warnings.warn(
+2026-06-29 18:41:45.151948: E tensorflow/core/framework/node_def_util.cc:680] NodeDef mentions attribute use_unbounded_threadpool which is not in the op definition: Op<name=MapDataset; signature=input_dataset:variant, other_arguments: -> handle:variant; attr=f:func; attr=Targuments:list(type),min=0; attr=output_types:list(type),min=1; attr=output_shapes:list(shape),min=1; attr=use_inter_op_parallelism:bool,default=true; attr=preserve_cardinality:bool,default=false; attr=force_synchronous:bool,default=false; attr=metadata:string,default=""> This may be expected if your graph generating binary is newer  than this binary. Unknown attributes will be ignored. NodeDef: {{node ParallelMapDatasetV2/_15}}
+2026-06-29 18:41:52.320364: E tensorflow/core/framework/node_def_util.cc:680] NodeDef mentions attribute use_unbounded_threadpool which is not in the op definition: Op<name=MapDataset; signature=input_dataset:variant, other_arguments: -> handle:variant; attr=f:func; attr=Targuments:list(type),min=0; attr=output_types:list(type),min=1; attr=output_shapes:list(shape),min=1; attr=use_inter_op_parallelism:bool,default=true; attr=preserve_cardinality:bool,default=false; attr=force_synchronous:bool,default=false; attr=metadata:string,default=""> This may be expected if your graph generating binary is newer  than this binary. Unknown attributes will be ignored. NodeDef: {{node ParallelMapDatasetV2/_15}}
+original accurancy:0.9194635098545432
+original F-measure:0.8733913279344723
+
+Classification Report:
+              precision    recall  f1-score   support
+
+           0    0.97095   0.92645   0.94818     13242
+           1    0.69994   0.86093   0.77213      2639
+
+    accuracy                        0.91556     15881
+   macro avg    0.83545   0.89369   0.86016     15881
+weighted avg    0.92592   0.91556   0.91892     15881
+
+Appended result row to results/baseline_brain_vt.csv
+Running baseline: dataset=BrainMethod.csv, method=VT, seed=4
+Basic Information of Data：
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 79403 entries, 0 to 79402
+Data columns (total 22 columns):
+ #   Column       Non-Null Count  Dtype  
+---  ------       --------------  -----  
+ 0   ALD          79403 non-null  int64  
+ 1   ATFD         79403 non-null  int64  
+ 2   CALIN        79403 non-null  int64  
+ 3   CC           79403 non-null  int64  
+ 4   CCL          79403 non-null  int64  
+ 5   CDISP        79403 non-null  float64
+ 6   CEXT         79403 non-null  int64  
+ 7   CINT         79403 non-null  int64  
+ 8   CM           79403 non-null  int64  
+ 9   CYCLO        79403 non-null  int64  
+ 10  FANIN        79403 non-null  int64  
+ 11  FANOUT       79403 non-null  int64  
+ 12  FANOUTCLASS  79403 non-null  int64  
+ 13  FDP          79403 non-null  float64
+ 14  LAA          79403 non-null  float64
+ 15  LOC          79403 non-null  int64  
+ 16  MAXNESTING   79403 non-null  int64  
+ 17  NOAV         79403 non-null  int64  
+ 18  NOEU         79403 non-null  int64  
+ 19  NOLV         79403 non-null  int64  
+ 20  NOP          79403 non-null  int64  
+ 21  is_brain     79403 non-null  bool   
+dtypes: bool(1), float64(3), int64(18)
+memory usage: 12.8 MB
+In data preprocessing...
+Original data shape：(79403, 21)
+Original data shape：(79403, 22)
+Warning: The order of filtered features has been adjusted to be consistent with the original data
+In data precessing...
+data shape after CauFeature：(79403, 16)
+Features after CauFeature：['ALD', 'ATFD', 'CALIN', 'CC', 'CCL', 'CINT', 'CM', 'CYCLO', 'FANIN', 'FANOUT', 'FANOUTCLASS', 'LAA', 'LOC', 'NOAV', 'NOEU', 'NOLV']
+Class distribution of the training set before sampling：
+is_brain
+0    0.829555
+1    0.170445
+Name: proportion, dtype: float64
+
+Apply SMOTE ENN hybrid sampling...
+Shape of the training set after oversampling: (103642, 16)
+Class distribution after oversampling:
+is_brain
+0    52695
+1    50947
+Name: count, dtype: int64
+Adjust the model parameters according to dimension 16 and sample size 79403 ...
+
+Epoch 5: ReduceLROnPlateau reducing learning rate to 0.0003000000142492354.
+
+Epoch 7: ReduceLROnPlateau reducing learning rate to 9.000000427477062e-05.
+
+Epoch 9: ReduceLROnPlateau reducing learning rate to 2.700000040931627e-05.
+
+Epoch 11: ReduceLROnPlateau reducing learning rate to 8.100000013655517e-06.
+
+Epoch 13: ReduceLROnPlateau reducing learning rate to 2.429999949526973e-06.
+Epoch 13: early stopping
+Restoring model weights from the end of the best epoch: 3.
+2026-06-29 18:43:03.735306: E tensorflow/core/framework/node_def_util.cc:680] NodeDef mentions attribute use_unbounded_threadpool which is not in the op definition: Op<name=MapDataset; signature=input_dataset:variant, other_arguments: -> handle:variant; attr=f:func; attr=Targuments:list(type),min=0; attr=output_types:list(type),min=1; attr=output_shapes:list(shape),min=1; attr=use_inter_op_parallelism:bool,default=true; attr=preserve_cardinality:bool,default=false; attr=force_synchronous:bool,default=false; attr=metadata:string,default=""> This may be expected if your graph generating binary is newer  than this binary. Unknown attributes will be ignored. NodeDef: {{node ParallelMapDatasetV2/_15}}
+[1m  1/497[0m [37m━━━━━━━━━━━━━━━━━━━━[0m [1m1:16[0m 155ms/step[1m 24/497[0m [37m━━━━━━━━━━━━━━━━━━━━[0m [1m1s[0m 2ms/step    [1m 45/497[0m [32m━[0m[37m━━━━━━━━━━━━━━━━━━━[0m [1m1s[0m 2ms/step[1m 64/497[0m [32m━━[0m[37m━━━━━━━━━━━━━━━━━━[0m [1m1s[0m 2ms/step[1m 82/497[0m [32m━━━[0m[37m━━━━━━━━━━━━━━━━━[0m [1m1s[0m 3ms/step[1m 99/497[0m [32m━━━[0m[37m━━━━━━━━━━━━━━━━━[0m [1m1s[0m 3ms/step[1m117/497[0m [32m━━━━[0m[37m━━━━━━━━━━━━━━━━[0m [1m1s[0m 3ms/step[1m134/497[0m [32m━━━━━[0m[37m━━━━━━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m151/497[0m [32m━━━━━━[0m[37m━━━━━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m168/497[0m [32m━━━━━━[0m[37m━━━━━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m185/497[0m [32m━━━━━━━[0m[37m━━━━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m202/497[0m [32m━━━━━━━━[0m[37m━━━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m219/497[0m [32m━━━━━━━━[0m[37m━━━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m235/497[0m [32m━━━━━━━━━[0m[37m━━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m252/497[0m [32m━━━━━━━━━━[0m[37m━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m268/497[0m [32m━━━━━━━━━━[0m[37m━━━━━━━━━━[0m [1m0s[0m 3ms/step[1m285/497[0m [32m━━━━━━━━━━━[0m[37m━━━━━━━━━[0m [1m0s[0m 3ms/step[1m304/497[0m [32m━━━━━━━━━━━━[0m[37m━━━━━━━━[0m [1m0s[0m 3ms/step[1m324/497[0m [32m━━━━━━━━━━━━━[0m[37m━━━━━━━[0m [1m0s[0m 3ms/step[1m344/497[0m [32m━━━━━━━━━━━━━[0m[37m━━━━━━━[0m [1m0s[0m 3ms/step[1m364/497[0m [32m━━━━━━━━━━━━━━[0m[37m━━━━━━[0m [1m0s[0m 3ms/step[1m383/497[0m [32m━━━━━━━━━━━━━━━[0m[37m━━━━━[0m [1m0s[0m 3ms/step[1m401/497[0m [32m━━━━━━━━━━━━━━━━[0m[37m━━━━[0m [1m0s[0m 3ms/step[1m422/497[0m [32m━━━━━━━━━━━━━━━━[0m[37m━━━━[0m [1m0s[0m 3ms/step[1m443/497[0m [32m━━━━━━━━━━━━━━━━━[0m[37m━━━[0m [1m0s[0m 3ms/step[1m466/497[0m [32m━━━━━━━━━━━━━━━━━━[0m[37m━━[0m [1m0s[0m 3ms/step[1m489/497[0m [32m━━━━━━━━━━━━━━━━━━━[0m[37m━[0m [1m0s[0m 3ms/step[1m497/497[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 3ms/step[1m497/497[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m2s[0m 3ms/step
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 39044 (\N{CJK UNIFIED IDEOGRAPH-9884}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 27979 (\N{CJK UNIFIED IDEOGRAPH-6D4B}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 26631 (\N{CJK UNIFIED IDEOGRAPH-6807}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 31614 (\N{CJK UNIFIED IDEOGRAPH-7B7E}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 30495 (\N{CJK UNIFIED IDEOGRAPH-771F}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 23454 (\N{CJK UNIFIED IDEOGRAPH-5B9E}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 28151 (\N{CJK UNIFIED IDEOGRAPH-6DF7}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 28102 (\N{CJK UNIFIED IDEOGRAPH-6DC6}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 30697 (\N{CJK UNIFIED IDEOGRAPH-77E9}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:541: UserWarning: Glyph 38453 (\N{CJK UNIFIED IDEOGRAPH-9635}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 39044 (\N{CJK UNIFIED IDEOGRAPH-9884}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 27979 (\N{CJK UNIFIED IDEOGRAPH-6D4B}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 26631 (\N{CJK UNIFIED IDEOGRAPH-6807}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 31614 (\N{CJK UNIFIED IDEOGRAPH-7B7E}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 30495 (\N{CJK UNIFIED IDEOGRAPH-771F}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 23454 (\N{CJK UNIFIED IDEOGRAPH-5B9E}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 28151 (\N{CJK UNIFIED IDEOGRAPH-6DF7}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 28102 (\N{CJK UNIFIED IDEOGRAPH-6DC6}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 30697 (\N{CJK UNIFIED IDEOGRAPH-77E9}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:542: UserWarning: Glyph 38453 (\N{CJK UNIFIED IDEOGRAPH-9635}) missing from current font.
+  plt.savefig('confusion_matrix.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 20934 (\N{CJK UNIFIED IDEOGRAPH-51C6}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 30830 (\N{CJK UNIFIED IDEOGRAPH-786E}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 29575 (\N{CJK UNIFIED IDEOGRAPH-7387}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 35757 (\N{CJK UNIFIED IDEOGRAPH-8BAD}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 32451 (\N{CJK UNIFIED IDEOGRAPH-7EC3}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 39564 (\N{CJK UNIFIED IDEOGRAPH-9A8C}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 35777 (\N{CJK UNIFIED IDEOGRAPH-8BC1}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 25439 (\N{CJK UNIFIED IDEOGRAPH-635F}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:562: UserWarning: Glyph 22833 (\N{CJK UNIFIED IDEOGRAPH-5931}) missing from current font.
+  plt.tight_layout()
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 20934 (\N{CJK UNIFIED IDEOGRAPH-51C6}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 30830 (\N{CJK UNIFIED IDEOGRAPH-786E}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 29575 (\N{CJK UNIFIED IDEOGRAPH-7387}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 35757 (\N{CJK UNIFIED IDEOGRAPH-8BAD}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 32451 (\N{CJK UNIFIED IDEOGRAPH-7EC3}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 39564 (\N{CJK UNIFIED IDEOGRAPH-9A8C}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 35777 (\N{CJK UNIFIED IDEOGRAPH-8BC1}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 25439 (\N{CJK UNIFIED IDEOGRAPH-635F}) missing from current font.
+  plt.savefig('training_history.png')
+/root/tmp/CauFeature_icsedemo/model_train_v6.py:563: UserWarning: Glyph 22833 (\N{CJK UNIFIED IDEOGRAPH-5931}) missing from current font.
+  plt.savefig('training_history.png')
+original accurancy:0.9350796549335684
+original F-measure:0.8974500162252376
+
+Classification Report:
+              precision    recall  f1-score   support
+
+           0    0.97472   0.91571   0.94429     13180
+           1    0.68248   0.88412   0.77032      2701
+
+    accuracy                        0.91033     15881
+   macro avg    0.82860   0.89991   0.85731     15881
+weighted avg    0.92502   0.91033   0.91470     15881
+
+Appended result row to results/baseline_brain_vt.csv
+Wrote 5 rows to results/baseline_brain_vt.csv

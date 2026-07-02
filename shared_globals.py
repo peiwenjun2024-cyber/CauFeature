@@ -55,6 +55,7 @@ to_add = []
 
 originalreport={}
 afterreport={}
+tnr_font=None
 
 
 def init():
@@ -69,7 +70,7 @@ def init():
     global redundant_features,redundant_set,corr_matrix,sample_num,features,critical_interaction_sets,causal_graph_builder
     global perturbation_instance,high_contrib_features
     global class_weights,num_classes,all_target_categories
-    global significant_feature_pairs_log,to_add,originalreport,afterreport
+    global significant_feature_pairs_log,to_add,originalreport,afterreport, tnr_font
 
     model = None
     feature_data = None
@@ -125,3 +126,4 @@ def init():
     to_add=[]
     originalreport={}
     afterreport={}
+    tnr_font=None
