@@ -6,6 +6,7 @@
 \usepackage[caption=false,font=normalsize,labelfont=sf,textfont=sf]{subfig}
 \usepackage{textcomp}
 \usepackage{stfloats}
+\usepackage{placeins}
 \usepackage{url}
 \usepackage{verbatim}
 \usepackage{graphicx}
@@ -120,7 +121,7 @@ The remainder of this paper is structured as follows. Section \ref{Design} detai
 \label{Design}
 %\subsection{Overview}
 
-\begin{figure*}
+\begin{figure*}[!t]
   \centering
   \includegraphics[width=0.88\textwidth]{figure/overview20260702.pdf}
   \caption{Overview of CauFeature. TLDF = target-local directed feature; DDG = directed dependency graph; SIF = synergistic interactive feature; CF = the TLDF subset selected by DDG screening; RF = residual features, i.e., $F-CF$; NF = high-contribution residual candidates, i.e., $RF\cap F_H$; FS = final selected subset, i.e., $CF\cup S$; $F_H$ = high-contribution features; $\text{Con}_i$ = contribution score; $J(c,n)$ = joint perturbation score for a candidate pair.}
@@ -425,6 +426,7 @@ Algorithm~\ref{alg:caufeature} summarizes the three phases of \textit{CauFeature
 \end{algorithmic}
 \end{algorithm}
 
+\FloatBarrier
 \section{EVALUATION}
 \label{Evaluation}
 \subsection{Research Questions}
@@ -608,7 +610,7 @@ These results were obtained under a unified adaptive pipeline with fixed default
 \end{figure*}
 Fig.~\ref{fig:rq1_dataset_compression_map} provides a compact view of the results in Table~\ref{tab:dataset_results}. Both panels use DR as the x-axis; the left panel reports Accuracy change and the right panel reports F-measure change after feature selection. Marker color denotes the original dimensionality group, marker size reflects the original feature dimension, and numbered markers correspond to the dataset index shown on the right. Most datasets are located above or close to the zero-change line in at least one metric, indicating that substantial DR is generally achieved without severe predictive degradation, although the two metrics do not always move identically.
 
-\begin{figure*}[!p]
+\begin{figure*}[!t]
   \centering
   \includegraphics[width=\textwidth]{figure/rq1_grouped_summary.pdf}
   \caption{Grouped RQ1 summary by feature dimensionality and sample size. Bars show aggregate DR, while line markers show mean Accuracy and F-measure changes within each group.}
@@ -617,7 +619,7 @@ Fig.~\ref{fig:rq1_dataset_compression_map} provides a compact view of the result
 
 Overall, RQ1 is analyzed from three complementary levels. Table~\ref{tab:dataset_results} provides exact per-dataset values, Fig.~\ref{fig:rq1_dataset_compression_map} shows the dataset-level compression-performance distribution, and Fig.~\ref{fig:rq1_grouped_summary} summarizes how the behavior changes across dimensionality and sample-size groups. This presentation separates exact numerical reporting from visual trend analysis, making it clearer that the method generally compresses strongly while its predictive effect varies across data regimes.
 
-
+\FloatBarrier
 \subsubsection{Results for RQ2}
 RQ2 is evaluated at two levels because the comparison goals are different. The first level includes both traditional selectors and explainable feature attribution methods in a broad single-configuration comparison. The second level uses repeated seeds for traditional baselines to examine stability under auditable feature-budget rules. This separation avoids mixing a broad comparison that includes SHAP, LIME, and FeatureX with stricter repeated-seed protocols that are computationally expensive for model-explanation methods.
 
@@ -625,7 +627,7 @@ Table~\ref{tab:method_comparison_combined} reports the broad comparison with tra
 
 For consistency across tables and figures, DR is used as the primary compression measure throughout the evaluation. It is computed as \((d_{\mathrm{orig}}-d_{\mathrm{sel}})/d_{\mathrm{orig}}\), where larger values indicate stronger compression and smaller selected subsets. However, DR is a compression indicator rather than a standalone performance objective; a useful selector should achieve an appropriate balance between high DR and stable predictive metrics.
 
-\begin{table*}[!p]
+\begin{table*}[!t]
   \setlength{\abovecaptionskip}{0cm}    
   \setlength{\belowcaptionskip}{0.1cm}  
   \centering
@@ -688,7 +690,7 @@ The broad comparison in Table~\ref{tab:method_comparison_combined} and Fig.~\ref
   \label{fig:rq2_broad_method_tradeoff}
 \end{figure*}
 
-\begin{table*}[!p]
+\begin{table*}[!t]
   \setlength{\abovecaptionskip}{0cm}
   \setlength{\belowcaptionskip}{0.1cm}
   \centering
@@ -729,7 +731,7 @@ The broad comparison in Table~\ref{tab:method_comparison_combined} and Fig.~\ref
 
 The repeated-seed FB results in Table~\ref{tab:repeated_seed_comparison} further examine sensitivity to random splits and model training variation. On \textit{MagicGamma}, \textit{CauFeature} reduces the feature dimension from 10 to $4.20 \pm 0.45$ on average, corresponding to $58.00 \pm 4.47\%$ DR, while improving accuracy by $2.48 \pm 4.46\%$ and F-measure by $4.84 \pm 8.82\%$. On \textit{BrainMethod}, it selects $9.00 \pm 1.00$ features and improves both metrics on average. On \textit{SoftwareQuality}, \textit{CauFeature} selects $17.60 \pm 1.14$ features and achieves $92.70 \pm 0.47\%$ DR, while the FB baselines select $181$ features and obtain higher predictive scores. These results show that \textit{CauFeature} provides much stronger adaptive compression, but the trade-off is dataset-dependent rather than uniformly performance-improving.
 
-\begin{table*}[!p]
+\begin{table*}[!t]
   \setlength{\abovecaptionskip}{0cm}
   \setlength{\belowcaptionskip}{0.1cm}
   \centering
@@ -770,27 +772,28 @@ The repeated-seed FB results in Table~\ref{tab:repeated_seed_comparison} further
 
 The MD comparison in Table~\ref{tab:matched_dimension_comparison} provides a stricter assessment of subset quality by controlling the feature budget. Under this protocol, \textit{CauFeature} is tied with CHI, RFE, and RFC on \textit{MagicGamma} and obtains the largest mean F-measure improvement on \textit{BrainMethod}, although CHI has the highest mean Accuracy on \textit{BrainMethod}. On \textit{SoftwareQuality}, however, RFE and RFC preserve higher F-measure under the same feature budget. Fig.~\ref{fig:rq2_baseline_fmeasure_heatmaps} and Fig.~\ref{fig:rq2_matched_subset_quality} summarize this contrast visually, while Fig.~\ref{fig:compression_performance_tradeoff} shows that \textit{CauFeature}'s main advantage is its adaptive compression-performance balance rather than universal predictive dominance. The large F-measure intervals on \textit{MagicGamma} should be interpreted as seed-sensitive behavior: some splits yield negative or marginal changes, whereas others yield much larger gains because the original-model F-measure is comparatively low on those seeds.
 
-\begin{figure*}[!p]
+\begin{figure*}[!t]
   \centering
   \includegraphics[width=\textwidth]{figure/rq2_baseline_fmeasure_heatmaps.pdf}
   \caption{F-measure changes under FB and MD baseline protocols.}
   \label{fig:rq2_baseline_fmeasure_heatmaps}
 \end{figure*}
 
-\begin{figure*}[!p]
+\begin{figure*}[!t]
   \centering
   \includegraphics[width=\textwidth]{figure/rq2_matched_subset_quality.pdf}
   \caption{Selected-subset F-measure under the MD protocol.}
   \label{fig:rq2_matched_subset_quality}
 \end{figure*}
 
-\begin{figure*}[!p]
+\begin{figure*}[!t]
   \centering
   \includegraphics[width=\textwidth]{figure/compression_performance_tradeoff.pdf}
   \caption{Compression-performance trade-off under FB and MD protocols. Bars report DR, while markers and error bars report mean performance changes and standard deviations over five random seeds. The performance-change axis uses a symmetric nonlinear scale so that changes within $\pm 10\%$ remain visually distinguishable while larger MagicGamma intervals are still shown.}
   \label{fig:compression_performance_tradeoff}
 \end{figure*}
 
+\FloatBarrier
 \subsubsection{Results for RQ3: Ablation Study of Framework Components}
 To explicitly address how each phase of \textit{CauFeature} contributes to the final DR and predictive performance, we conducted a repeated-seed ablation study on the three representative datasets. We designed four architecture variants:
 \begin{itemize}
@@ -848,6 +851,7 @@ Phase 2 further enforces the TLDF criterion and therefore increases compression 
 
 The ablation results do not imply that every phase monotonically improves both compression and prediction on every dataset. Instead, they show why the complete framework is designed as a balance between contribution-based screening, TLDF filtering, and SIF recovery.
 
+\FloatBarrier
 \subsubsection{Results for RQ4: Visual Interpretability for Non-Expert Users}
 While the internal mathematical mechanisms of \textit{CauFeature} (e.g., Jensen-Shannon divergence, PC-style dependency screening, and counterfactual perturbation) are inherently complex, the framework improves accessibility for non-expert users by translating these processes into an intuitive visual format. 
 
@@ -867,6 +871,7 @@ By providing this visual mapping, \textit{CauFeature} offers process-level evide
   \label{fig:causal_graph}  
 \end{figure}
 
+\FloatBarrier
 \subsubsection{Results for RQ5: Computational Complexity Analysis}
 
 To provide empirical support for RQ5, Table~\ref{tab:execution_time} isolates the execution times of all compared methods under the aligned repeated-seed protocol. Runtime values are reported as mean $\pm$ standard deviation over five random seeds and measured under the same hardware and software environment used for the reported experiments. They should be interpreted as implementation-level measurements rather than architecture-independent constants. To answer RQ5 formally, we analyze the computational overhead of \textit{CauFeature}, which is inherently distributed across its three algorithmic phases. Let $n$ be the number of features, $S$ be the sample size, and $C_{\mathcal{M}}$ denote the inference cost of the baseline 1D-CNN. 
@@ -904,6 +909,7 @@ In Phase 1, quantifying feature contributions via perturbation requires $\mathca
 
 Consequently, the overall worst-case theoretical time complexity is $\mathcal{O}(n \cdot |P| \cdot C_{\mathcal{M}} + B_{num} \cdot n^k)$. While this cost is higher than simple filter methods, it reflects the additional expense of moving from direct feature ranking to stability-verified, causality-informed dependency analysis. As empirically shown in Table~\ref{tab:execution_time} and Fig.~\ref{fig:rq5_runtime_comparison}, \textit{CauFeature} is slower than most traditional baselines, especially on datasets with more features or more candidate dependency paths. The runtime values are implementation-level measurements under the released evaluation pipeline and should not be interpreted as a direct theoretical complexity ranking among all methods.
 
+\FloatBarrier
 \section{CONCLUSION}
 \label{Conclusions}
 
