@@ -3,6 +3,7 @@ __pycache__/
 *.zip
 *.txt
 results/
+reproduction_clean_*/
 figure/
 paper/
 *.aux
