@@ -1,120 +1,101 @@
 # CauFeature
 
-CauFeature is a causality-informed feature selection framework for compact and interpretable downstream classification. This repository keeps the final experiment code and datasets for reproducing the CauFeature paper experiments.
+CauFeature is a structure-aware feature selection framework for compact and
+interpretable downstream classification. This repository contains the source
+code, datasets, and environment description used to reproduce the paper
+experiments.
 
-## Repository Scope
+## Clean Reproduction Protocol
 
-This GitHub repository intentionally tracks only the source code, datasets, and environment description needed to rerun the experiments. Generated result folders, paper figures, LaTeX paper files, zip archives, and plain-text manifest or requirements files are not versioned.
+`run_clean_experiments.py` is the default experiment entrypoint. It enforces the
+following order for every dataset and seed:
 
-Ignored generated paths include:
+1. Create the outer train/test split from the raw data.
+2. Fit missing-value handling and categorical encoding on the outer-training
+   split, then transform the outer test split.
+3. Create an inner validation split from the outer-training data.
+4. Apply SMOTEENN only to the inner fitting split.
+5. Perform feature selection using outer-training data only.
+6. Use the inner validation split for early stopping and evaluate the outer test
+   split once.
 
-- `results/`
-- `figure/`
-- `paper/`
-- `*.txt`
-- `*.zip`
-
-The method uses directed-dependence evidence for feature selection and does not claim to recover the true data-generating causal graph.
+The output directory includes a `manifest.json` file with the protocol,
+dataset list, seeds, and SHA-256 hashes of the source files used for the run.
 
 ## Environment
-
-Create an environment from:
 
 ```bash
 conda env create -f environment.yml
 conda activate caufeature
 ```
 
-If you use `pip` instead of conda, install the packages listed in `environment.yml`.
-
 ## Core Files
 
-- `model_train_v6.py`: shared CNN training and evaluation pipeline.
-- `feature_perturbation_v7_english.py`: perturbation-based feature contribution estimation.
-- `causal_graph_build_v19_english.py`: directed-dependence graph construction and path verification.
-- `redundantRecover_v10_english.py`: supplementary informative feature recovery.
-- `shared_globals.py`: shared experiment state used by the implementation.
+- `run_clean_experiments.py`: clean entrypoint for RQ1--RQ4 and RQ6.
+- `model_train_v6.py`: shared 1D-CNN construction and training helpers.
+- `feature_perturbation_v7_english.py`: single-feature perturbation and
+  contribution estimation.
+- `causal_graph_build_v19_english.py`: directed dependency graph construction
+  and stable path screening.
+- `redundantRecover_v10_english.py`: dual-feature perturbation and synergistic
+  feature recovery.
+- `run_baseline_experiments.py`: traditional feature-selection helpers used by
+  the clean entrypoint.
+- `run_explainable_experiments.py`: SHAP, LIME, and FeatureX helpers used by the
+  clean entrypoint.
+- `shared_globals.py`: shared state required by the implementation.
 
-## Experiment Entrypoints
+## Default Run
 
-- `run_caufeature_experiments.py`: runs CauFeature on one or more datasets and seeds.
-- `run_baseline_experiments.py`: runs VT, MI, CHI, RFE, and RFC baselines under fixed-budget or matched-dimension settings.
-- `run_ablation_experiments.py`: runs repeated-seed ablation for Original, Phase 1, Phase 1+2, and Full CauFeature.
-- `summarize_caufeature_results.py`: summarizes CauFeature runs.
-- `summarize_experiment_results.py`: summarizes multiple experiment CSV files by dataset and method.
+The default command runs RQ1--RQ3 with seeds 0--4. RQ1 uses the 15 paper
+datasets; RQ2 and RQ3 use `MagicGamma.csv`, `BrainMethod.csv`, and
+`SoftwareQuality.csv`.
 
-Optional single-configuration comparison scripts:
+```bash
+python run_clean_experiments.py
+```
 
-- `shap_cnn.py`
-- `lime_cnn_fast.py`
-- `tff.py`
+Results are written to `reproduction_clean_20260720/raw` by default. Use
+`--output-dir` to select another location.
+
+Run a small RQ1 check before a full experiment:
+
+```bash
+python run_clean_experiments.py \
+  --stages rq1 \
+  --datasets MagicGamma.csv \
+  --seeds 0 \
+  --output-dir results/pilot
+```
+
+Run the repeated-seed ablation:
+
+```bash
+python run_clean_experiments.py \
+  --stages rq4 \
+  --output-dir reproduction_clean_20260720/raw
+```
+
+Generate the fixed BrainMethod process trace used by RQ6:
+
+```bash
+python run_clean_experiments.py \
+  --stages rq6 \
+  --datasets BrainMethod.csv \
+  --seeds 3 \
+  --output-dir reproduction_clean_20260720/raw
+```
 
 ## Datasets
 
-Datasets are stored in `dataset/`. The representative repeated-seed datasets are:
-
-- `MagicGamma.csv`
-- `BrainMethod.csv`
-- `SoftwareQuality.csv`
-
-The cross-dataset analysis uses the dataset list defined in `run_caufeature_experiments.py`.
-
-## Basic Usage
-
-Run CauFeature on the representative datasets:
-
-```bash
-python run_caufeature_experiments.py \
-  --datasets MagicGamma.csv BrainMethod.csv SoftwareQuality.csv \
-  --seeds 0 1 2 3 4 \
-  --output results/caufeature_runs.csv
-```
-
-Run fixed-budget traditional baselines:
-
-```bash
-python run_baseline_experiments.py \
-  --datasets MagicGamma.csv BrainMethod.csv SoftwareQuality.csv \
-  --methods VT MI CHI RFE RFC \
-  --retention 0.75 \
-  --seeds 0 1 2 3 4 \
-  --original-metrics-csv results/caufeature_runs.csv \
-  --output results/baseline_fixed_runs.csv
-```
-
-Run matched-dimension traditional baselines:
-
-```bash
-python run_baseline_experiments.py \
-  --datasets MagicGamma.csv BrainMethod.csv SoftwareQuality.csv \
-  --methods VT MI CHI RFE RFC \
-  --retention 0.75 \
-  --seeds 0 1 2 3 4 \
-  --original-metrics-csv results/caufeature_runs.csv \
-  --matched-dimensions-csv results/caufeature_runs.csv \
-  --output results/baseline_matched_runs.csv
-```
-
-Run repeated-seed ablation:
-
-```bash
-python run_ablation_experiments.py \
-  --datasets MagicGamma.csv BrainMethod.csv SoftwareQuality.csv \
-  --seeds 0 1 2 3 4 \
-  --output results/ablation_runs.csv \
-  --resume
-```
-
-Summarize completed runs:
-
-```bash
-python summarize_experiment_results.py \
-  --inputs results/caufeature_runs.csv results/baseline_fixed_runs.csv results/baseline_matched_runs.csv \
-  --output results/experiment_summary.csv
-```
+Datasets are stored in `dataset/`. The RQ1 dataset list is defined by
+`RQ1_DATASETS` in `run_clean_experiments.py`; the default list contains the 15
+datasets reported in the paper.
 
 ## Notes
 
-- `reduction_pct` is computed as `(original_dim - selected_dim) / original_dim * 100`.
-- Higher dimensionality reduction means stronger compression, but it should be interpreted together with Accuracy and F-measure.
-- Runtime values are implementation-level measurements, not theoretical complexity rankings.
+- Generated results, figures, paper files, archives, and logs are not versioned.
+- `reduction_pct` is `(original_dim - selected_dim) / original_dim * 100`.
+- Compression should be interpreted together with Accuracy and F-measure.
+- Runtime values are implementation-level measurements, not cross-method
+  complexity rankings.
