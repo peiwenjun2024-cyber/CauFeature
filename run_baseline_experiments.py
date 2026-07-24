@@ -7,6 +7,8 @@ import traceback
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple
 
+import pandas as pd
+
 os.environ["OMP_NUM_THREADS"] = "1"
 os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
 os.environ.setdefault("MKL_NUM_THREADS", "1")
@@ -25,13 +27,10 @@ DEFAULT_METHODS = ["VT", "MI", "CHI", "RFE", "RFC"]
 
 
 def _encode_features_and_target(data_path: Path):
-    import pandas as pd
     from sklearn.preprocessing import LabelEncoder
+    from model_train_v6 import read_tabular_data
 
-    try:
-        df = pd.read_csv(data_path, encoding="utf-8")
-    except UnicodeDecodeError:
-        df = pd.read_csv(data_path, encoding="gbk")
+    df = read_tabular_data(data_path)
     x = df.iloc[:, :-1].copy()
     y = df.iloc[:, -1].copy()
 
