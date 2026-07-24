@@ -181,29 +181,21 @@ class CausalFeaturePerturbation:
             return j, [], 0.0
 
     def calculate_contributions(self, x_list: List[List[float]]) -> Tuple[List[List[float]], List[float]]:
-        """Parallel calculation of feature contributions (using JS divergence)"""
+        """Calculate feature contributions with serialized model inference."""
         y_list = [[] for _ in shared_globals.feature_names]
         con_list = [0.0 for _ in shared_globals.feature_names]
         start = time.perf_counter()
 
         features = shared_globals.feature_names
-        max_workers = min(8, os.cpu_count())
-        print(f"Using {max_workers} threads for parallel feature contribution calculation...")
+        print("Using serialized model inference for feature contribution calculation...")
 
-        with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            futures = []
-            for j, col in enumerate(features):
-                values = x_list[j]
-                if values:
-                    futures.append(executor.submit(
-                        self._process_single_feature,
-                        j, col, values
-                    ))
-
-            for future in tqdm(as_completed(futures), total=len(futures), desc="Calculating feature contributions"):
-                j, y, con = future.result()
-                y_list[j] = y
-                con_list[j] = con
+        for j, col in tqdm(enumerate(features), total=len(features), desc="Calculating feature contributions"):
+            values = x_list[j]
+            if not values:
+                continue
+            _, y, con = self._process_single_feature(j, col, values)
+            y_list[j] = y
+            con_list[j] = con
 
         end = time.perf_counter()
         print(f"Total time for feature perturbation experiments: {end - start:.2f} seconds")
