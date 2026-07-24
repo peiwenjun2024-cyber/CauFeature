@@ -11,15 +11,7 @@ import tqdm
 
 
 class PathShapleyModule:
-    """
-    SIF recovery module based on dual-feature perturbation.
-
-    The historical class name is kept for compatibility with the released
-    code. In the paper, this module corresponds to Phase 3: SIF Recovery and
-    Final Subset Construction. It does not claim to recover a true causal
-    structure; it tests whether high-contribution residual candidates interact
-    with selected target-local directed features (TLDFs).
-    """
+    """Path Shapley value calculation module (with path length decay functionality)"""
 
     def __init__(self, log_verbose: bool = False, decay_type: str = "inverse", alpha: float = 0.8):
         self.decay_type = decay_type
@@ -79,8 +71,7 @@ class PathShapleyModule:
 
     def run_redundant_check(self):
         """
-        Integrate residual-feature identification, pair evaluation, and SIF
-        recovery into the final selected subset.
+        Integrate complete workflow of redundant feature identification, combination evaluation, and validation
         """
 
         self.get_redundant_features()
@@ -94,12 +85,7 @@ class PathShapleyModule:
 
     def get_redundant_features(self):
         """
-        Compute residual features (RF) by subtracting the selected TLDF subset
-        from the original feature set.
-
-        The variable name ``redundant_features`` is retained for compatibility
-        with earlier code. These features should be interpreted as residual
-        candidates rather than as proven redundant or non-causal variables.
+        Subtract features involved in valid paths from global features to get redundant features
         """
 
         shared_globals.redundant_features = list(
@@ -109,12 +95,8 @@ class PathShapleyModule:
 
     def run_double_feature_perturbation(self, threshold: float) -> None:
         """
-        Perform dual-feature perturbation between selected TLDFs and
-        high-contribution residual candidates (NF) to recover SIFs.
-
-        :param threshold: Threshold for the joint effect to exceed the sum of
-        individual effects (e.g., 1.2 means the joint effect must exceed 1.2x
-        the sum of individual effects).
+        Perform dual-feature perturbation: verify interaction effects between causal and non-causal subsets, extend causal subset
+        :param threshold: Threshold for joint effect to exceed sum of individual effects (e.g., 1.2 means joint effect must exceed 1.2x sum of individuals)
         """
         shared_globals.significant_feature_pairs_log = []
 
@@ -148,7 +130,6 @@ class PathShapleyModule:
 
         to_add = set()
         to_add_lock = threading.Lock()
-        max_workers = min(os.cpu_count(), len(feature_pairs))
 
         def process_pair(c_feat, nc_feat):
 
@@ -203,22 +184,18 @@ class PathShapleyModule:
                     return nc_feat
             return None
 
-        with ThreadPoolExecutor(max_workers=max_workers) as executor:
-
-            futures = {
-                executor.submit(process_pair, c_feat, nc_feat): (c_feat, nc_feat)
-                for c_feat, nc_feat in feature_pairs
-            }
-
-            for future in tqdm.tqdm(
-                    as_completed(futures),
-                    total=len(futures),
-                    desc="Dual-feature perturbation evaluation (parallel)"
-            ):
-                result = future.result()
-                if result is not None:
-                    with to_add_lock:
-                        to_add.add(result)
+        # TensorFlow/Keras predictions are not safe to invoke concurrently on the
+        # shared model instance. Each pair still uses the same perturbation batch
+        # and decision rule, but model inference is serialized for reproducibility.
+        for c_feat, nc_feat in tqdm.tqdm(
+                feature_pairs,
+                total=len(feature_pairs),
+                desc="Dual-feature perturbation evaluation"
+        ):
+            result = process_pair(c_feat, nc_feat)
+            if result is not None:
+                with to_add_lock:
+                    to_add.add(result)
 
         shared_globals.to_add=to_add
 
