@@ -58,9 +58,23 @@ def set_seed(seed):
     os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
     os.environ['TF_DETERMINISTIC_OPS'] = '1'  # set random seed for tensorflow-gpu
 
+
+def read_tabular_data(datapath):
+    """Read comma- and semicolon-delimited datasets through one shared policy."""
+    path = str(datapath)
+    for encoding in ("utf-8", "gbk"):
+        try:
+            with open(path, "r", encoding=encoding) as handle:
+                header = handle.readline()
+            separator = ";" if header.count(";") > header.count(",") else ","
+            return pd.read_csv(path, encoding=encoding, sep=separator)
+        except UnicodeDecodeError:
+            continue
+    raise UnicodeDecodeError("unknown", b"", 0, 1, f"Unable to decode {path}")
+
 def data_pre_process(datapath):
     # 读取数据
-    df = pd.read_csv(datapath, encoding="gbk")
+    df = read_tabular_data(datapath)
     shared_globals.data = df
     x, y = df.iloc[:, 0:-1], df.iloc[:, -1]
     shared_globals.feature_data = x  # 保存预处理后的特征数据（x为DataFrame）
@@ -97,7 +111,7 @@ def load_and_preprocess_data(datapath, filtered_features=None):
                 df[col] = df[col].str.decode('utf-8')
     else:
         # 读取数据
-        df = pd.read_csv(datapath, encoding="utf-8")  # delimiter=';',
+        df = read_tabular_data(datapath)
     #df = df.sample(frac=0.1, random_state=shared_globals.random_seed)
     shared_globals.data=df
 
