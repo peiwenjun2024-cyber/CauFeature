@@ -1,4 +1,22 @@
-# CauFeature experiment reproduction
+# CauFeature: Causal-Discovery-Inspired Explainable Feature Selection
+
+**Wenjun Pei, Yang Zhang, Chunhao Dong, and Ying Chen**
+
+School of Information Science and Engineering, Hebei University of Science and Technology, Shijiazhuang, Hebei, China
+
+Corresponding author Yang Zhang · <zhangyang@hebust.edu.cn>
+
+## Project overview
+
+CauFeature selects a compact set of input features and records the evidence for retaining them. It estimates individual contributions with feature-aware perturbations, uses target-local dependency screening to find short paths to the prediction target, and tests whether joint perturbations justify recovering high-contribution features outside the core subset.
+
+This repository contains the implementation, the 15 datasets used in the paper, and reproduction workflows for RQ1–RQ8. [Paper datasets](dataset/) · [Run from public data](PUBLIC_DATA.md)
+
+## Abstract
+
+Feature selection aims to reduce the number of input features while preserving predictive performance. However, individual contribution scores overlook target-related dependency paths, whereas unrestricted path retention may introduce weakly relevant variables and enlarge subsets. We propose CauFeature, a causal-discovery-inspired framework integrating model-response contributions, target-local dependency screening, and selective synergistic recovery. Perturbations based on feature attributes quantify single-feature contributions, while bootstrap-derived baseline vectors assess the sensitivity of contribution scores to sampling-induced baseline variation. We construct an undirected dependency skeleton using regularized partial-correlation tests and use contribution scores adjusted for sensitivity to the perturbation baseline to select short paths ending at the prediction target. These paths may retain intermediate features below the individual contribution threshold. High-contribution features outside the core are reassessed through joint perturbations with core features, and contribution-adaptive thresholds determine their recovery. Across 15 public datasets, CauFeature achieves an unweighted mean dimensionality reduction of 30.53%, while maintaining competitive predictive performance, with mean changes of +0.10 pp in accuracy and +0.06 pp in F-measure relative to original features. Comparisons with explainable and conventional selectors reveal favorable compression–performance trade-offs on several datasets. Real-data ablations examined how structural screening and restrictions on synergistic recovery affect subset compactness, predictive performance, and search workload. Validation on datasets with known dependency structures characterized the coverage–noise trade-off of contribution-guided path screening. Robustness analyses further examined alternative scoring models and selection stability across random seeds. A complete case trace demonstrates how the selected subset can be reconstructed from contribution, path, and recovery records.
+
+## Reproduction setup
 
 Run these commands with Bash from the unpacked package root. Use the original
 AutoDL environment for the frozen RF/CNN evaluation. On a new environment,
