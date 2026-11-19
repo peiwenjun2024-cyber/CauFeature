@@ -5,6 +5,12 @@ interpretable downstream classification. This repository contains the source
 code, datasets, and environment description used to reproduce the paper
 experiments.
 
+## 1026 Reproduction Package
+
+The 1026 package provides the RQ1–RQ8 code and the public-data workflow
+for RQ6 Table 9. [Reproduction instructions](reproduction/1026/README.md)
+· [Run from public data](reproduction/1026/PUBLIC_DATA.md)
+
 ## Clean Reproduction Protocol
 
 `run_clean_experiments.py` is the default experiment entrypoint. It enforces the

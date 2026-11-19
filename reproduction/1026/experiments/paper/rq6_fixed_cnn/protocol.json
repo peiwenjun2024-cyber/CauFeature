@@ -1,0 +1,22 @@
+{
+  "protocol": "unscaled-scorers-main-cnn-reference-cnn-evaluation-v2-20261110",
+  "preparation_revision": 2,
+  "datasets": ["BankFull", "OnlineShoppers", "StudentsAcademic", "Optdigits", "SoftwareQuality"],
+  "seed_ids": "S01--S30; all 30 retained; no retrospective exclusions",
+  "reference": "Frozen main CNN P1 model/scores, P2 core, P3 final subset and CNN evaluation; no CNN scorer retraining",
+  "alternatives": "Frozen unscaled MLP and RF from p1_model_sensitivity_20261023; no P1 retraining",
+  "selector_preprocessing": "Original shared encoded/imputed UNSCALED inputs; original identical internal split, SMOTE-ENN observations, raw baselines, supports and bootstrap samples; no StandardScaler in P1 or P3",
+  "p2": "Share only score-independent shallow alpha=0.01 skeleton; rerun scorer-specific frontier and restricted deep screening; path length3, start percentile75, uncertain fraction0.25; original ordered first-exit kernel and adaptive stop",
+  "p3": "Use same frozen scorer as P1; native Keras interface for main CNN, raw-input adapter only for MLP/RF; original high-residual x core candidate rule, product ordering, top200 pair budget, 10000 perturbation-combination budget, coefficient0.4, multiplier1, skip recovered residuals, strict response > threshold; seed once before restoring historical context, preserve its post-context numpy/Python RNG states across diagnostic replay, no extra reseeding before the pair loop",
+  "runtime_imports": "Frozen runtime directory takes import precedence; imported implementation paths and SHA must match protocol lock",
+  "p3_parity": "Recompute Con through actual P3 adapter before recovery; require allclose rtol1e-5 atol1e-7; failure blocks run and is retained; no automatic tolerance relaxation",
+  "main_reference_gate": "All five S01 cases rerun original-CNN P2 kernel and P3; assert ordered core, CI counts against saved default and final set against main; all gates required before alternatives",
+  "evaluation": "ONLY independently trained CNN; execute exact archived scaled_eval function by AST extraction, never import the historical top-level launcher; train-only encoding/imputation/StandardScaler followed by SMOTE-ENN; original outer splits, production architecture and training rules",
+  "reuse": "Full/CNN reference reuse from frozen main full_eval/selected_eval; alternative reuse only exact ordered features, same dataset/seed/split, validated frozen evaluator protocol; all source paths and SHA recorded",
+  "statistics": "Mean and sampleSD across all30 seeds; Delta Acc and macro-F1 paired per seed vs same-seed full-feature CNN, pp; reduction paired against original dimension; descriptive95% paired t CI with overlapping-split caveat; no equivalence/noninferiority claim; n and all missing/failed runs reported",
+  "result_location": "/root/autodl-tmp/fast30_final/results/unscaled_scoring_cnn_eval_20261110",
+  "resume": "Atomic stage outputs, fingerprint+SHA receipts, global dispatcher and per-job advisory locks, append-only attempt logs; resume at completed-stage boundaries; unfinished P2/P3/evaluation stage restarts, not inside a CI level or training epoch",
+  "launch": "run.py defaults to a read-only plan; actual jobs require explicit --execute; no auto-start, timers, cron or background service",
+  "resources": "Default one worker, at most two; one numerical thread per worker, RF n_jobs1; neural operations require GPU and never silently fall back to CPU training",
+  "historical_sources": "Read-only; all new outputs separate; frozen source hashes and package versions checked; changes require a new campaign/protocol rather than overwriting results"
+}

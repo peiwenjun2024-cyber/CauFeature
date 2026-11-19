@@ -1,0 +1,10 @@
+# Install only for experiment modules that require them.
+shap==0.45.1
+lime==0.2.0.1
+statsmodels
+seaborn
+torch
+psutil
+PyImpetus==4.1.1
+networkx==3.6.1
+Pillow==12.2.0
